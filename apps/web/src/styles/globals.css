@@ -104,7 +104,6 @@
     color: var(--fg);
     font-family: var(--font-sans);
     line-height: 1.65;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Smooth transitions for theme-aware elements */
@@ -148,5 +147,42 @@
   .pattern-dots {
     background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+}
+
+/* ===== View Transition: Theme Toggle Ripple ===== */
+@keyframes theme-expand {
+  from {
+    clip-path: circle(
+      0px at var(--theme-toggle-x) var(--theme-toggle-y)
+    );
+  }
+  to {
+    clip-path: circle(
+      var(--theme-toggle-radius) at var(--theme-toggle-x) var(--theme-toggle-y)
+    );
+  }
+}
+
+/* Disable default isolation so old/new layers don't crossfade */
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: theme-expand 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 9999;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }
