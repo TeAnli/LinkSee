@@ -30,7 +30,10 @@ export function TopBar() {
     <TooltipProvider delayDuration={300}>
       <header
         className="fixed top-0 right-0 left-0 lg:left-64 h-[60px] z-20 flex items-center justify-between px-5 border-b-[1.5px] border-border"
-        style={{ backgroundColor: 'var(--topbar-bg)' }}
+        style={{
+          backgroundColor: 'var(--topbar-bg)',
+          transition: 'left 250ms cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
       >
         {/* Left: Page title */}
         <div className="flex items-center gap-2 min-w-0">

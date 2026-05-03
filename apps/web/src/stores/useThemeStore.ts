@@ -6,9 +6,12 @@ interface ThemeState {
   hue: number;
   /** 'light' or 'dark' */
   mode: 'light' | 'dark';
+  /** Sidebar collapsed */
+  sidebarCollapsed: boolean;
   setHue: (hue: number) => void;
   toggleMode: () => void;
   setMode: (mode: 'light' | 'dark') => void;
+  toggleSidebar: () => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -16,6 +19,7 @@ export const useThemeStore = create<ThemeState>()(
     (set) => ({
       hue: 250,
       mode: 'light',
+      sidebarCollapsed: false,
       setHue: (hue: number) => {
         set({ hue });
         // Immediately apply CSS variable
@@ -27,10 +31,16 @@ export const useThemeStore = create<ThemeState>()(
           return { mode: next };
         }),
       setMode: (mode) => set({ mode }),
+      toggleSidebar: () =>
+        set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
     }),
     {
       name: 'linksee-theme',
-      partialize: (state) => ({ hue: state.hue, mode: state.mode }),
+      partialize: (state) => ({
+        hue: state.hue,
+        mode: state.mode,
+        sidebarCollapsed: state.sidebarCollapsed,
+      }),
     }
   )
 );

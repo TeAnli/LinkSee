@@ -106,6 +106,14 @@
     line-height: 1.65;
   }
 
+  /* TopBar left offset follows sidebar width via CSS variable */
+  @media (min-width: 1024px) {
+    header.fixed {
+      left: var(--sidebar-w, 16rem) !important;
+      transition: left 250ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
   /* Smooth transitions for theme-aware elements */
   ::selection {
     background-color: var(--primary);
