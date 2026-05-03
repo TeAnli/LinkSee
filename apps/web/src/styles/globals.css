@@ -1,32 +1,152 @@
 @import "tailwindcss";
 
+/* ===== Google Fonts ===== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ===== Tailwind v4 Theme Tokens (Flat Cute) ===== */
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
-  --color-primary: #171717;
-  --color-primary-foreground: #fafafa;
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
-  --color-border: #e5e5e5;
-  --color-ring: #171717;
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #171717;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #fafafa;
-  --radius: 0.5rem;
+  /* Semantic colors - mapped from CSS variables */
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-border: var(--border-color);
+  --color-ring: var(--primary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: #FF6B6B;
+  --color-destructive-foreground: #FFFFFF;
+  --color-card: var(--card-bg);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--card-bg);
+  --color-popover-foreground: var(--fg);
+  --color-secondary: var(--muted);
+  --color-secondary-foreground: var(--fg);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Custom flat-cute utilities */
+  --shadow-flat: 3px 3px 0px var(--border-color);
+  --shadow-flat-lg: 4px 4px 0px var(--border-color);
+  --shadow-flat-hover: 5px 5px 0px var(--border-color);
+
+  /* Font */
+  --font-sans: 'Nunito', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 }
 
+/* ===== Light Mode (Default) ===== */
+:root,
+.light {
+  --hue: 250;
+  --bg: #FFFEFA;
+  --bg-secondary: #F5F0E8;
+  --fg: #2D2A3D;
+  --muted-fg: #7A7590;
+  --primary: hsl(var(--hue), 75%, 55%);
+  --primary-fg: #FFFFFF;
+  --primary-light: hsl(var(--hue), 65%, 92%);
+  --primary-dark: hsl(var(--hue), 75%, 35%);
+  --muted: #F0EDe8;
+  --accent: #FFF0E0;
+  --accent-fg: #D47800;
+  --border-color: #E2DEDA;
+  --card-bg: #FFFFFF;
+  --card-shadow: 3px 3px 0px #E2DEDA;
+  --sidebar-bg: #FAF8F4;
+  --topbar-bg: rgba(255, 254, 250, 0.94);
+}
+
+/* ===== Dark Mode ===== */
+.dark {
+  --hue: 250;
+  --bg: #1A1826;
+  --bg-secondary: #242136;
+  --fg: #E8E5F0;
+  --muted-fg: #908BA8;
+  --primary: hsl(var(--hue), 70%, 60%);
+  --primary-fg: #1A1826;
+  --primary-light: hsl(var(--hue), 50%, 22%);
+  --primary-dark: hsl(var(--hue), 70%, 75%);
+  --muted: #2A2640;
+  --accent: #3A2818;
+  --accent-fg: #FFB74D;
+  --border-color: #353052;
+  --card-bg: #222038;
+  --card-shadow: 3px 3px 0px #353052;
+  --sidebar-bg: #1E1C2E;
+  --topbar-bg: rgba(26, 24, 38, 0.94);
+}
+
+/* ===== Base Layer ===== */
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-border);
+    border-color: var(--border-color);
   }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Smooth transitions for theme-aware elements */
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-fg);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-fg);
+  }
+}
+
+/* ===== Utility Classes ===== */
+@layer utilities {
+  .shadow-flat {
+    box-shadow: var(--card-shadow);
+  }
+
+  .shadow-flat-hover:hover {
+    box-shadow: var(--shadow-flat-hover);
+    transform: translate(-2px, -2px);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Dotted pattern for placeholder areas */
+  .pattern-dots {
+    background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
