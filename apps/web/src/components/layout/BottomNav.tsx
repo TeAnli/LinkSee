@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import { Button } from '@/components/ui/button';
 
 interface TabItem {
   label: string;
@@ -17,31 +18,31 @@ const TABS: TabItem[] = [
 ];
 
 export function BottomNav() {
-  const [activePath, setActivePath] = useState('/');
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end justify-around h-[64px] border-t-[1.5px]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end justify-around h-[64px] border-t-[1.5px] border-border"
       style={{
         backgroundColor: 'var(--topbar-bg)',
-        borderColor: 'var(--border-color)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
       {TABS.map((tab) => {
-        const isActive = activePath === tab.path;
+        const isActive = location.pathname === tab.path;
         return (
-          <button
+          <Button
             key={tab.path}
-            onClick={() => setActivePath(tab.path)}
-            className="relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 cursor-pointer"
+            variant="ghost"
+            onClick={() => navigate(tab.path)}
+            className="relative flex-col items-center justify-center flex-1 h-full gap-0.5 rounded-none border-transparent"
           >
             {/* Top indicator bar */}
             {isActive && (
               <motion.div
-                className="absolute top-0 w-6 h-[3px] rounded-b-md"
+                className="absolute top-0 w-6 h-[3px] rounded-b-md bg-primary"
                 layoutId="bottom-nav-indicator"
-                style={{ backgroundColor: 'var(--primary)' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -54,20 +55,16 @@ export function BottomNav() {
                 icon={tab.icon}
                 width={24}
                 height={24}
-                style={{ color: isActive ? 'var(--primary)' : 'var(--muted-fg)' }}
+                className={isActive ? 'text-primary' : 'text-muted-foreground'}
               />
             </motion.div>
 
             <span
-              className="text-[11px] leading-none font-semibold"
-              style={{
-                color: isActive ? 'var(--primary)' : 'var(--muted-fg)',
-                fontWeight: isActive ? 600 : 400,
-              }}
+              className={`text-[11px] leading-none ${isActive ? 'font-semibold text-primary' : 'font-normal text-muted-foreground'}`}
             >
               {tab.label}
             </span>
-          </button>
+          </Button>
         );
       })}
     </nav>

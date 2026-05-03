@@ -1,5 +1,7 @@
 import { useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { Icon } from '@iconify/react';
+import { Button } from '@/components/ui/button';
 import { useThemeStore } from '../../stores/useThemeStore';
 
 const reducedMotionQuery =
@@ -62,17 +64,13 @@ export function DarkModeToggle() {
 
       const nextMode = isDark ? 'light' : 'dark';
 
-      // Reduced motion: direct switch, no animation
       if (reducedMotionQuery?.matches) {
         setMode(nextMode);
         return;
       }
 
-      // Browser doesn't support View Transition API: fallback
       const doc = document as unknown as {
-        startViewTransition?: (
-          cb: () => void,
-        ) => { finished: Promise<void> };
+        startViewTransition?: (cb: () => void) => { finished: Promise<void> };
       };
 
       if (!doc.startViewTransition) {
@@ -80,7 +78,6 @@ export function DarkModeToggle() {
         return;
       }
 
-      // Calculate click position → farthest corner distance as circle radius
       const rect = e.currentTarget.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
       const y = rect.top + rect.height / 2;
@@ -88,7 +85,6 @@ export function DarkModeToggle() {
       const maxY = Math.max(y, window.innerHeight - y);
       const radius = Math.hypot(maxX, maxY);
 
-      // Pass coordinates to CSS via variables
       const root = document.documentElement;
       root.style.setProperty('--theme-toggle-x', `${x}px`);
       root.style.setProperty('--theme-toggle-y', `${y}px`);
@@ -110,9 +106,10 @@ export function DarkModeToggle() {
   );
 
   return (
-    <button
+    <Button
+      variant="outline"
+      size="icon"
       onClick={handleClick}
-      className="relative flex items-center justify-center w-9 h-9 rounded-xl border-[1.5px] bg-card text-foreground shadow-flat hover:shadow-flat-hover transition-[transform,box-shadow] duration-200 cursor-pointer hover:scale-105 active:scale-95"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       <div
@@ -123,6 +120,6 @@ export function DarkModeToggle() {
       >
         {isDark ? <MoonIcon size={20} /> : <SunIcon size={20} />}
       </div>
-    </button>
+    </Button>
   );
 }

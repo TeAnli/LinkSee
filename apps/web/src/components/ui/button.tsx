@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-[1.5px]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-[1.5px]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground border-primary shadow-flat hover:shadow-flat-hover hover:-translate-x-[1px] hover:-translate-y-[1px] active:shadow-none active:translate-x-0 active:translate-y-0",
+        default: "bg-primary text-primary-foreground border-primary shadow-flat hover:brightness-110 hover:shadow-flat-hover active:shadow-none active:translate-x-[1.5px] active:translate-y-[1.5px]",
         destructive:
-          "bg-destructive text-destructive-foreground border-destructive shadow-flat hover:shadow-flat-hover hover:-translate-x-[1px] hover:-translate-y-[1px] active:shadow-none active:translate-x-0 active:translate-y-0",
+          "bg-destructive text-destructive-foreground border-destructive shadow-flat hover:brightness-110 hover:shadow-flat-hover active:shadow-none active:translate-x-[1.5px] active:translate-y-[1.5px]",
         outline:
-          "border-border bg-background text-foreground shadow-flat hover:shadow-flat-hover hover:-translate-x-[1px] hover:-translate-y-[1px] active:shadow-none active:translate-x-0 active:translate-y-0",
+          "border-border bg-background text-foreground shadow-flat hover:border-primary/30 hover:shadow-flat-hover active:shadow-none active:translate-x-[1.5px] active:translate-y-[1.5px]",
         secondary:
-          "border-border bg-muted text-foreground shadow-flat hover:shadow-flat-hover hover:-translate-x-[1px] hover:-translate-y-[1px] active:shadow-none active:translate-x-0 active:translate-y-0",
-        ghost: "border-transparent bg-transparent text-foreground hover:bg-muted",
+          "border-border bg-muted text-foreground shadow-flat hover:border-primary/30 hover:shadow-flat-hover active:shadow-none active:translate-x-[1.5px] active:translate-y-[1.5px]",
+        ghost: "border-transparent bg-transparent text-foreground hover:bg-muted/60 active:bg-muted",
         link: "border-transparent bg-transparent text-primary underline-offset-4 hover:underline p-0 h-auto",
       },
       size: {

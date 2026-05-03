@@ -1,84 +1,98 @@
-import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
 
+const PAGE_TITLES: Record<string, string> = {
+  '/': 'Home',
+  '/forum': 'Forum',
+  '/ai': 'AI Assistant',
+  '/messages': 'Messages',
+  '/profile': 'Profile',
+  '/settings': 'Settings',
+};
+
 export function TopBar() {
+  const location = useLocation();
+  const title = PAGE_TITLES[location.pathname] ?? 'Page';
+
   return (
-    <header
-      className="fixed top-0 right-0 left-0 lg:left-64 h-[60px] z-20 flex items-center justify-between px-5 border-b-[1.5px]"
-      style={{
-        backgroundColor: 'var(--topbar-bg)',
-        borderColor: 'var(--border-color)',
-      }}
-    >
-      {/* Left: Page title / breadcrumb */}
-      <div className="flex items-center gap-2 min-w-0">
-        <h1 className="text-base font-bold truncate" style={{ color: 'var(--fg)' }}>
-          Home
-        </h1>
-      </div>
-
-      {/* Center: Search input */}
-      <div className="hidden md:flex flex-1 max-w-[380px] mx-8">
-        <div className="relative w-full">
-          <Icon
-            icon="mdi:magnify"
-            width={18}
-            height={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: 'var(--muted-fg)' }}
-          />
-          <input
-            type="text"
-            placeholder="Search posts, users, topics..."
-            className="w-full h-10 pl-10 pr-4 rounded-xl border-[1.5px] text-sm font-medium placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
-            style={{
-              backgroundColor: 'var(--muted)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--fg)',
-            }}
-          />
+    <TooltipProvider delayDuration={300}>
+      <header
+        className="fixed top-0 right-0 left-0 lg:left-64 h-[60px] z-20 flex items-center justify-between px-5 border-b-[1.5px] border-border"
+        style={{ backgroundColor: 'var(--topbar-bg)' }}
+      >
+        {/* Left: Page title */}
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="text-base font-bold truncate text-foreground">
+            {title}
+          </h1>
         </div>
-      </div>
 
-      {/* Right: Action buttons */}
-      <div className="flex items-center gap-2">
-        {/* Notification bell with badge */}
-        <motion.button
-          className="relative flex items-center justify-center w-9 h-9 rounded-xl border-[1.5px] bg-card shadow-flat hover:shadow-flat-hover cursor-pointer"
-          style={{ borderColor: 'var(--border-color)' }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          aria-label="Notifications"
-        >
-          <Icon icon="mdi:bell-outline" width={20} height={20} />
-          <span
-            className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-[1.5px]"
-            style={{ backgroundColor: '#FF6B6B', borderColor: 'var(--card-bg)' }}
-          />
-        </motion.button>
+        {/* Center: Search */}
+        <div className="hidden md:flex flex-1 max-w-[380px] mx-8">
+          <div className="relative w-full">
+            <Icon
+              icon="mdi:magnify"
+              width={18}
+              height={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            />
+            <Input
+              type="text"
+              placeholder="Search posts, users, topics..."
+              className="pl-10 pr-4 cursor-pointer"
+            />
+          </div>
+        </div>
 
-        {/* Theme settings popover */}
-        <ThemeSettingsPanel />
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+          {/* Notifications */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" className="relative" aria-label="Notifications">
+                <Icon icon="mdi:bell-outline" width={20} height={20} />
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 size-3 p-0 justify-center text-[8px]"
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Notifications</TooltipContent>
+          </Tooltip>
 
-        {/* Dark mode toggle */}
-        <DarkModeToggle />
+          {/* Theme settings */}
+          <ThemeSettingsPanel />
 
-        {/* User avatar */}
-        <motion.button
-          className="flex items-center justify-center w-[34px] h-[34px] rounded-full border-[1.5px] shadow-flat cursor-pointer"
-          style={{
-            backgroundColor: 'var(--muted)',
-            borderColor: 'var(--border-color)',
-          }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          aria-label="User menu"
-        >
-          <Icon icon="mdi:account" width={18} height={18} style={{ color: 'var(--muted-fg)' }} />
-        </motion.button>
-      </div>
-    </header>
+          {/* Dark mode toggle */}
+          <DarkModeToggle />
+
+          {/* User avatar */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" className="rounded-full" aria-label="User menu">
+                <Avatar className="size-full">
+                  <AvatarFallback className="size-full text-xs">
+                    <Icon icon="mdi:account" width={18} height={18} />
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">User menu</TooltipContent>
+          </Tooltip>
+        </div>
+      </header>
+    </TooltipProvider>
   );
 }
