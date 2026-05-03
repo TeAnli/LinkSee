@@ -1,0 +1,24 @@
+{
+  "name": "linksee",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:backend\"",
+    "dev:web": "pnpm --filter @linksee/web dev",
+    "dev:backend": "cd backend && ./gradlew bootRun --parallel",
+    "build": "pnpm --filter ./packages/** build && pnpm --filter ./apps/** build",
+    "build:web": "pnpm --filter ./apps/** build",
+    "build:backend": "cd backend && ./gradlew build -x test",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "test": "pnpm -r test",
+    "test:backend": "cd backend && ./gradlew test",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

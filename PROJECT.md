@@ -1537,7 +1537,9 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 
 ### D. 参考资源与致谢
 
-- [Spring Boot 官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [React 官方文档](https://react.dev)
+- [shadcn/ui 文档](https://ui.shadcn.com)
+- [TanStack Query 文档](https://tanstack.com/query)
 - [Jimmer ORM 官方文档](https://babyfish-ct.github.io/jimmer/)
 - [Spring Cloud Gateway 参考](https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/)
 - [Elasticsearch 官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)

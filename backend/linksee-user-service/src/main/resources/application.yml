@@ -1,0 +1,34 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: linksee-user-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/linksee}
+    username: ${SPRING_DATASOURCE_USERNAME:linksee}
+    password: ${SPRING_DATASOURCE_PASSWORD:linksee123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:linksee}
+    password: ${RABBITMQ_PASSWORD:linksee}
+
+jimmer:
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
+  show-sql: true
+  pretty-print: true
+
+logging:
+  level:
+    com.linksee: DEBUG
