@@ -274,7 +274,46 @@ export default {
     aiAnswerReady: 'AI 回答已生成',
   },
 
-  // ===== Theme =====
+  // ===== Settings =====
+  settings: {
+    title: '设置',
+    account: '账户',
+    appearance: '外观',
+    notifications: '通知',
+    privacy: '隐私',
+    about: '关于',
+    // Account
+    email: '邮箱地址',
+    username: '用户名',
+    nickname: '昵称',
+    bio: '个人简介',
+    changeAvatar: '更换头像',
+    changePassword: '修改密码',
+    currentPassword: '当前密码',
+    newPassword: '新密码',
+    confirmPassword: '确认新密码',
+    updateProfile: '更新资料',
+    profileUpdated: '资料已更新',
+    // Appearance
+    themeMode: '主题模式',
+    light: '浅色',
+    dark: '深色',
+    system: '跟随系统',
+    accentColor: '主题色',
+    compactMode: '紧凑模式',
+    showAnimations: '显示动画',
+    // Notifications
+    emailNotifications: '邮件通知',
+    pushNotifications: '推送通知',
+    mentionNotifications: '@提及通知',
+    replyNotifications: '回复通知',
+    likeNotifications: '点赞通知',
+    systemNotifications: '系统通知',
+    // About
+    version: '版本',
+    openSource: '开源许可',
+    feedback: '反馈建议',
+  },
   theme: {
     settings: '主题设置',
     mode: '模式',
