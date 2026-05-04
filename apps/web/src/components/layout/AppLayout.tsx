@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar, SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './Sidebar';
 import { TopBar } from './TopBar';
 import { RightPanel, RIGHT_PANEL_WIDTH } from './RightPanel';
@@ -12,6 +12,9 @@ export function AppLayout() {
   useSyncCSSVar('--sidebar-w', `${sidebarWidth}px`);
   useSyncCSSVar('--right-panel-w', `${RIGHT_PANEL_WIDTH}px`);
 
+  const location = useLocation();
+  const isPostDetail = location.pathname.startsWith('/post/');
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
       <Sidebar />
@@ -21,8 +24,8 @@ export function AppLayout() {
         className="pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8 min-h-screen"
         style={{
           marginLeft: 'var(--sidebar-w, 0px)',
-          marginRight: 'var(--right-panel-w, 0px)',
-          transition: 'margin-left 250ms cubic-bezier(0.22, 1, 0.36, 1)',
+          marginRight: isPostDetail ? 0 : 'var(--right-panel-w, 0px)',
+          transition: 'margin 250ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
         <div className="w-full">
@@ -30,7 +33,7 @@ export function AppLayout() {
         </div>
       </main>
 
-      <RightPanel />
+      {!isPostDetail && <RightPanel />}
       <BottomNav />
     </div>
   );

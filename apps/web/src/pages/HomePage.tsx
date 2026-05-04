@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,8 @@ const fadeUp = {
 };
 
 function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number }) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       custom={index}
@@ -23,7 +26,10 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
       animate="visible"
       variants={fadeUp}
     >
-      <Card className="border-[1.5px] rounded-xl shadow-flat transition-all duration-200 hover:shadow-flat-hover hover:border-primary/30 cursor-pointer group">
+      <Card
+        className="border-[1.5px] rounded-xl shadow-flat transition-all duration-200 hover:shadow-flat-hover hover:border-primary/30 cursor-pointer group"
+        onClick={() => navigate(`/post/${post.id}`)}
+      >
         <CardContent className="p-4">
           {/* Header: tags + badges */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -57,7 +63,7 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
           {/* Tags */}
           {post.tagList.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
-              {post.tagList.map((tag) => (
+              {post.tagList.map((tag: string) => (
                 <span
                   key={tag}
                   className="text-[11px] px-1.5 py-0.5 rounded-md bg-primary/5 text-primary/80 font-medium"
