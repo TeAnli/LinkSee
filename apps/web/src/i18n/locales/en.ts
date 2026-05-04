@@ -236,8 +236,22 @@ const en: DeepString<typeof zhCN> = {
 
   // ===== AI Chat =====
   ai: {
-    chatInterface: 'AI Chat Interface',
+    chatInterface: 'AI Chat',
     conversation: 'Conversation',
+    inputPlaceholder: 'Type your question...',
+    send: 'Send',
+    newChat: 'New Chat',
+    thinking: 'Thinking...',
+    welcome: 'Hello, I\'m LinkSee AI Assistant',
+    welcomeDesc: 'I can help with technical questions, code analysis, content generation, and more. How can I help you?',
+    copy: 'Copy',
+    copied: 'Copied',
+    regenerate: 'Regenerate',
+    suggestedQuestions: 'Try asking',
+    sq1: 'How to design a high-concurrency post list API?',
+    sq2: 'Write a React custom hook for form management',
+    sq3: 'Compare PostgreSQL and MySQL pros and cons',
+    sq4: 'What\'s new in Spring Boot 3.x?',
   },
 
   // ===== TopBar =====

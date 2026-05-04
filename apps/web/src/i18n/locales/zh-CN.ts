@@ -232,6 +232,20 @@ export default {
   ai: {
     chatInterface: 'AI 聊天',
     conversation: '对话',
+    inputPlaceholder: '输入你的问题...',
+    send: '发送',
+    newChat: '新对话',
+    thinking: '思考中...',
+    welcome: '你好，我是灵犀 AI 助手',
+    welcomeDesc: '我可以帮你解答技术问题、分析代码、生成内容等。有什么我可以帮你的吗？',
+    copy: '复制',
+    copied: '已复制',
+    regenerate: '重新生成',
+    suggestedQuestions: '你可以试试',
+    sq1: '如何设计一个高并发的帖子列表接口？',
+    sq2: '帮我写一个 React 自定义 Hook 管理表单',
+    sq3: '对比 PostgreSQL 和 MySQL 的优缺点',
+    sq4: 'Spring Boot 3.x 有哪些新特性？',
   },
 
   // ===== TopBar =====
