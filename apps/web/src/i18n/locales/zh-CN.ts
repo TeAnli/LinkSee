@@ -213,6 +213,19 @@ export default {
   forum: {
     forumCategories: '论坛分类',
     categories: '分类',
+    all: '全部',
+    latest: '最新',
+    hottest: '最热',
+    essence: '精华',
+    postCount: '{{count}} 篇帖子',
+    searchPosts: '搜索帖子...',
+    noResults: '暂无相关帖子',
+    noResultsDesc: '换个关键词试试吧',
+    sortBy: '排序',
+    allCategories: '全部分类',
+    author: '作者',
+    postTime: '发布时间',
+    totalPosts: '共 {{count}} 篇帖子',
   },
 
   // ===== AI Chat =====

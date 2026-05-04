@@ -219,6 +219,19 @@ const en: DeepString<typeof zhCN> = {
   forum: {
     forumCategories: 'Forum Categories',
     categories: 'Categories',
+    all: 'All',
+    latest: 'Latest',
+    hottest: 'Hottest',
+    essence: 'Essence',
+    postCount: '{{count}} posts',
+    searchPosts: 'Search posts...',
+    noResults: 'No results found',
+    noResultsDesc: 'Try a different keyword',
+    sortBy: 'Sort by',
+    allCategories: 'All Categories',
+    author: 'Author',
+    postTime: 'Post Time',
+    totalPosts: '{{count}} posts total',
   },
 
   // ===== AI Chat =====
