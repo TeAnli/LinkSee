@@ -1,4 +1,14 @@
 export default {
+  // ===== Error =====
+  error: {
+    title: '页面出错了',
+    description: '抱歉，页面渲染遇到了意外错误。请尝试刷新页面或返回首页。',
+    retry: '重新加载',
+    goHome: '返回首页',
+    pageNotFound: '页面不存在',
+    pageNotFoundDesc: '你访问的页面可能已被移除、名称已更改，或暂时不可用。',
+  },
+
   // ===== Common =====
   common: {
     appName: 'LinkSee 灵犀',

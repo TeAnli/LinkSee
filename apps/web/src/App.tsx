@@ -4,17 +4,20 @@ import { HomePage } from './pages/HomePage';
 import { ForumPage } from './pages/ForumPage';
 import { AiChatPage } from './pages/AiChatPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 import { CreatePostPage } from './pages/CreatePostPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Toaster } from './components/ui/sonner';
 
 export default function App() {
   return (
-    <>
+    <ErrorBoundary>
       <BrowserRouter>
         <Routes>
           {/* Auth pages — no sidebar/topbar */}
@@ -32,11 +35,14 @@ export default function App() {
             <Route path="/ai" element={<AiChatPage />} />
             <Route path="/messages" element={<ForumPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
+
+          {/* 404 catch-all */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="bottom-right" richColors closeButton />
-    </>
+    </ErrorBoundary>
   );
 }

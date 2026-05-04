@@ -5,6 +5,16 @@ type DeepString<T> = {
 };
 
 const en: DeepString<typeof zhCN> = {
+  // ===== Error =====
+  error: {
+    title: 'Something went wrong',
+    description: 'Sorry, an unexpected error occurred while rendering this page. Try refreshing or going back to the home page.',
+    retry: 'Reload',
+    goHome: 'Go Home',
+    pageNotFound: 'Page Not Found',
+    pageNotFoundDesc: 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.',
+  },
+
   // ===== Common =====
   common: {
     appName: 'LinkSee',
