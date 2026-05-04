@@ -1,4 +1,18 @@
 rootProject.name = "linksee-backend"
+pluginManagement {
+    repositories {
+        gradlePluginPortal()  // 必须要有这个！
+        mavenCentral()
+        google()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        google()
+    }
+}
 
 include(":linksee-common")
 include(":linksee-feign-clients")

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
@@ -30,14 +31,30 @@ const NAV_ITEMS: NavItem[] = [
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 68;
+const TOPBAR_HEIGHT = 60;
 
-export { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH };
+export { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH, TOPBAR_HEIGHT };
 
 export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const collapsed = useThemeStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
+
+  const navRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState({ y: 0, h: 0 });
+
+  useEffect(() => {
+    const el = navRef.current?.querySelector<HTMLElement>('[data-active="true"]');
+    if (el && navRef.current) {
+      const navRect = navRef.current.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      setIndicator({
+        y: elRect.top - navRect.top + navRef.current.scrollTop,
+        h: elRect.height,
+      });
+    }
+  }, [location.pathname, collapsed]);
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -53,15 +70,17 @@ export function Sidebar() {
         <div
           className={cn(
             'flex items-center min-h-[72px] border-b border-border',
-            collapsed ? 'justify-center px-3 pt-4 pb-4' : 'gap-3 px-4 pt-5 pb-4',
+            collapsed ? 'justify-center px-3 py-4' : 'gap-3 px-4 py-4',
           )}
         >
-          <div
-            className="flex items-center justify-center size-10 rounded-xl border-[1.5px] border-border shadow-flat shrink-0"
+          <button
+            onClick={toggleSidebar}
+            className="flex items-center justify-center size-10 rounded-xl border-[1.5px] border-border shadow-flat shrink-0 hover:brightness-110 active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-none transition-all duration-200"
             style={{ backgroundColor: 'var(--primary)' }}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Icon icon="mdi:forum" width={22} height={22} color="#fff" />
-          </div>
+          </button>
           {!collapsed && (
             <div className="flex flex-col overflow-hidden whitespace-nowrap">
               <span className="text-base font-bold leading-tight text-foreground">LinkSee</span>
@@ -74,7 +93,18 @@ export function Sidebar() {
 
         {/* Navigation */}
         <ScrollArea className="flex-1">
-          <nav className="flex flex-col gap-1 px-2.5 py-2">
+          <nav ref={navRef} className="relative flex flex-col gap-1 px-2.5 py-2">
+            {/* Sliding active indicator */}
+            {!collapsed && (
+              <div
+                className="nav-indicator absolute left-0 w-1 rounded-r-full bg-primary pointer-events-none"
+                style={{
+                  transform: `translateY(${indicator.y}px)`,
+                  height: `${indicator.h}px`,
+                }}
+              />
+            )}
+
             {NAV_ITEMS.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -82,6 +112,7 @@ export function Sidebar() {
                   <TooltipTrigger asChild>
                     <Button
                       variant={isActive ? 'secondary' : 'ghost'}
+                      data-active={isActive || undefined}
                       className={cn(
                         'relative w-full h-11',
                         collapsed ? 'justify-center px-0' : 'justify-start gap-3 px-3',
@@ -89,16 +120,9 @@ export function Sidebar() {
                       )}
                       onClick={() => navigate(item.path)}
                     >
-                      {isActive && (
-                        <div
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-primary"
-                        />
-                      )}
                       <Icon icon={item.icon} width={22} height={22} className="shrink-0" />
                       {!collapsed && (
-                        <span className="text-sm font-semibold truncate">
-                          {item.label}
-                        </span>
+                        <span className="text-sm font-semibold truncate">{item.label}</span>
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -115,7 +139,7 @@ export function Sidebar() {
         <Separator />
         <div
           className={cn(
-            'flex items-center border-t-0 min-h-[56px]',
+            'flex items-center min-h-[56px]',
             collapsed ? 'flex-col gap-2 px-2.5 py-3 justify-center' : 'gap-2 px-3 py-3',
           )}
         >
@@ -127,19 +151,17 @@ export function Sidebar() {
           {!collapsed && (
             <span className="text-sm font-bold truncate text-foreground">User</span>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn('shrink-0', collapsed ? 'size-7' : 'ml-auto')}
-            onClick={toggleSidebar}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <Icon
-              icon={collapsed ? 'mdi:chevron-right' : 'mdi:chevron-left'}
-              width={18}
-              height={18}
-            />
-          </Button>
+          {!collapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto shrink-0"
+              onClick={toggleSidebar}
+              aria-label="Collapse sidebar"
+            >
+              <Icon icon="mdi:chevron-left" width={18} height={18} />
+            </Button>
+          )}
         </div>
       </aside>
     </TooltipProvider>
