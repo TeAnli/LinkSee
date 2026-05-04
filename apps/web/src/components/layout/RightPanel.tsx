@@ -6,18 +6,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { TOPBAR_HEIGHT } from './Sidebar';
+import { mockTags, mockUsers, formatCount } from '@/mock/data';
 
 const RIGHT_PANEL_WIDTH = 280;
 
 export { RIGHT_PANEL_WIDTH };
 
 function TopicTags() {
-  const tags = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+  const hotTags = mockTags.slice(0, 10);
   return (
     <div className="flex flex-wrap gap-2">
-      {tags.map((t) => (
-        <Badge key={t.id} variant="secondary" className="cursor-default">
-          Topic {t.id}
+      {hotTags.map((t) => (
+        <Badge key={t.name} variant="secondary" className="cursor-pointer transition-colors hover:bg-primary/15 hover:text-primary">
+          {t.name}
+          <span className="ml-1 text-[10px] text-muted-foreground">{formatCount(t.count)}</span>
         </Badge>
       ))}
     </div>
@@ -25,14 +27,18 @@ function TopicTags() {
 }
 
 function UserList() {
+  const activeUsers = mockUsers.slice(0, 5);
   return (
     <div className="flex flex-col gap-2.5">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex items-center gap-2.5">
+      {activeUsers.map((u) => (
+        <div key={u.id} className="flex items-center gap-2.5">
           <Avatar className="size-7">
-            <AvatarFallback className="text-[10px]">U{i}</AvatarFallback>
+            <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+              {u.nickname.slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
-          <span className="text-xs font-semibold text-muted-foreground">User {i}</span>
+          <span className="text-xs font-semibold text-muted-foreground">{u.nickname}</span>
+          <span className="ml-auto text-[10px] text-muted-foreground/60">Lv.{u.level}</span>
         </div>
       ))}
     </div>

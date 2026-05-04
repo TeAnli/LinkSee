@@ -1,21 +1,120 @@
-import { PagePlaceholder } from '../components/layout/PagePlaceholder';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Icon } from '@iconify/react';
+import { motion } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { PagePlaceholder } from '@/components/layout/PagePlaceholder';
+import { mockPosts, formatRelativeTime, formatCount } from '@/mock/data';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+  }),
+};
+
+function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number }) {
+  return (
+    <motion.div
+      custom={index}
+      initial="hidden"
+      animate="visible"
+      variants={fadeUp}
+    >
+      <Card className="border-[1.5px] rounded-xl shadow-flat transition-all duration-200 hover:shadow-flat-hover hover:border-primary/30 cursor-pointer group">
+        <CardContent className="p-4">
+          {/* Header: tags + badges */}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            {post.isTop && (
+              <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-[10px] px-1.5 py-0">
+                <Icon icon="mdi:pin" width={12} className="mr-0.5" />
+                置顶
+              </Badge>
+            )}
+            {post.isEssence && (
+              <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] px-1.5 py-0">
+                <Icon icon="mdi:star" width={12} className="mr-0.5" />
+                精华
+              </Badge>
+            )}
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
+              {post.categoryName}
+            </Badge>
+          </div>
+
+          {/* Title */}
+          <h3 className="font-bold text-[15px] leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1.5">
+            {post.title}
+          </h3>
+
+          {/* Summary */}
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+            {post.summary}
+          </p>
+
+          {/* Tags */}
+          {post.tagList.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {post.tagList.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[11px] px-1.5 py-0.5 rounded-md bg-primary/5 text-primary/80 font-medium"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Footer: author + stats */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Avatar className="size-5">
+                <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-bold">
+                  {post.author.nickname.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-semibold text-foreground/80">{post.author.nickname}</span>
+              <span className="text-muted-foreground/60">{formatRelativeTime(post.publishedAt)}</span>
+            </div>
+            <div className="flex items-center gap-3 text-muted-foreground/60">
+              <span className="flex items-center gap-1" title="浏览">
+                <Icon icon="mdi:eye-outline" width={14} />
+                {formatCount(post.viewCount)}
+              </span>
+              <span className="flex items-center gap-1" title="点赞">
+                <Icon icon="mdi:thumb-up-outline" width={14} />
+                {formatCount(post.likeCount)}
+              </span>
+              <span className="flex items-center gap-1" title="评论">
+                <Icon icon="mdi:comment-outline" width={14} />
+                {formatCount(post.commentCount)}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
 
 export function HomePage() {
+  const sortedPosts = [...mockPosts].sort((a, b) => {
+    if (a.isTop && !b.isTop) return -1;
+    if (!a.isTop && b.isTop) return 1;
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+  });
+
   return (
     <div className="flex flex-col gap-4">
       <PagePlaceholder label="Home Feed" icon="mdi:view-grid-outline" />
-      <Card>
-        <CardHeader>
-          <CardTitle>Recommended</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <Skeleton className="h-32 w-full rounded-lg" />
-          <Skeleton className="h-32 w-full rounded-lg" />
-          <Skeleton className="h-32 w-full rounded-lg" />
-        </CardContent>
-      </Card>
+      <div className="flex flex-col gap-3">
+        {sortedPosts.map((post, index) => (
+          <PostCard key={post.id} post={post} index={index} />
+        ))}
+      </div>
     </div>
   );
 }
