@@ -5,6 +5,7 @@ import { ForumPage } from './pages/ForumPage';
 import { AiChatPage } from './pages/AiChatPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PostDetailPage } from './pages/PostDetailPage';
+import { CreatePostPage } from './pages/CreatePostPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/post/:id" element={<PostDetailPage />} />
+          <Route path="/create" element={<CreatePostPage />} />
           <Route path="/ai" element={<AiChatPage />} />
           <Route path="/messages" element={<ForumPage />} />
           <Route path="/profile" element={<ProfilePage />} />

@@ -14,6 +14,8 @@ export function AppLayout() {
 
   const location = useLocation();
   const isPostDetail = location.pathname.startsWith('/post/');
+  const isCreatePost = location.pathname === '/create';
+  const hideRightPanel = isPostDetail || isCreatePost;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
@@ -24,7 +26,7 @@ export function AppLayout() {
         className="pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8 min-h-screen"
         style={{
           marginLeft: 'var(--sidebar-w, 0px)',
-          marginRight: isPostDetail ? 0 : 'var(--right-panel-w, 0px)',
+          marginRight: hideRightPanel ? 0 : 'var(--right-panel-w, 0px)',
           transition: 'margin 250ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
@@ -33,7 +35,7 @@ export function AppLayout() {
         </div>
       </main>
 
-      {!isPostDetail && <RightPanel />}
+      {!hideRightPanel && <RightPanel />}
       <BottomNav />
     </div>
   );

@@ -29,6 +29,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings', icon: 'mdi:cog-outline', path: '/settings' },
 ];
 
+const CREATE_PATH = '/create';
+
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 68;
 const TOPBAR_HEIGHT = 60;
@@ -134,6 +136,27 @@ export function Sidebar() {
             })}
           </nav>
         </ScrollArea>
+
+        {/* Create Post Button */}
+        <div className="px-2.5 py-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className={cn(
+                  'w-full gap-2',
+                  collapsed ? 'justify-center px-0' : 'justify-start px-3',
+                )}
+                onClick={() => navigate(CREATE_PATH)}
+              >
+                <Icon icon="mdi:pencil-plus" width={20} className="shrink-0" />
+                {!collapsed && <span className="text-sm font-bold">写文章</span>}
+              </Button>
+            </TooltipTrigger>
+            {collapsed && (
+              <TooltipContent side="right">写文章</TooltipContent>
+            )}
+          </Tooltip>
+        </div>
 
         {/* Bottom: user + collapse toggle */}
         <Separator />
