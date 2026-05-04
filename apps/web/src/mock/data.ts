@@ -1,5 +1,5 @@
 import i18n from '@/i18n';
-import type { PostListItem, PostDetail, Category, UserInfo } from '@linksee/shared';
+import type { PostListItem, PostDetail, Category, UserInfo, UserProfile } from '@linksee/shared';
 
 // === Mock Users ===
 
@@ -13,6 +13,70 @@ export const mockUsers = [
   { id: 7, nickname: '云端漫步', avatarUrl: '', level: 4 },
   { id: 8, nickname: 'AI探索者', avatarUrl: '', level: 3 },
 ] as const satisfies readonly Pick<UserInfo, 'id' | 'nickname' | 'avatarUrl' | 'level'>[];
+
+// === Mock User Profiles ===
+
+export const mockUserProfiles: Record<number, UserProfile> = {
+  1: {
+    id: 1, username: 'linxiaobai', nickname: '林小白', avatarUrl: '', email: 'linxiaobai@example.com',
+    level: 5, experience: 3200, status: 1,
+    bio: '全栈开发者，热爱开源。正在探索 AI 与前端的结合点，偶尔写写技术博客。相信技术可以让世界更美好。',
+    location: '北京', occupation: '高级前端工程师', skillsTags: ['React', 'TypeScript', 'Node.js', 'Go', 'Docker'],
+    isVerified: true, followerCount: 1280, followingCount: 96,
+  },
+  2: {
+    id: 2, username: 'codehunter', nickname: '代码猎人', avatarUrl: '', email: 'hunter@example.com',
+    level: 4, experience: 1800, status: 1,
+    bio: '后端开发，专注 Java 生态。微服务架构实践者，偶尔写写 Rust。',
+    location: '上海', occupation: 'Java 后端工程师', skillsTags: ['Java', 'Spring Boot', 'Redis', 'MySQL', 'Kubernetes'],
+    isVerified: false, followerCount: 856, followingCount: 72,
+  },
+  3: {
+    id: 3, username: 'techrabbit', nickname: '技术小白兔', avatarUrl: '', email: 'rabbit@example.com',
+    level: 2, experience: 350, status: 1,
+    bio: '刚入行的前端菜鸟，每天都在学习新东西！请多关照~',
+    location: '杭州', occupation: '前端开发实习生', skillsTags: ['Vue.js', 'HTML', 'CSS'],
+    isVerified: false, followerCount: 45, followingCount: 128,
+  },
+  4: {
+    id: 4, username: 'fullstackjie', nickname: '全栈阿杰', avatarUrl: '', email: 'jie@example.com',
+    level: 3, experience: 900, status: 1,
+    bio: '全栈开发者，什么都懂一点，什么都不精通 :)',
+    location: '深圳', occupation: '全栈工程师', skillsTags: ['Vue.js', 'Node.js', 'PostgreSQL', 'Docker'],
+    isVerified: false, followerCount: 320, followingCount: 88,
+  },
+  5: {
+    id: 5, username: 'devcat', nickname: 'DevCat', avatarUrl: '', email: 'devcat@example.com',
+    level: 6, experience: 6800, status: 1,
+    bio: '猫奴 + 开发者。专注于 AI 工程化，致力于让 AI 走进每一个开发者的日常工作。',
+    location: '成都', occupation: 'AI 工程师', skillsTags: ['Python', 'LLM', 'RAG', 'LangChain', 'React'],
+    isVerified: true, followerCount: 3560, followingCount: 42,
+  },
+  6: {
+    id: 6, username: 'frontendn00b', nickname: '前端菜鸡', avatarUrl: '', email: 'n00b@example.com',
+    level: 1, experience: 80, status: 1,
+    bio: '学习中...', location: '', occupation: '学生', skillsTags: ['JavaScript'],
+    isVerified: false, followerCount: 12, followingCount: 256,
+  },
+  7: {
+    id: 7, username: 'cloudwalker', nickname: '云端漫步', avatarUrl: '', email: 'cloud@example.com',
+    level: 4, experience: 2200, status: 1,
+    bio: 'DevOps 工程师，K8s 爱好者。自动化一切可自动化的。',
+    location: '广州', occupation: 'DevOps 工程师', skillsTags: ['Docker', 'Kubernetes', 'Terraform', 'Go', 'Linux'],
+    isVerified: true, followerCount: 680, followingCount: 64,
+  },
+  8: {
+    id: 8, username: 'aiexplorer', nickname: 'AI探索者', avatarUrl: '', email: 'ai@example.com',
+    level: 3, experience: 1100, status: 1,
+    bio: 'AI 爱好者，关注大模型应用和 AI Agent 技术。',
+    location: '南京', occupation: '算法工程师', skillsTags: ['Python', 'PyTorch', 'LLM', 'RAG'],
+    isVerified: false, followerCount: 420, followingCount: 96,
+  },
+};
+
+export function getUserProfile(userId: number): UserProfile | undefined {
+  return mockUserProfiles[userId];
+}
 
 // === Mock Tags ===
 

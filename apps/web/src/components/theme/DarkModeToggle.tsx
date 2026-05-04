@@ -1,6 +1,5 @@
 import { useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { useThemeStore } from '../../stores/useThemeStore';
 

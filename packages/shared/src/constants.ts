@@ -1,4 +1,4 @@
-import type { UserLevel } from "./types";
+import { UserLevel } from "./types";
 
 export const APP_NAME = "LinkSee 灵犀";
 export const APP_DESCRIPTION = "AI赋能垂直行业智能论坛系统";

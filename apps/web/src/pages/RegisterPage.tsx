@@ -56,7 +56,7 @@ export function RegisterPage() {
 
   const passwordScore = PASSWORD_RULES.filter((r) => r.test(form.password)).length;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
