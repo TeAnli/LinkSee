@@ -10,6 +10,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Card, CardContent } from '@/components/ui/card';
+import { PostDetailSkeleton } from '@/components/skeletons';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
@@ -127,6 +128,12 @@ export function PostDetailPage() {
   const navigate = useNavigate();
   const articleRef = useRef<HTMLElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   const post = useMemo(() => getMockPostDetail(Number(id)), [id]);
   const toc = useMemo(() => (post ? extractToc(post.content) : []), [post]);
@@ -189,6 +196,10 @@ export function PostDetailPage() {
     }),
     [],
   );
+
+  if (loading) {
+    return <PostDetailSkeleton />;
+  }
 
   if (!post) {
     return (

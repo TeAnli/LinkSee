@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PagePlaceholder } from '@/components/layout/PagePlaceholder';
+import { PageLoadingSkeleton } from '@/components/skeletons';
 import { mockPosts, formatRelativeTime, formatCount } from '@/mock/data';
 
 const fadeUp = {
@@ -110,11 +112,22 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
 
 export function HomePage() {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, []);
+
   const sortedPosts = [...mockPosts].sort((a, b) => {
     if (a.isTop && !b.isTop) return -1;
     if (!a.isTop && b.isTop) return 1;
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
   });
+
+  if (loading) {
+    return <PageLoadingSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-4">

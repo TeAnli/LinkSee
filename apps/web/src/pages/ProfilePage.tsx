@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ProfileSkeleton } from '@/components/skeletons';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getUserProfile, mockPosts, formatCount, formatRelativeTime } from '@/mock/data';
 import { USER_LEVEL_NAMES, USER_LEVEL_ICONS, USER_LEVEL_EXP } from '@linksee/shared';
@@ -127,6 +128,12 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const profile = useMemo(() => {
     if (!user) return null;
@@ -146,6 +153,10 @@ export function ProfilePage() {
     () => userPosts.reduce((sum, p) => sum + p.collectCount, 0),
     [userPosts],
   );
+
+  if (loading) {
+    return <ProfileSkeleton />;
+  }
 
   /* Not logged in */
   if (!isAuthenticated || !user) {
