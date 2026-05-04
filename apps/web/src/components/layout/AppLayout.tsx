@@ -25,7 +25,7 @@ export function AppLayout() {
           transition: 'margin-left 250ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        <div className="mx-auto w-full max-w-[960px]">
+        <div className="w-full">
           <Outlet />
         </div>
       </main>

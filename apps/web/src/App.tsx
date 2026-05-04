@@ -4,11 +4,18 @@ import { HomePage } from './pages/HomePage';
 import { ForumPage } from './pages/ForumPage';
 import { AiChatPage } from './pages/AiChatPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Auth pages — no sidebar/topbar */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Main app — with sidebar/topbar */}
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/forum" element={<ForumPage />} />

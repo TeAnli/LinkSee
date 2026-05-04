@@ -246,3 +246,18 @@
     --indicator-x 280ms cubic-bezier(0.22, 1, 0.36, 1),
     --indicator-w 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ===== Auth Page Decorative Blobs ===== */
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(12px, -18px) scale(1.04); }
+  66% { transform: translate(-8px, 10px) scale(0.97); }
+}
+
+.auth-blob {
+  animation: blob-float 12s ease-in-out infinite;
+}
+
+.auth-blob-delay {
+  animation: blob-float 14s ease-in-out 2s infinite;
+}

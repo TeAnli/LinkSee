@@ -1,9 +1,9 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tooltip,
   TooltipContent,
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/tooltip';
 import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Home',
@@ -24,6 +25,10 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function TopBar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const title = PAGE_TITLES[location.pathname] ?? 'Page';
 
   return (
@@ -81,18 +86,46 @@ export function TopBar() {
           {/* Dark mode toggle */}
           <DarkModeToggle />
 
-          {/* User avatar */}
+          {/* User avatar / Login */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full" aria-label="User menu">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                aria-label={isAuthenticated ? 'User menu' : 'Sign in'}
+                onClick={() => {
+                  if (!isAuthenticated) navigate('/login');
+                }}
+              >
                 <Avatar className="size-full">
+                  {isAuthenticated && user?.avatarUrl && (
+                    <AvatarImage src={user.avatarUrl} alt={user.nickname} />
+                  )}
                   <AvatarFallback className="size-full text-xs">
-                    <Icon icon="mdi:account" width={18} height={18} />
+                    {isAuthenticated && user?.nickname
+                      ? user.nickname.slice(0, 1).toUpperCase()
+                      : <Icon icon="mdi:login" width={18} height={18} />}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">User menu</TooltipContent>
+            <TooltipContent side="bottom">
+              {isAuthenticated
+                ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="font-bold text-xs">{user?.nickname ?? 'User'}</span>
+                      <button
+                        className="text-xs font-medium hover:underline"
+                        style={{ color: 'var(--primary)' }}
+                        onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  )
+                : 'Sign in'}
+            </TooltipContent>
           </Tooltip>
         </div>
       </header>

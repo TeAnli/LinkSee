@@ -1,7 +1,7 @@
 rootProject.name = "linksee-backend"
 pluginManagement {
     repositories {
-        gradlePluginPortal()  // 必须要有这个！
+        gradlePluginPortal()
         mavenCentral()
         google()
     }
