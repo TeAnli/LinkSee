@@ -1,22 +1,24 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface TabItem {
-  label: string;
+  labelKey: string;
   icon: string;
   path: string;
 }
 
 const TABS: TabItem[] = [
-  { label: 'Home', icon: 'mdi:home', path: '/' },
-  { label: 'Forum', icon: 'mdi:text-box-multiple', path: '/forum' },
-  { label: 'AI', icon: 'mdi:robot-happy', path: '/ai' },
-  { label: 'Chat', icon: 'mdi:message-text', path: '/messages' },
-  { label: 'Me', icon: 'mdi:account-circle', path: '/profile' },
+  { labelKey: 'nav.home', icon: 'mdi:home', path: '/' },
+  { labelKey: 'nav.forum', icon: 'mdi:text-box-multiple', path: '/forum' },
+  { labelKey: 'nav.ai', icon: 'mdi:robot-happy', path: '/ai' },
+  { labelKey: 'nav.messages', icon: 'mdi:message-text', path: '/messages' },
+  { labelKey: 'nav.profile', icon: 'mdi:account-circle', path: '/profile' },
 ];
 
 export function BottomNav() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -59,7 +61,7 @@ export function BottomNav() {
                 isActive ? 'font-semibold text-primary' : 'font-normal text-muted-foreground',
               )}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </span>
           </button>
         );

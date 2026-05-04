@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authApi } from '@linksee/api-client';
 import type { LoginRequest } from '@linksee/shared';
@@ -20,6 +20,7 @@ const fadeUp = {
 };
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
@@ -32,7 +33,7 @@ export function LoginPage() {
     e.preventDefault();
     setError('');
     if (!form.username.trim() || !form.password.trim()) {
-      setError('Please fill in all fields');
+      setError(t('auth.fillAllFields'));
       return;
     }
     setLoading(true);
@@ -44,7 +45,7 @@ export function LoginPage() {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? 'Login failed, please try again';
+          ?.message ?? t('auth.loginFailed');
       setError(msg);
     } finally {
       setLoading(false);
@@ -92,7 +93,7 @@ export function LoginPage() {
             </span>
           </div>
           <p className="mt-2 text-sm font-medium" style={{ color: 'var(--muted-fg)' }}>
-            Sign in to your account
+            {t('auth.signInToAccount')}
           </p>
         </motion.div>
 
@@ -129,7 +130,7 @@ export function LoginPage() {
                   className="text-sm font-semibold"
                   style={{ color: 'var(--fg)' }}
                 >
-                  Username
+                  {t('auth.username')}
                 </label>
                 <div className="relative">
                   <Icon
@@ -140,7 +141,7 @@ export function LoginPage() {
                   />
                   <Input
                     id="username"
-                    placeholder="Enter your username"
+                    placeholder={t('auth.enterUsername')}
                     className="pl-10"
                     value={form.username}
                     onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -156,7 +157,7 @@ export function LoginPage() {
                   className="text-sm font-semibold"
                   style={{ color: 'var(--fg)' }}
                 >
-                  Password
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <Icon
@@ -168,7 +169,7 @@ export function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('auth.enterPassword')}
                     className="pl-10 pr-10"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -180,7 +181,7 @@ export function LoginPage() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
                     style={{ color: 'var(--muted-fg)' }}
                     tabIndex={-1}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                   >
                     <Icon icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'} width={18} />
                   </button>
@@ -194,14 +195,14 @@ export function LoginPage() {
                     type="checkbox"
                     className="size-3.5 rounded accent-[var(--primary)]"
                   />
-                  Remember me
+                  {t('auth.rememberMe')}
                 </label>
                 <Link
                   to="/forgot-password"
                   className="font-semibold hover:underline"
                   style={{ color: 'var(--primary)' }}
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
 
@@ -214,10 +215,10 @@ export function LoginPage() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <Icon icon="mdi:loading" width={18} className="animate-spin" />
-                    Signing in...
+                    {t('auth.signingIn')}
                   </span>
                 ) : (
-                  'Sign In'
+                  t('auth.signIn')
                 )}
               </Button>
             </CardContent>
@@ -233,13 +234,13 @@ export function LoginPage() {
           className="mt-5 text-center text-sm font-medium"
           style={{ color: 'var(--muted-fg)' }}
         >
-          Don&apos;t have an account?{' '}
+          {t('auth.dontHaveAccount')}{' '}
           <Link
             to="/register"
             className="font-bold hover:underline"
             style={{ color: 'var(--primary)' }}
           >
-            Create one
+            {t('auth.createOne')}
           </Link>
         </motion.p>
 
@@ -254,7 +255,7 @@ export function LoginPage() {
           <div className="relative flex items-center gap-3">
             <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
             <span className="text-xs font-semibold" style={{ color: 'var(--muted-fg)' }}>
-              OR CONTINUE WITH
+              {t('auth.orContinueWith')}
             </span>
             <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
           </div>

@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import Markdown from 'react-markdown';
@@ -65,27 +66,27 @@ const TAG_SUGGESTIONS = mockTags.map((t) => t.name);
 
 const PROSE_CLASSES = 'prose prose-sm max-w-none prose-headings:font-extrabold prose-headings:text-foreground prose-p:text-foreground/85 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[var(--bg-secondary)] prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-table:text-sm prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-li:marker:text-primary not-prose:pre';
 
-// === Toolbar Items ===
-const TOOLBAR_ITEMS: { icon: string; snippet: string; label: string; shortcut?: string }[] = [
-  { icon: 'mdi:format-bold', snippet: '**', label: '粗体', shortcut: 'Ctrl+B' },
-  { icon: 'mdi:format-italic', snippet: '*', label: '斜体', shortcut: 'Ctrl+I' },
-  { icon: 'mdi:format-strikethrough', snippet: '~~', label: '删除线' },
+// === Toolbar Items (labels use i18n keys) ===
+const TOOLBAR_ITEMS: { icon: string; snippet: string; labelKey: string; shortcut?: string }[] = [
+  { icon: 'mdi:format-bold', snippet: '**', labelKey: 'create.bold', shortcut: 'Ctrl+B' },
+  { icon: 'mdi:format-italic', snippet: '*', labelKey: 'create.italic', shortcut: 'Ctrl+I' },
+  { icon: 'mdi:format-strikethrough', snippet: '~~', labelKey: 'create.strikethrough' },
 ];
-const TOOLBAR_HEADINGS: { icon: string; snippet: string; label: string }[] = [
-  { icon: 'mdi:format-header-1', snippet: '# ', label: '一级标题' },
-  { icon: 'mdi:format-header-2', snippet: '## ', label: '二级标题' },
-  { icon: 'mdi:format-header-3', snippet: '### ', label: '三级标题' },
+const TOOLBAR_HEADINGS: { icon: string; snippet: string; labelKey: string }[] = [
+  { icon: 'mdi:format-header-1', snippet: '# ', labelKey: 'create.heading1' },
+  { icon: 'mdi:format-header-2', snippet: '## ', labelKey: 'create.heading2' },
+  { icon: 'mdi:format-header-3', snippet: '### ', labelKey: 'create.heading3' },
 ];
-const TOOLBAR_INSERTS: { icon: string; snippet: string; label: string }[] = [
-  { icon: 'mdi:format-list-bulleted', snippet: '- ', label: '无序列表' },
-  { icon: 'mdi:format-list-numbered', snippet: '1. ', label: '有序列表' },
-  { icon: 'mdi:format-quote-close', snippet: '> ', label: '引用' },
-  { icon: 'mdi:code-tags', snippet: '`', label: '行内代码' },
-  { icon: 'mdi:code-block-tags', snippet: '```\n\n```', label: '代码块' },
-  { icon: 'mdi:table', snippet: '| Header | Header |\n| --- | --- |\n| Cell | Cell |', label: '表格' },
-  { icon: 'mdi:link-variant', snippet: '[text](url)', label: '链接' },
-  { icon: 'mdi:image-outline', snippet: '![alt](url)', label: '图片' },
-  { icon: 'mdi:function-variant', snippet: '$$', label: '数学公式' },
+const TOOLBAR_INSERTS: { icon: string; snippet: string; labelKey: string }[] = [
+  { icon: 'mdi:format-list-bulleted', snippet: '- ', labelKey: 'create.unorderedList' },
+  { icon: 'mdi:format-list-numbered', snippet: '1. ', labelKey: 'create.orderedList' },
+  { icon: 'mdi:format-quote-close', snippet: '> ', labelKey: 'create.quote' },
+  { icon: 'mdi:code-tags', snippet: '`', labelKey: 'create.inlineCode' },
+  { icon: 'mdi:code-block-tags', snippet: '```\n\n```', labelKey: 'create.codeBlock' },
+  { icon: 'mdi:table', snippet: '| Header | Header |\n| --- | --- |\n| Cell | Cell |', labelKey: 'create.table' },
+  { icon: 'mdi:link-variant', snippet: '[text](url)', labelKey: 'create.link' },
+  { icon: 'mdi:image-outline', snippet: '![alt](url)', labelKey: 'create.image' },
+  { icon: 'mdi:function-variant', snippet: '$$', labelKey: 'create.mathFormula' },
 ];
 
 function ToolbarButton({ icon, snippet, label }: { icon: string; snippet: string; label: string }) {
@@ -123,12 +124,12 @@ function Divider() {
 }
 
 // === Preview Component ===
-function PreviewPane({ content }: { content: string }) {
+function PreviewPane({ content, emptyText }: { content: string; emptyText: string }) {
   if (!content.trim()) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground/40 gap-3">
         <Icon icon="mdi:file-eye-outline" width={48} />
-        <span className="text-sm">开始输入以预览</span>
+        <span className="text-sm">{emptyText}</span>
       </div>
     );
   }
@@ -144,6 +145,7 @@ function PreviewPane({ content }: { content: string }) {
 // === Main Page ===
 
 export function CreatePostPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const [title, setTitle] = useState('');
@@ -160,7 +162,7 @@ export function CreatePostPage() {
   const filteredTagSuggestions = useMemo(() => {
     if (!tagInput.trim()) return TAG_SUGGESTIONS;
     return TAG_SUGGESTIONS.filter(
-      (t) => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t),
+      (tg) => tg.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tg),
     );
   }, [tagInput, tags]);
 
@@ -177,7 +179,7 @@ export function CreatePostPage() {
   );
 
   const handleRemoveTag = useCallback((tag: string) => {
-    setTags((prev) => prev.filter((t) => t !== tag));
+    setTags((prev) => prev.filter((tg) => tg !== tag));
   }, []);
 
   const handleTagKeyDown = useCallback(
@@ -230,7 +232,7 @@ export function CreatePostPage() {
                 <Icon icon="mdi:arrow-left" width={18} />
               </Button>
               <Separator orientation="vertical" className="h-5" />
-              <h1 className="text-lg font-extrabold text-foreground">创作新文章</h1>
+              <h1 className="text-lg font-extrabold text-foreground">{t('create.title')}</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled={!title.trim() || isPublishing} onClick={handleSaveDraft}>
@@ -239,7 +241,7 @@ export function CreatePostPage() {
                 ) : (
                   <Icon icon="mdi:content-save-outline" width={16} />
                 )}
-                存草稿
+                {t('create.draft')}
               </Button>
               <Button size="sm" disabled={!canPublish || isPublishing} onClick={handlePublish}>
                 {isPublishing ? (
@@ -247,7 +249,7 @@ export function CreatePostPage() {
                 ) : (
                   <Icon icon="mdi:send" width={16} />
                 )}
-                发布文章
+                {t('create.publish')}
               </Button>
             </div>
           </motion.div>
@@ -257,12 +259,12 @@ export function CreatePostPage() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="输入文章标题..."
+              placeholder={t('create.enterTitle')}
               maxLength={100}
               className="w-full text-xl sm:text-2xl font-extrabold bg-transparent border-none outline-none placeholder:text-muted-foreground/50 text-foreground"
             />
             <div className="flex items-center justify-between mt-1.5">
-              <p className="text-xs text-muted-foreground">清晰的标题能让更多人看到你的文章</p>
+              <p className="text-xs text-muted-foreground">{t('create.titleHint')}</p>
               <span className={cn('text-xs tabular-nums', title.length > 90 ? 'text-destructive font-bold' : 'text-muted-foreground')}>
                 {title.length}/100
               </span>
@@ -275,7 +277,7 @@ export function CreatePostPage() {
             <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger className="w-[200px] h-8 text-xs gap-2">
                 <Icon icon={selectedCategory?.icon ?? 'mdi:folder-outline'} width={14} />
-                <SelectValue placeholder="选择分类" />
+                <SelectValue placeholder={t('create.selectCategory')} />
               </SelectTrigger>
               <SelectContent>
                 {mockCategories.map((cat) => (
@@ -327,7 +329,7 @@ export function CreatePostPage() {
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleTagKeyDown}
                       onFocus={() => setShowTagPopover(true)}
-                      placeholder={tags.length === 0 ? '添加标签（最多5个）' : ''}
+                      placeholder={tags.length === 0 ? t('create.addTags') : ''}
                       className="flex-1 min-w-[80px] bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground/50 text-foreground"
                     />
                   )}
@@ -362,15 +364,15 @@ export function CreatePostPage() {
                     <TabsList className="h-7 p-0.5 bg-muted/60">
                       <TabsTrigger value="split" className="h-6 px-2 text-[11px] gap-1">
                         <Icon icon="mdi:view-split-horizontal" width={13} />
-                        分屏
+                        {t('create.split')}
                       </TabsTrigger>
                       <TabsTrigger value="edit" className="h-6 px-2 text-[11px] gap-1">
                         <Icon icon="mdi:pencil-outline" width={13} />
-                        编辑
+                        {t('create.edit')}
                       </TabsTrigger>
                       <TabsTrigger value="preview" className="h-6 px-2 text-[11px] gap-1">
                         <Icon icon="mdi:eye-outline" width={13} />
-                        预览
+                        {t('create.preview')}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -379,15 +381,15 @@ export function CreatePostPage() {
                 <Divider />
 
                 {TOOLBAR_ITEMS.map((item) => (
-                  <ToolbarButton key={item.label} {...item} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
                 ))}
                 <Divider />
                 {TOOLBAR_HEADINGS.map((item) => (
-                  <ToolbarButton key={item.label} {...item} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
                 ))}
                 <Divider />
                 {TOOLBAR_INSERTS.map((item) => (
-                  <ToolbarButton key={item.label} {...item} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
                 ))}
 
                 {/* Mobile tab switch */}
@@ -395,10 +397,10 @@ export function CreatePostPage() {
                   <Tabs value={desktopTab === 'preview' ? 'preview' : 'edit'} onValueChange={setDesktopTab}>
                     <TabsList className="h-7 p-0.5 bg-muted/60">
                       <TabsTrigger value="edit" className="h-6 px-2.5 text-[11px]">
-                        编辑
+                        {t('create.edit')}
                       </TabsTrigger>
                       <TabsTrigger value="preview" className="h-6 px-2.5 text-[11px]">
-                        预览
+                        {t('create.preview')}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -418,12 +420,7 @@ export function CreatePostPage() {
                       ref={editorRef}
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
-                      placeholder={`开始书写你的文章内容...
-
-支持 Markdown 语法，包括：
-- **粗体**、*斜体*、~~删除线~~
-- 代码块、表格、引用
-- 数学公式：$E = mc^2$`}
+                      placeholder={t('create.placeholder')}
                       className={cn(
                         'flex-1 min-h-[520px] resize-none border-none shadow-none ring-none',
                         'focus-visible:ring-0 focus-visible:ring-offset-0',
@@ -442,32 +439,29 @@ export function CreatePostPage() {
                   )}>
                     <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-muted/20">
                       <Icon icon="mdi:eye-outline" width={14} className="text-muted-foreground" />
-                      <span className="text-xs font-semibold text-muted-foreground">预览</span>
+                      <span className="text-xs font-semibold text-muted-foreground">{t('create.preview')}</span>
                     </div>
                     <ScrollArea className="flex-1">
                       <div className="p-4">
-                        <PreviewPane content={content} />
+                        <PreviewPane content={content} emptyText={t('create.startTyping')} />
                       </div>
                     </ScrollArea>
                   </div>
                 )}
-
-                {/* Hide mobile preview when in edit mode, hide mobile editor when in preview mode */}
-                {/* Already handled by the conditions above + TabsList on mobile */}
               </div>
 
               {/* Status Bar */}
               <div className="flex items-center justify-between px-3 py-1.5 border-t-[1.5px] border-border bg-muted/20">
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground tabular-nums">
-                  <span>{charCount} 字符</span>
-                  <span>{lineCount} 行</span>
-                  <span>{wordCount} 词</span>
+                  <span>{charCount} {t('create.characters')}</span>
+                  <span>{lineCount} {t('create.lines')}</span>
+                  <span>{wordCount} {t('create.words')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span>Markdown</span>
                   {tags.length > 0 && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
-                      {tags.length} 标签
+                      {tags.length} {t('create.tags')}
                     </Badge>
                   )}
                 </div>
@@ -482,16 +476,16 @@ export function CreatePostPage() {
                 <CardHeader className="pb-2 pt-4 px-4">
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <Icon icon="mdi:check-decagram" width={16} className="text-primary" />
-                    发布检查
+                    {t('create.publishCheck')}
                   </CardTitle>
-                  <CardDescription className="text-xs">发布前请确认以下信息</CardDescription>
+                  <CardDescription className="text-xs">{t('create.publishCheckDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <div className="flex flex-col gap-2">
-                    <CheckItem label="标题" ok={!!title.trim()} value={title} />
-                    <CheckItem label="分类" ok={!!categoryId} value={selectedCategory?.name} />
-                    <CheckItem label="标签" ok={tags.length > 0} value={tags.length > 0 ? `${tags.length} 个标签` : '未添加'} />
-                    <CheckItem label="正文" ok={content.length >= 20} value={content.length >= 20 ? `${charCount} 字符` : '至少 20 字符'} />
+                    <CheckItem label={t('create.checkTitle')} ok={!!title.trim()} value={title} />
+                    <CheckItem label={t('create.checkCategory')} ok={!!categoryId} value={selectedCategory?.name} />
+                    <CheckItem label={t('create.checkTags')} ok={tags.length > 0} value={tags.length > 0 ? t('create.tagsCount', { count: tags.length }) : t('create.noTags')} />
+                    <CheckItem label={t('create.checkContent')} ok={content.length >= 20} value={content.length >= 20 ? `${charCount} ${t('create.characters')}` : t('create.minCharacters')} />
                   </div>
                 </CardContent>
               </Card>

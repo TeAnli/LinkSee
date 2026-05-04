@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,15 +19,16 @@ const fadeUp = {
   }),
 };
 
-const PASSWORD_RULES = [
-  { label: 'At least 8 characters', test: (v: string) => v.length >= 8 },
-  { label: 'Contains a number', test: (v: string) => /\d/.test(v) },
-  { label: 'Contains a letter', test: (v: string) => /[a-zA-Z]/.test(v) },
-];
-
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+
+  const PASSWORD_RULES = [
+    { label: t('auth.ruleMinLength'), test: (v: string) => v.length >= 8 },
+    { label: t('auth.ruleContainsNumber'), test: (v: string) => /\d/.test(v) },
+    { label: t('auth.ruleContainsLetter'), test: (v: string) => /[a-zA-Z]/.test(v) },
+  ];
 
   const [form, setForm] = useState<RegisterRequest>({
     username: '',
@@ -59,23 +61,23 @@ export function RegisterPage() {
     setError('');
 
     if (!form.username.trim() || !form.password || !confirmPassword) {
-      setError('Please fill in all required fields');
+      setError(t('auth.fillAllFields'));
       return;
     }
     if (form.username.trim().length < 3) {
-      setError('Username must be at least 3 characters');
+      setError(t('auth.usernameTooShort'));
       return;
     }
     if (passwordScore < PASSWORD_RULES.length) {
-      setError('Password does not meet all requirements');
+      setError(t('auth.passwordRequirements'));
       return;
     }
     if (form.password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.passwordsNotMatch'));
       return;
     }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address');
+      setError(t('auth.invalidEmail'));
       return;
     }
 
@@ -83,7 +85,6 @@ export function RegisterPage() {
     try {
       const res = await authApi.register(form);
       const { token } = res.data.data;
-      // Auto-login after register
       const loginRes = await authApi.login({
         username: form.username,
         password: form.password,
@@ -94,7 +95,7 @@ export function RegisterPage() {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? 'Registration failed, please try again';
+          ?.message ?? t('auth.registrationFailed');
       setError(msg);
     } finally {
       setLoading(false);
@@ -142,7 +143,7 @@ export function RegisterPage() {
             </span>
           </div>
           <p className="mt-2 text-sm font-medium" style={{ color: 'var(--muted-fg)' }}>
-            Create your account
+            {t('auth.createAccount')}
           </p>
         </motion.div>
 
@@ -174,97 +175,40 @@ export function RegisterPage() {
 
               {/* Username */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="reg-username"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
-                  Username <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
+                <label htmlFor="reg-username" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                  {t('auth.username')} <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
                 </label>
                 <div className="relative">
-                  <Icon
-                    icon="mdi:account-outline"
-                    width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
-                  />
-                  <Input
-                    id="reg-username"
-                    placeholder="Choose a username"
-                    className="pl-10"
-                    value={form.username}
-                    onChange={(e) => setForm({ ...form, username: e.target.value })}
-                    autoComplete="username"
-                  />
+                  <Icon icon="mdi:account-outline" width={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-fg)' }} />
+                  <Input id="reg-username" placeholder={t('auth.chooseUsername')} className="pl-10" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} autoComplete="username" />
                 </div>
                 {form.username && form.username.length < 3 && (
                   <p className="text-xs font-medium" style={{ color: 'var(--color-destructive, #FF6B6B)' }}>
-                    Must be at least 3 characters
+                    {t('auth.usernameTooShort')}
                   </p>
                 )}
               </div>
 
               {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="reg-email"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
-                  Email
+                <label htmlFor="reg-email" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                  {t('auth.email')}
                 </label>
                 <div className="relative">
-                  <Icon
-                    icon="mdi:email-outline"
-                    width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
-                  />
-                  <Input
-                    id="reg-email"
-                    type="email"
-                    placeholder="you@example.com (optional)"
-                    className="pl-10"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    autoComplete="email"
-                  />
+                  <Icon icon="mdi:email-outline" width={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-fg)' }} />
+                  <Input id="reg-email" type="email" placeholder={`${t('auth.enterEmail')} ${t('auth.optional')}`} className="pl-10" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" />
                 </div>
               </div>
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="reg-password"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
-                  Password <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
+                <label htmlFor="reg-password" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                  {t('auth.password')} <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
                 </label>
                 <div className="relative">
-                  <Icon
-                    icon="mdi:lock-outline"
-                    width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
-                  />
-                  <Input
-                    id="reg-password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a password"
-                    className="pl-10 pr-10"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                    style={{ color: 'var(--muted-fg)' }}
-                    tabIndex={-1}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
+                  <Icon icon="mdi:lock-outline" width={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-fg)' }} />
+                  <Input id="reg-password" type={showPassword ? 'text' : 'password'} placeholder={t('auth.enterPassword')} className="pl-10 pr-10" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity" style={{ color: 'var(--muted-fg)' }} tabIndex={-1} aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}>
                     <Icon icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'} width={18} />
                   </button>
                 </div>
@@ -273,41 +217,17 @@ export function RegisterPage() {
                   <div className="flex flex-col gap-1.5 mt-0.5">
                     <div className="flex gap-1">
                       {PASSWORD_RULES.map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-1 flex-1 rounded-full transition-colors duration-300"
-                          style={{
-                            backgroundColor:
-                              i < passwordScore
-                                ? passwordScore === PASSWORD_RULES.length
-                                  ? 'var(--primary)'
-                                  : passwordScore >= 2
-                                    ? 'var(--accent-fg)'
-                                    : 'var(--color-destructive, #FF6B6B)'
-                                : 'var(--border-color)',
-                          }}
-                        />
+                        <div key={i} className="h-1 flex-1 rounded-full transition-colors duration-300" style={{
+                          backgroundColor: i < passwordScore
+                            ? passwordScore === PASSWORD_RULES.length ? 'var(--primary)' : passwordScore >= 2 ? 'var(--accent-fg)' : 'var(--color-destructive, #FF6B6B)'
+                            : 'var(--border-color)',
+                        }} />
                       ))}
                     </div>
                     <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
                       {PASSWORD_RULES.map((rule) => (
-                        <li
-                          key={rule.label}
-                          className="flex items-center gap-1 text-xs font-medium transition-colors duration-200"
-                          style={{
-                            color: rule.test(form.password)
-                              ? 'var(--primary)'
-                              : 'var(--muted-fg)',
-                          }}
-                        >
-                          <Icon
-                            icon={
-                              rule.test(form.password)
-                                ? 'mdi:check-circle'
-                                : 'mdi:circle-outline'
-                            }
-                            width={12}
-                          />
+                        <li key={rule.label} className="flex items-center gap-1 text-xs font-medium transition-colors duration-200" style={{ color: rule.test(form.password) ? 'var(--primary)' : 'var(--muted-fg)' }}>
+                          <Icon icon={rule.test(form.password) ? 'mdi:check-circle' : 'mdi:circle-outline'} width={12} />
                           {rule.label}
                         </li>
                       ))}
@@ -318,40 +238,23 @@ export function RegisterPage() {
 
               {/* Confirm password */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="reg-confirm"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
-                  Confirm Password <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
+                <label htmlFor="reg-confirm" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                  {t('auth.confirmPassword')} <span style={{ color: 'var(--color-destructive, #FF6B6B)' }}>*</span>
                 </label>
                 <div className="relative">
-                  <Icon
-                    icon="mdi:lock-check-outline"
-                    width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
-                  />
-                  <Input
-                    id="reg-confirm"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password"
-                    className="pl-10"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
-                  />
+                  <Icon icon="mdi:lock-check-outline" width={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-fg)' }} />
+                  <Input id="reg-confirm" type={showPassword ? 'text' : 'password'} placeholder={t('auth.enterPassword')} className="pl-10" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" />
                 </div>
                 {confirmPassword && form.password !== confirmPassword && (
                   <p className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--color-destructive, #FF6B6B)' }}>
                     <Icon icon="mdi:close-circle" width={12} />
-                    Passwords do not match
+                    {t('auth.passwordsNotMatch')}
                   </p>
                 )}
                 {confirmPassword && form.password === confirmPassword && (
                   <p className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--primary)' }}>
                     <Icon icon="mdi:check-circle" width={12} />
-                    Passwords match
+                    {t('auth.passwordsMatch')}
                   </p>
                 )}
               </div>
@@ -359,42 +262,19 @@ export function RegisterPage() {
               {/* Captcha */}
               {captchaData && (
                 <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="reg-captcha"
-                    className="text-sm font-semibold"
-                    style={{ color: 'var(--fg)' }}
-                  >
-                    Captcha
+                  <label htmlFor="reg-captcha" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                    {t('auth.captcha')}
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Input
-                        id="reg-captcha"
-                        placeholder="Enter captcha"
-                        value={form.captcha}
-                        onChange={(e) => setForm({ ...form, captcha: e.target.value })}
-                        autoComplete="off"
-                      />
+                      <Input id="reg-captcha" placeholder={t('auth.enterCaptcha')} value={form.captcha} onChange={(e) => setForm({ ...form, captcha: e.target.value })} autoComplete="off" />
                     </div>
-                    <button
-                      type="button"
-                      onClick={loadCaptcha}
-                      className="h-10 rounded-xl border-[1.5px] overflow-hidden hover:opacity-80 transition-opacity"
-                      style={{ borderColor: 'var(--border-color)' }}
-                      title="Click to refresh"
-                    >
+                    <button type="button" onClick={loadCaptcha} className="h-10 rounded-xl border-[1.5px] overflow-hidden hover:opacity-80 transition-opacity" style={{ borderColor: 'var(--border-color)' }} title={t('auth.clickToRefresh')}>
                       {captchaData.captchaImageBase64 ? (
-                        <img
-                          src={`data:image/png;base64,${captchaData.captchaImageBase64}`}
-                          alt="Captcha"
-                          className="h-full w-24 object-cover"
-                        />
+                        <img src={`data:image/png;base64,${captchaData.captchaImageBase64}`} alt="Captcha" className="h-full w-24 object-cover" />
                       ) : (
-                        <div
-                          className="flex h-full w-24 items-center justify-center text-xs font-semibold"
-                          style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-fg)' }}
-                        >
-                          Loading
+                        <div className="flex h-full w-24 items-center justify-center text-xs font-semibold" style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-fg)' }}>
+                          {t('common.loading')}
                         </div>
                       )}
                     </button>
@@ -404,35 +284,28 @@ export function RegisterPage() {
 
               {/* Terms */}
               <label className="flex items-start gap-2 cursor-pointer text-xs leading-relaxed" style={{ color: 'var(--muted-fg)' }}>
-                <input
-                  type="checkbox"
-                  className="mt-0.5 size-3.5 rounded accent-[var(--primary)]"
-                />
+                <input type="checkbox" className="mt-0.5 size-3.5 rounded accent-[var(--primary)]" />
                 <span>
-                  I agree to the{' '}
+                  {t('auth.agreeTo')}{' '}
                   <button type="button" className="font-semibold hover:underline" style={{ color: 'var(--primary)' }}>
-                    Terms of Service
+                    {t('auth.termsOfService')}
                   </button>{' '}
-                  and{' '}
+                  {t('auth.and')}{' '}
                   <button type="button" className="font-semibold hover:underline" style={{ color: 'var(--primary)' }}>
-                    Privacy Policy
+                    {t('auth.privacyPolicy')}
                   </button>
                 </span>
               </label>
 
               {/* Submit */}
-              <Button
-                type="submit"
-                className="mt-1 h-11 w-full text-sm font-bold"
-                disabled={loading}
-              >
+              <Button type="submit" className="mt-1 h-11 w-full text-sm font-bold" disabled={loading}>
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <Icon icon="mdi:loading" width={18} className="animate-spin" />
-                    Creating account...
+                    {t('auth.creatingAccount')}
                   </span>
                 ) : (
-                  'Create Account'
+                  t('auth.signUp')
                 )}
               </Button>
             </CardContent>
@@ -440,36 +313,19 @@ export function RegisterPage() {
         </motion.form>
 
         {/* Footer link */}
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={2}
-          className="mt-5 text-center text-sm font-medium"
-          style={{ color: 'var(--muted-fg)' }}
-        >
-          Already have an account?{' '}
-          <Link
-            to="/login"
-            className="font-bold hover:underline"
-            style={{ color: 'var(--primary)' }}
-          >
-            Sign in
+        <motion.p variants={fadeUp} initial="hidden" animate="visible" custom={2} className="mt-5 text-center text-sm font-medium" style={{ color: 'var(--muted-fg)' }}>
+          {t('auth.alreadyHaveAccount')}{' '}
+          <Link to="/login" className="font-bold hover:underline" style={{ color: 'var(--primary)' }}>
+            {t('auth.signIn')}
           </Link>
         </motion.p>
 
         {/* Divider with social */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={3}
-          className="mt-6"
-        >
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="mt-6">
           <div className="relative flex items-center gap-3">
             <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
             <span className="text-xs font-semibold" style={{ color: 'var(--muted-fg)' }}>
-              OR CONTINUE WITH
+              {t('auth.orContinueWith')}
             </span>
             <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
           </div>
@@ -479,13 +335,7 @@ export function RegisterPage() {
               { icon: 'mdi:google', label: 'Google' },
               { icon: 'mdi:wechat', label: 'WeChat' },
             ].map((s) => (
-              <Button
-                key={s.icon}
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 rounded-xl"
-                aria-label={s.label}
-              >
+              <Button key={s.icon} variant="outline" size="icon" className="h-10 w-10 rounded-xl" aria-label={s.label}>
                 <Icon icon={s.icon} width={20} />
               </Button>
             ))}

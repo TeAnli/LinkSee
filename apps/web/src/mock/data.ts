@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import type { PostListItem, PostDetail, Category, UserInfo } from '@linksee/shared';
 
 // === Mock Users ===
@@ -1156,12 +1157,13 @@ export function formatRelativeTime(dateStr: string): string {
   const diffMin = Math.floor(diffMs / 60000);
   const diffHour = Math.floor(diffMs / 3600000);
   const diffDay = Math.floor(diffMs / 86400000);
+  const { t } = i18n;
 
-  if (diffMin < 1) return '刚刚';
-  if (diffMin < 60) return `${diffMin} 分钟前`;
-  if (diffHour < 24) return `${diffHour} 小时前`;
-  if (diffDay < 30) return `${diffDay} 天前`;
-  return date.toLocaleDateString('zh-CN');
+  if (diffMin < 1) return t('time.justNow');
+  if (diffMin < 60) return t('time.minutesAgo', { count: diffMin });
+  if (diffHour < 24) return t('time.hoursAgo', { count: diffHour });
+  if (diffDay < 30) return t('time.daysAgo', { count: diffDay });
+  return date.toLocaleDateString(i18n.language === 'zh-CN' ? 'zh-CN' : 'en-US');
 }
 
 // === Helper: format number ===

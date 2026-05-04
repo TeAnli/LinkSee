@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -49,10 +50,12 @@ function PlaceholderCard({
   title,
   icon,
   accent = false,
+  children,
 }: {
   title: string;
   icon: string;
   accent?: boolean;
+  children?: React.ReactNode;
 }) {
   return (
     <Card
@@ -75,15 +78,15 @@ function PlaceholderCard({
         </div>
       </CardHeader>
       <CardContent>
-        {title === 'Hot Topics' && <TopicTags />}
-        {title === 'Active Users' && <UserList />}
-        {title === 'AI Picks' && <Skeleton className="h-10 w-full rounded-lg" />}
+        {children}
       </CardContent>
     </Card>
   );
 }
 
 export function RightPanel() {
+  const { t } = useTranslation();
+
   return (
     <aside
       className="hidden xl:flex flex-col fixed right-0 border-l-[1.5px] border-border bg-background"
@@ -95,9 +98,15 @@ export function RightPanel() {
     >
       <ScrollArea className="flex-1 p-5">
         <div className="flex flex-col gap-4">
-          <PlaceholderCard title="Hot Topics" icon="mdi:fire" />
-          <PlaceholderCard title="Active Users" icon="mdi:account-group-outline" />
-          <PlaceholderCard title="AI Picks" icon="mdi:robot-happy" accent />
+          <PlaceholderCard title={t('rightPanel.hotTopics')} icon="mdi:fire">
+            <TopicTags />
+          </PlaceholderCard>
+          <PlaceholderCard title={t('rightPanel.activeUsers')} icon="mdi:account-group-outline">
+            <UserList />
+          </PlaceholderCard>
+          <PlaceholderCard title={t('rightPanel.aiPicks')} icon="mdi:robot-happy" accent>
+            <Skeleton className="h-10 w-full rounded-lg" />
+          </PlaceholderCard>
         </div>
       </ScrollArea>
     </aside>

@@ -1,0 +1,238 @@
+export default {
+  // ===== Common =====
+  common: {
+    appName: 'LinkSee 灵犀',
+    appDescription: 'AI赋能垂直行业智能论坛系统',
+    loading: '加载中...',
+    save: '保存',
+    cancel: '取消',
+    confirm: '确认',
+    delete: '删除',
+    back: '返回',
+    more: '更多',
+    search: '搜索',
+    noData: '暂无数据',
+    placeholder: '占位 — 内容即将上线',
+  },
+
+  // ===== Navigation =====
+  nav: {
+    home: '首页',
+    forum: '论坛',
+    ai: 'AI 助手',
+    messages: '消息',
+    profile: '个人中心',
+    settings: '设置',
+    createPost: '写文章',
+    expandSidebar: '展开侧边栏',
+    collapseSidebar: '收起侧边栏',
+  },
+
+  // ===== Auth =====
+  auth: {
+    signIn: '登录',
+    signUp: '注册',
+    signOut: '退出登录',
+    signInToAccount: '登录你的账号',
+    createAccount: '创建你的账号',
+    username: '用户名',
+    password: '密码',
+    confirmPassword: '确认密码',
+    email: '邮箱',
+    captcha: '验证码',
+    enterUsername: '输入用户名',
+    enterPassword: '输入密码',
+    chooseUsername: '选择用户名',
+    enterEmail: '输入邮箱',
+    enterCaptcha: '输入验证码',
+    optional: '（可选）',
+    rememberMe: '记住我',
+    forgotPassword: '忘记密码？',
+    dontHaveAccount: '还没有账号？',
+    createOne: '立即注册',
+    alreadyHaveAccount: '已有账号？',
+    signingIn: '登录中...',
+    creatingAccount: '注册中...',
+    orContinueWith: '其他登录方式',
+    hidePassword: '隐藏密码',
+    showPassword: '显示密码',
+    clickToRefresh: '点击刷新',
+    agreeTo: '我同意',
+    termsOfService: '服务条款',
+    and: '和',
+    privacyPolicy: '隐私政策',
+    // Validation
+    fillAllFields: '请填写所有必填字段',
+    loginFailed: '登录失败，请重试',
+    registrationFailed: '注册失败，请重试',
+    usernameTooShort: '用户名至少 3 个字符',
+    passwordRequirements: '密码不符合要求',
+    passwordsNotMatch: '两次密码不一致',
+    passwordsMatch: '密码一致',
+    invalidEmail: '请输入有效的邮箱地址',
+    // Password rules
+    ruleMinLength: '至少 8 个字符',
+    ruleContainsNumber: '包含数字',
+    ruleContainsLetter: '包含字母',
+    // Forgot password
+    resetYourPassword: '重置你的密码',
+    resetInfo: '输入与你的账号关联的邮箱，我们将发送重置链接。',
+    sendResetLink: '发送重置链接',
+    sending: '发送中...',
+    checkInbox: '查看收件箱',
+    sentResetLinkTo: '我们已将密码重置链接发送至',
+    resendIn: '{{seconds}}s 后重发',
+    resending: '重发中...',
+    resendEmail: '重新发送邮件',
+    useDifferentEmail: '使用其他邮箱',
+    backToSignIn: '返回登录',
+    enterYourEmail: '请输入你的邮箱',
+    failedSendResetEmail: '发送重置邮件失败，请重试',
+    failedResend: '重发失败，请重试',
+    // Reset password
+    setNewPassword: '设置新密码',
+    newPassword: '新密码',
+    enterNewPassword: '输入新密码',
+    confirmNewPassword: '确认新密码',
+    invalidResetLink: '无效的重置链接',
+    resetLinkExpired: '此密码重置链接无效或已过期。',
+    requestNewLink: '申请新链接',
+    passwordUpdated: '密码已更新',
+    passwordUpdatedDesc: '你的密码已成功重置。',
+    signInNow: '立即登录',
+    resetPassword: '重置密码',
+    resetting: '重置中...',
+    invalidResetToken: '重置令牌无效或缺失，请重新申请。',
+    resetFailed: '重置密码失败，链接可能已过期。',
+  },
+
+  // ===== Post =====
+  post: {
+    pinned: '置顶',
+    essence: '精华',
+    views: '浏览',
+    likes: '点赞',
+    comments: '评论',
+    reads: '阅读',
+    share: '分享',
+    toc: '目录',
+    postNotFound: '帖子不存在',
+    backToHome: '返回首页',
+    aiSummary: 'AI 摘要',
+  },
+
+  // ===== Create Post =====
+  create: {
+    title: '创作新文章',
+    draft: '存草稿',
+    publish: '发布文章',
+    enterTitle: '输入文章标题...',
+    titleHint: '清晰的标题能让更多人看到你的文章',
+    selectCategory: '选择分类',
+    addTags: '添加标签（最多5个）',
+    split: '分屏',
+    edit: '编辑',
+    preview: '预览',
+    startTyping: '开始输入以预览',
+    placeholder: '开始书写你的文章内容...\n\n支持 Markdown 语法，包括：\n- **粗体**、*斜体*、~~删除线~~\n- 代码块、表格、引用\n- 数学公式：$E = mc^2$',
+    characters: '字符',
+    lines: '行',
+    words: '词',
+    tags: '标签',
+    publishCheck: '发布检查',
+    publishCheckDesc: '发布前请确认以下信息',
+    checkTitle: '标题',
+    checkCategory: '分类',
+    checkTags: '标签',
+    checkContent: '正文',
+    tagsCount: '{{count}} 个标签',
+    noTags: '未添加',
+    minCharacters: '至少 20 字符',
+    // Toolbar
+    bold: '粗体',
+    italic: '斜体',
+    strikethrough: '删除线',
+    heading1: '一级标题',
+    heading2: '二级标题',
+    heading3: '三级标题',
+    unorderedList: '无序列表',
+    orderedList: '有序列表',
+    quote: '引用',
+    inlineCode: '行内代码',
+    codeBlock: '代码块',
+    table: '表格',
+    link: '链接',
+    image: '图片',
+    mathFormula: '数学公式',
+  },
+
+  // ===== Right Panel =====
+  rightPanel: {
+    hotTopics: '热门话题',
+    activeUsers: '活跃用户',
+    aiPicks: 'AI 推荐',
+  },
+
+  // ===== Profile =====
+  profile: {
+    posts: '帖子',
+    followers: '关注者',
+    activity: '动态',
+  },
+
+  // ===== Forum =====
+  forum: {
+    forumCategories: '论坛分类',
+    categories: '分类',
+  },
+
+  // ===== AI Chat =====
+  ai: {
+    chatInterface: 'AI 聊天',
+    conversation: '对话',
+  },
+
+  // ===== TopBar =====
+  topBar: {
+    searchPlaceholder: '搜索帖子、用户、话题...',
+    notifications: '通知',
+    userMenu: '用户菜单',
+  },
+
+  // ===== Theme =====
+  theme: {
+    settings: '主题设置',
+    mode: '模式',
+    hue: '色相',
+    presets: '预设',
+  },
+
+  // ===== Color Picker =====
+  colorPicker: {
+    blueViolet: '蓝紫',
+    pinkRose: '粉玫瑰',
+    orangeSoda: '橙汽水',
+    lemonDrop: '柠檬糖',
+    mintFresh: '薄荷绿',
+    skyBlue: '天空蓝',
+  },
+
+  // ===== Relative Time =====
+  time: {
+    justNow: '刚刚',
+    minutesAgo: '{{count}} 分钟前',
+    hoursAgo: '{{count}} 小时前',
+    daysAgo: '{{count}} 天前',
+  },
+
+  // ===== User Levels =====
+  levels: {
+    newbie: '萌新小白',
+    active: '活跃新人',
+    expert: '社区达人',
+    professional: '领域专家',
+    star: '灵犀之星',
+    leader: '社区领袖',
+  },
+} as const;
+

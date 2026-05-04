@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,18 +16,18 @@ import { useThemeStore } from '@/stores/useThemeStore';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   path: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', icon: 'mdi:home', path: '/' },
-  { label: 'Forum', icon: 'mdi:text-box-multiple', path: '/forum' },
-  { label: 'AI Assistant', icon: 'mdi:robot-happy', path: '/ai' },
-  { label: 'Messages', icon: 'mdi:message-text-outline', path: '/messages' },
-  { label: 'Profile', icon: 'mdi:account-circle-outline', path: '/profile' },
-  { label: 'Settings', icon: 'mdi:cog-outline', path: '/settings' },
+  { labelKey: 'nav.home', icon: 'mdi:home', path: '/' },
+  { labelKey: 'nav.forum', icon: 'mdi:text-box-multiple', path: '/forum' },
+  { labelKey: 'nav.ai', icon: 'mdi:robot-happy', path: '/ai' },
+  { labelKey: 'nav.messages', icon: 'mdi:message-text-outline', path: '/messages' },
+  { labelKey: 'nav.profile', icon: 'mdi:account-circle-outline', path: '/profile' },
+  { labelKey: 'nav.settings', icon: 'mdi:cog-outline', path: '/settings' },
 ];
 
 const CREATE_PATH = '/create';
@@ -38,6 +39,7 @@ const TOPBAR_HEIGHT = 60;
 export { SIDEBAR_WIDTH, SIDEBAR_COLLAPSED_WIDTH, TOPBAR_HEIGHT };
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const collapsed = useThemeStore((s) => s.sidebarCollapsed);
@@ -79,7 +81,7 @@ export function Sidebar() {
             onClick={toggleSidebar}
             className="flex items-center justify-center size-10 rounded-xl border-[1.5px] border-border shadow-flat shrink-0 hover:brightness-110 active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-none transition-all duration-200"
             style={{ backgroundColor: 'var(--primary)' }}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             <Icon icon="mdi:forum" width={22} height={22} color="#fff" />
           </button>
@@ -87,7 +89,7 @@ export function Sidebar() {
             <div className="flex flex-col overflow-hidden whitespace-nowrap">
               <span className="text-base font-bold leading-tight text-foreground">LinkSee</span>
               <span className="text-[11px] font-semibold text-muted-foreground">
-                LingXi Forum
+                {t('common.appName')}
               </span>
             </div>
           )}
@@ -124,12 +126,12 @@ export function Sidebar() {
                     >
                       <Icon icon={item.icon} width={22} height={22} className="shrink-0" />
                       {!collapsed && (
-                        <span className="text-sm font-semibold truncate">{item.label}</span>
+                        <span className="text-sm font-semibold truncate">{t(item.labelKey)}</span>
                       )}
                     </Button>
                   </TooltipTrigger>
                   {collapsed && (
-                    <TooltipContent side="right">{item.label}</TooltipContent>
+                    <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
                   )}
                 </Tooltip>
               );
@@ -149,11 +151,11 @@ export function Sidebar() {
                 onClick={() => navigate(CREATE_PATH)}
               >
                 <Icon icon="mdi:pencil-plus" width={20} className="shrink-0" />
-                {!collapsed && <span className="text-sm font-bold">写文章</span>}
+                {!collapsed && <span className="text-sm font-bold">{t('nav.createPost')}</span>}
               </Button>
             </TooltipTrigger>
             {collapsed && (
-              <TooltipContent side="right">写文章</TooltipContent>
+              <TooltipContent side="right">{t('nav.createPost')}</TooltipContent>
             )}
           </Tooltip>
         </div>
@@ -180,7 +182,7 @@ export function Sidebar() {
               size="icon"
               className="ml-auto shrink-0"
               onClick={toggleSidebar}
-              aria-label="Collapse sidebar"
+              aria-label={t('nav.collapseSidebar')}
             >
               <Icon icon="mdi:chevron-left" width={18} height={18} />
             </Button>

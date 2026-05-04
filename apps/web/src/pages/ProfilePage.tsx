@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PagePlaceholder } from '../components/layout/PagePlaceholder';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -5,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-[760px] flex flex-col gap-4">
@@ -19,16 +21,15 @@ export function ProfilePage() {
                 <Skeleton className="h-5 w-32 rounded-md" />
                 <Skeleton className="h-3 w-48 rounded-md" />
                 <div className="flex gap-2 mt-1">
-                  <Badge variant="secondary">Posts</Badge>
-                  <Badge variant="secondary">Followers</Badge>
+                  <Badge variant="secondary">{t('profile.posts')}</Badge>
+                  <Badge variant="secondary">{t('profile.followers')}</Badge>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <PagePlaceholder label="Activity" icon="mdi:history" />
-        <PagePlaceholder label="Settings" icon="mdi:cog-outline" />
+        <PagePlaceholder label={t('profile.activity')} icon="mdi:history" />
       </div>
     </div>
   );

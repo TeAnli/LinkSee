@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ const fadeUp = {
 };
 
 function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -36,13 +38,13 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
             {post.isTop && (
               <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-[10px] px-1.5 py-0">
                 <Icon icon="mdi:pin" width={12} className="mr-0.5" />
-                置顶
+                {t('post.pinned')}
               </Badge>
             )}
             {post.isEssence && (
               <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] px-1.5 py-0">
                 <Icon icon="mdi:star" width={12} className="mr-0.5" />
-                精华
+                {t('post.essence')}
               </Badge>
             )}
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
@@ -86,15 +88,15 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
               <span className="text-muted-foreground/60">{formatRelativeTime(post.publishedAt)}</span>
             </div>
             <div className="flex items-center gap-3 text-muted-foreground/60">
-              <span className="flex items-center gap-1" title="浏览">
+              <span className="flex items-center gap-1" title={t('post.views')}>
                 <Icon icon="mdi:eye-outline" width={14} />
                 {formatCount(post.viewCount)}
               </span>
-              <span className="flex items-center gap-1" title="点赞">
+              <span className="flex items-center gap-1" title={t('post.likes')}>
                 <Icon icon="mdi:thumb-up-outline" width={14} />
                 {formatCount(post.likeCount)}
               </span>
-              <span className="flex items-center gap-1" title="评论">
+              <span className="flex items-center gap-1" title={t('post.comments')}>
                 <Icon icon="mdi:comment-outline" width={14} />
                 {formatCount(post.commentCount)}
               </span>
@@ -107,6 +109,7 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
 }
 
 export function HomePage() {
+  const { t } = useTranslation();
   const sortedPosts = [...mockPosts].sort((a, b) => {
     if (a.isTop && !b.isTop) return -1;
     if (!a.isTop && b.isTop) return 1;
@@ -115,7 +118,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PagePlaceholder label="Home Feed" icon="mdi:view-grid-outline" />
+      <PagePlaceholder label={t('nav.home')} icon="mdi:view-grid-outline" />
       <div className="flex flex-col gap-3">
         {sortedPosts.map((post, index) => (
           <PostCard key={post.id} post={post} index={index} />

@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 
 interface PagePlaceholderProps {
@@ -8,9 +9,11 @@ interface PagePlaceholderProps {
 }
 
 export function PagePlaceholder({
-  label = 'Content Area',
+  label,
   icon = 'mdi:shape-outline',
 }: PagePlaceholderProps) {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -37,11 +40,11 @@ export function PagePlaceholder({
         </motion.div>
 
         <p className="mt-4 text-sm font-semibold text-muted-foreground">
-          {label}
+          {label ?? t('common.noData')}
         </p>
 
         <p className="mt-1 text-xs font-medium text-border">
-          Layout placeholder — content coming soon
+          {t('common.placeholder')}
         </p>
       </Card>
     </motion.div>

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -12,24 +13,26 @@ import {
 } from '@/components/ui/tooltip';
 import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
+import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-const PAGE_TITLES: Record<string, string> = {
-  '/': 'Home',
-  '/forum': 'Forum',
-  '/ai': 'AI Assistant',
-  '/messages': 'Messages',
-  '/profile': 'Profile',
-  '/settings': 'Settings',
+const PAGE_TITLE_KEYS: Record<string, string> = {
+  '/': 'nav.home',
+  '/forum': 'nav.forum',
+  '/ai': 'nav.ai',
+  '/messages': 'nav.messages',
+  '/profile': 'nav.profile',
+  '/settings': 'nav.settings',
 };
 
 export function TopBar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const title = PAGE_TITLES[location.pathname] ?? 'Page';
+  const title = PAGE_TITLE_KEYS[location.pathname] ?? 'common.noData';
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -43,7 +46,7 @@ export function TopBar() {
         {/* Left: Page title */}
         <div className="flex items-center gap-2 min-w-0">
           <h1 className="text-base font-bold truncate text-foreground">
-            {title}
+            {t(title)}
           </h1>
         </div>
 
@@ -58,7 +61,7 @@ export function TopBar() {
             />
             <Input
               type="text"
-              placeholder="Search posts, users, topics..."
+              placeholder={t('topBar.searchPlaceholder')}
               className="pl-10 pr-4 cursor-pointer"
             />
           </div>
@@ -69,7 +72,7 @@ export function TopBar() {
           {/* Notifications */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" className="relative" aria-label="Notifications">
+              <Button variant="outline" size="icon" className="relative" aria-label={t('topBar.notifications')}>
                 <Icon icon="mdi:bell-outline" width={20} height={20} />
                 <Badge
                   variant="destructive"
@@ -77,11 +80,14 @@ export function TopBar() {
                 />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Notifications</TooltipContent>
+            <TooltipContent side="bottom">{t('topBar.notifications')}</TooltipContent>
           </Tooltip>
 
           {/* Theme settings */}
           <ThemeSettingsPanel />
+
+          {/* Language switcher */}
+          <LanguageSwitcher />
 
           {/* Dark mode toggle */}
           <DarkModeToggle />
@@ -93,7 +99,7 @@ export function TopBar() {
                 variant="outline"
                 size="icon"
                 className="rounded-full"
-                aria-label={isAuthenticated ? 'User menu' : 'Sign in'}
+                aria-label={isAuthenticated ? t('topBar.userMenu') : t('auth.signIn')}
                 onClick={() => {
                   if (!isAuthenticated) navigate('/login');
                 }}
@@ -120,11 +126,11 @@ export function TopBar() {
                         style={{ color: 'var(--primary)' }}
                         onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
                       >
-                        Sign out
+                        {t('auth.signOut')}
                       </button>
                     </div>
                   )
-                : 'Sign in'}
+                : t('auth.signIn')}
             </TooltipContent>
           </Tooltip>
         </div>

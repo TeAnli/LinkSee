@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useMemo, useState } from 'react';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -69,16 +70,16 @@ function extractToc(markdown: string): TocItem[] {
 // === TOC Sidebar Component ===
 
 function TableOfContents({ toc, activeId }: { toc: TocItem[]; activeId: string | null }) {
+  const { t } = useTranslation();
 
   return (
     <aside className="hidden lg:flex flex-col fixed right-0 border-l-[1.5px] border-border bg-background z-10"
       style={{ width: '240px', top: '76px', bottom: 0 }}
     >
-      {/* Mobile toggle button (shown on lg breakpoint via responsive) */}
       <div className="flex items-center justify-between px-4 py-3 border-b-[1.5px] border-border">
         <div className="flex items-center gap-1.5">
           <Icon icon="mdi:format-list-bulleted" width={16} className="text-primary" />
-          <span className="text-xs font-bold text-foreground">目录</span>
+          <span className="text-xs font-bold text-foreground">{t('post.toc')}</span>
           <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full font-medium">
             {toc.length}
           </span>
@@ -121,6 +122,7 @@ function TableOfContents({ toc, activeId }: { toc: TocItem[]; activeId: string |
 // === Post Detail Page ===
 
 export function PostDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const articleRef = useRef<HTMLElement>(null);
@@ -135,7 +137,6 @@ export function PostDetailPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Find the first heading that is currently intersecting from top
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -146,7 +147,6 @@ export function PostDetailPage() {
       { rootMargin: '-80px 0px -60% 0px', threshold: 1.0 },
     );
 
-    // Small delay to ensure DOM is ready
     const timer = setTimeout(() => {
       toc.forEach((item) => {
         const el = document.getElementById(item.id);
@@ -160,12 +160,10 @@ export function PostDetailPage() {
     };
   }, [toc]);
 
-  // Scroll to top on post change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
-  // Memoize markdown components to avoid re-creating on every render
   const markdownComponents = useMemo(
     () => ({
       h2: ({ children, ...props }: React.ComponentPropsWithoutRef<'h2'>) => {
@@ -196,9 +194,9 @@ export function PostDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Icon icon="mdi:file-search-outline" width={64} className="text-muted-foreground/40" />
-        <p className="text-lg font-bold text-muted-foreground">帖子不存在</p>
+        <p className="text-lg font-bold text-muted-foreground">{t('post.postNotFound')}</p>
         <button onClick={() => navigate('/')} className="text-sm text-primary hover:underline cursor-pointer">
-          返回首页
+          {t('post.backToHome')}
         </button>
       </div>
     );
@@ -214,7 +212,7 @@ export function PostDetailPage() {
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit cursor-pointer group"
         >
           <Icon icon="mdi:arrow-left" width={18} className="group-hover:-translate-x-0.5 transition-transform" />
-          <span>返回</span>
+          <span>{t('common.back')}</span>
         </motion.button>
 
         {/* Post Card */}
@@ -224,12 +222,12 @@ export function PostDetailPage() {
             <motion.div variants={fadeUp} className="flex items-center gap-2 mb-3 flex-wrap">
               {post.isTop && (
                 <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-[10px] px-1.5 py-0">
-                  <Icon icon="mdi:pin" width={12} className="mr-0.5" />置顶
+                  <Icon icon="mdi:pin" width={12} className="mr-0.5" />{t('post.pinned')}
                 </Badge>
               )}
               {post.isEssence && (
                 <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] px-1.5 py-0">
-                  <Icon icon="mdi:star" width={12} className="mr-0.5" />精华
+                  <Icon icon="mdi:star" width={12} className="mr-0.5" />{t('post.essence')}
                 </Badge>
               )}
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
@@ -253,7 +251,7 @@ export function PostDetailPage() {
                 <div className="flex flex-col">
                   <span className="text-sm font-bold">{post.author.nickname}</span>
                   <span className="text-[11px] text-muted-foreground">
-                    {formatRelativeTime(post.publishedAt)} · 阅读 {formatCount(post.viewCount)}
+                    {formatRelativeTime(post.publishedAt)} · {t('post.reads')} {formatCount(post.viewCount)}
                   </span>
                 </div>
               </div>
@@ -305,7 +303,7 @@ export function PostDetailPage() {
                 >
                   <div className="flex items-center gap-1.5 mb-2">
                     <Icon icon="mdi:robot-happy" width={16} className="text-primary" />
-                    <span className="text-xs font-bold text-primary">AI 摘要</span>
+                    <span className="text-xs font-bold text-primary">{t('post.aiSummary')}</span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{post.aiSummary}</p>
                   {post.aiKeywords && post.aiKeywords.length > 0 && (
@@ -328,7 +326,7 @@ export function PostDetailPage() {
                 {[
                   { icon: 'mdi:thumb-up-outline', label: formatCount(post.likeCount), hoverColor: 'hover:text-red-500' },
                   { icon: 'mdi:bookmark-outline', label: formatCount(post.collectCount), hoverColor: 'hover:text-amber-500' },
-                  { icon: 'mdi:share-variant-outline', label: '分享', hoverColor: 'hover:text-primary' },
+                  { icon: 'mdi:share-variant-outline', label: t('post.share'), hoverColor: 'hover:text-primary' },
                 ].map((btn) => (
                   <motion.button
                     key={btn.icon}
@@ -349,7 +347,7 @@ export function PostDetailPage() {
         </Card>
       </motion.div>
 
-      {/* TOC Sidebar (only show when there are headings) */}
+      {/* TOC Sidebar */}
       {toc.length > 0 && <TableOfContents toc={toc} activeId={activeId} />}
     </div>
   );
