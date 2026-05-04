@@ -33,6 +33,17 @@ export interface RegisterRequest {
   captcha: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+  captcha?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface UserInfo {
   id: number;
   username: string;

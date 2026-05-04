@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authApi } from '@linksee/api-client';
 import type { LoginRequest } from '@linksee/shared';
@@ -195,13 +196,13 @@ export function LoginPage() {
                   />
                   Remember me
                 </label>
-                <button
-                  type="button"
+                <Link
+                  to="/forgot-password"
                   className="font-semibold hover:underline"
                   style={{ color: 'var(--primary)' }}
                 >
                   Forgot password?
-                </button>
+                </Link>
               </div>
 
               {/* Submit */}
