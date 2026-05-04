@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tooltip,
@@ -14,6 +13,7 @@ import {
 import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
+import { NotificationPanel } from '../notification/NotificationPanel';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const PAGE_TITLE_KEYS: Record<string, string> = {
@@ -70,18 +70,7 @@ export function TopBar() {
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" className="relative" aria-label={t('topBar.notifications')}>
-                <Icon icon="mdi:bell-outline" width={20} height={20} />
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 size-3 p-0 justify-center text-[8px]"
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t('topBar.notifications')}</TooltipContent>
-          </Tooltip>
+          <NotificationPanel />
 
           {/* Theme settings */}
           <ThemeSettingsPanel />

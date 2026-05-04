@@ -218,6 +218,25 @@ export default {
     userMenu: '用户菜单',
   },
 
+  // ===== Notifications =====
+  noti: {
+    title: '通知中心',
+    empty: '暂无通知',
+    emptyDesc: '有新消息时会在这里显示~',
+    markAllRead: '全部已读',
+    viewAll: '查看全部',
+    interaction: '互动',
+    system: '系统',
+    ai: 'AI',
+    commentedYourPost: '评论了你的帖子',
+    likedYourPost: '赞了你的帖子',
+    repliedYourComment: '回复了你的评论',
+    followedYou: '关注了你',
+    mentionedYou: '提到了你',
+    systemUpdate: '系统更新通知',
+    aiAnswerReady: 'AI 回答已生成',
+  },
+
   // ===== Theme =====
   theme: {
     settings: '主题设置',

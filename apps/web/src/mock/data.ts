@@ -1,5 +1,5 @@
 import i18n from '@/i18n';
-import type { PostListItem, PostDetail, Category, UserInfo, UserProfile } from '@linksee/shared';
+import type { PostListItem, PostDetail, Category, UserInfo, UserProfile, Notification } from '@linksee/shared';
 
 // === Mock Users ===
 
@@ -1210,6 +1210,79 @@ export function getMockPostDetail(id: number): PostDetail | undefined {
     aiSummary: detail?.aiSummary,
     aiKeywords: detail?.aiKeywords,
   };
+}
+
+// === Mock Notifications ===
+
+export const mockNotifications: Notification[] = [
+  {
+    id: 1,
+    type: 'interaction',
+    title: '代码猎人',
+    content: '评论了你的帖子「Spring Boot 3.x 微服务架构实战」',
+    isRead: false,
+    createdAt: '2026-05-04T13:30:00Z',
+  },
+  {
+    id: 2,
+    type: 'interaction',
+    title: '技术小白兔',
+    content: '赞了你的帖子「PostgreSQL 性能优化实战」',
+    isRead: false,
+    createdAt: '2026-05-04T12:15:00Z',
+  },
+  {
+    id: 3,
+    type: 'ai',
+    title: 'AI 助手',
+    content: '你请求的 AI 摘要已生成完毕',
+    isRead: false,
+    createdAt: '2026-05-04T11:00:00Z',
+  },
+  {
+    id: 4,
+    type: 'interaction',
+    title: 'DevCat',
+    content: '回复了你的评论：完全同意，RAG 的核心确实在检索质量',
+    isRead: true,
+    createdAt: '2026-05-04T09:45:00Z',
+  },
+  {
+    id: 5,
+    type: 'interaction',
+    title: '全栈阿杰',
+    content: '关注了你',
+    isRead: true,
+    createdAt: '2026-05-04T08:20:00Z',
+  },
+  {
+    id: 6,
+    type: 'system',
+    title: '系统通知',
+    content: 'LinkSee 灵犀 v1.2 已更新，新增 AI 对话功能',
+    isRead: true,
+    createdAt: '2026-05-03T18:00:00Z',
+  },
+  {
+    id: 7,
+    type: 'interaction',
+    title: '云端漫步',
+    content: '提到了你：@林小白 你之前的 K8s 搭建教程帮了大忙！',
+    isRead: true,
+    createdAt: '2026-05-03T15:30:00Z',
+  },
+  {
+    id: 8,
+    type: 'ai',
+    title: 'AI 助手',
+    content: '你关注的帖子有新的 AI 推荐回答',
+    isRead: true,
+    createdAt: '2026-05-03T10:00:00Z',
+  },
+];
+
+export function getUnreadCount(): number {
+  return mockNotifications.filter((n) => !n.isRead).length;
 }
 
 // === Helper: format relative time ===

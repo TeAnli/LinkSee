@@ -224,6 +224,25 @@ const en: DeepString<typeof zhCN> = {
     userMenu: 'User menu',
   },
 
+  // ===== Notifications =====
+  noti: {
+    title: 'Notifications',
+    empty: 'No notifications',
+    emptyDesc: 'New messages will appear here~',
+    markAllRead: 'Mark all read',
+    viewAll: 'View all',
+    interaction: 'Interaction',
+    system: 'System',
+    ai: 'AI',
+    commentedYourPost: 'commented on your post',
+    likedYourPost: 'liked your post',
+    repliedYourComment: 'replied to your comment',
+    followedYou: 'followed you',
+    mentionedYou: 'mentioned you',
+    systemUpdate: 'System update',
+    aiAnswerReady: 'AI answer ready',
+  },
+
   // ===== Theme =====
   theme: {
     settings: 'Theme',
