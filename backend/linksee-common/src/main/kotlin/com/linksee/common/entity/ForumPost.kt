@@ -18,13 +18,13 @@ interface ForumPost {
     @JoinColumn(name = "category_id")
     val category: ForumCategory
 
-    @Column(name = "title", length = 200)
+    @Column(name = "title")
     val title: String
 
     @Column(name = "content", sqlType = "TEXT")
     val content: String
 
-    @Column(name = "cover_image_url", length = 500)
+    @Column(name = "cover_image_url")
     val coverImageUrl: String
 
     @Column(name = "summary", sqlType = "TEXT")

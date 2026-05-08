@@ -18,7 +18,7 @@ interface ForumComment {
     @JoinColumn(name = "user_id")
     val user: SysUser
 
-    @Column(name = "parent_id")
+    @IdView("parent")
     val parentId: Long?
 
     @Column(name = "content", sqlType = "TEXT")

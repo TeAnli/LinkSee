@@ -1,14 +1,8 @@
 rootProject.name = "linksee-backend"
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenCentral()
-        google()
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
         mavenCentral()
         google()
     }
@@ -22,3 +16,4 @@ include(":linksee-user-service")
 include(":linksee-forum-service")
 include(":linksee-ai-service")
 include(":linksee-message-service")
+

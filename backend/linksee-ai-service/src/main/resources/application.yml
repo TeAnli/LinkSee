@@ -1,9 +1,19 @@
+spring:
+  config:
+    import: file:.env
+
 server:
   port: 8084
 
 spring:
   application:
     name: linksee-ai-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:public}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/linksee}
     username: ${SPRING_DATASOURCE_USERNAME:linksee}
@@ -18,11 +28,6 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       database: 0
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:linksee}
-    password: ${RABBITMQ_PASSWORD:linksee}
   elasticsearch:
     uris: ${ELASTICSEARCH_HOSTS:http://localhost:9200}
 
@@ -31,7 +36,6 @@ jimmer:
   show-sql: true
   pretty-print: true
 
-# AI Model Configuration
 ai:
   model:
     zhipu:
@@ -42,7 +46,6 @@ ai:
     kimi:
       api-key: ${AI_MODEL_KIMI_API_KEY:}
 
-# Milvus
 milvus:
   host: ${MILVUS_HOST:localhost}
   port: ${MILVUS_PORT:19530}

@@ -2,31 +2,54 @@ server:
   port: 8080
 
 spring:
+  
   application:
     name: linksee-api-gateway
+  config:
+    import: optional:file:.env[.properties]
   cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:public}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:public}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+        file-extension: yaml
     gateway:
       routes:
         - id: auth-service
           uri: lb://linksee-auth-service
           predicates:
             - Path=/api/auth/**
+          filters:
+            - name: Sentinel
         - id: user-service
           uri: lb://linksee-user-service
           predicates:
             - Path=/api/user/**
+          filters:
+            - name: Sentinel
         - id: forum-service
           uri: lb://linksee-forum-service
           predicates:
             - Path=/api/forum/**
+          filters:
+            - name: Sentinel
         - id: ai-service
           uri: lb://linksee-ai-service
           predicates:
             - Path=/api/ai/**, /api/search/**
+          filters:
+            - name: Sentinel
         - id: message-service
           uri: lb://linksee-message-service
           predicates:
             - Path=/api/message/**
+          filters:
+            - name: Sentinel
       global-cors:
         cors-configurations:
           '[/**]':
@@ -34,6 +57,10 @@ spring:
             allowed-methods: "*"
             allowed-headers: "*"
             allow-credentials: true
+    sentinel:
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD:localhost:8080}
+      eager: true
 
   data:
     redis:
@@ -41,12 +68,6 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       database: 0
-
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:linksee}
-    password: ${RABBITMQ_PASSWORD:linksee}
 
 jwt:
   secret: ${JWT_SECRET:dGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIGxpbmtzZWUgcHJvamVjdCBqd3QgdG9rZW4gZ2VuZXJhdGlvbg==}

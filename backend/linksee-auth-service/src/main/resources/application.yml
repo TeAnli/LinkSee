@@ -1,9 +1,19 @@
+spring:
+  config:
+    import: file:.env
+
 server:
   port: 8081
 
 spring:
   application:
     name: linksee-auth-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:public}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/linksee}
     username: ${SPRING_DATASOURCE_USERNAME:linksee}

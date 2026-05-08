@@ -9,51 +9,51 @@
 ## 目录
 
 - [一、产品概述](#一产品概述)
-  - [1.1 项目愿景与定位](#11-项目愿景与定位)
-  - [1.2 核心价值主张](#12-核心价值主张)
-  - [1.3 目标用户画像](#13-目标用户画像)
+    - [1.1 项目愿景与定位](#11-项目愿景与定位)
+    - [1.2 核心价值主张](#12-核心价值主张)
+    - [1.3 目标用户画像](#13-目标用户画像)
 - [二、核心技术架构](#二核心技术架构)
-  - [2.1 技术栈总览](#21-技术栈总览)
-  - [2.2 微服务整体架构](#22-微服务整体架构)
-  - [2.3 微服务拆分清单](#23-微服务拆分清单)
-  - [2.4 数据存储分层分工](#24-数据存储分层分工)
+    - [2.1 技术栈总览](#21-技术栈总览)
+    - [2.2 微服务整体架构](#22-微服务整体架构)
+    - [2.3 微服务拆分清单](#23-微服务拆分清单)
+    - [2.4 数据存储分层分工](#24-数据存储分层分工)
 - [三、网关统一路由规范](#三网关统一路由规范)
-  - [3.1 路由设计总则](#31-路由设计总则)
-  - [3.2 网关路由前缀映射表](#32-网关路由前缀映射表)
+    - [3.1 路由设计总则](#31-路由设计总则)
+    - [3.2 网关路由前缀映射表](#32-网关路由前缀映射表)
 - [四、多板块垂直行业体系](#四多板块垂直行业体系)
-  - [4.1 板块体系架构](#41-板块体系架构)
-  - [4.2 板块特色配置](#42-板块特色配置)
+    - [4.1 板块体系架构](#41-板块体系架构)
+    - [4.2 板块特色配置](#42-板块特色配置)
 - [五、用户体系与权限架构](#五用户体系与权限架构)
-  - [5.1 用户角色层级](#51-用户角色层级)
-  - [5.2 用户等级成长体系](#52-用户等级成长体系)
-  - [5.3 积分获取规则](#53-积分获取规则)
+    - [5.1 用户角色层级](#51-用户角色层级)
+    - [5.2 用户等级成长体系](#52-用户等级成长体系)
+    - [5.3 积分获取规则](#53-积分获取规则)
 - [六、AI双引擎功能设计](#六ai双引擎功能设计)
-  - [6.1 AI创作助手引擎](#61-ai创作助手引擎)
-  - [6.2 AI智能问答引擎(RAG)](#62-ai智能问答引擎rag)
-  - [6.3 多模型适配层架构](#63-多模型适配层架构)
-  - [6.4 AI用量控制策略](#64-ai用量控制策略)
+    - [6.1 AI创作助手引擎](#61-ai创作助手引擎)
+    - [6.2 AI智能问答引擎(RAG)](#62-ai智能问答引擎rag)
+    - [6.3 多模型适配层架构](#63-多模型适配层架构)
+    - [6.4 AI用量控制策略](#64-ai用量控制策略)
 - [七、核心业务流程](#七核心业务流程)
-  - [7.1 发帖主流程](#71-发帖主流程)
-  - [7.2 搜索主流程](#72-搜索主流程)
-  - [7.3 AI赋能流程](#73-ai赋能流程)
-  - [7.4 缓存交互流程](#74-缓存交互流程)
+    - [7.1 发帖主流程](#71-发帖主流程)
+    - [7.2 搜索主流程](#72-搜索主流程)
+    - [7.3 AI赋能流程](#73-ai赋能流程)
+    - [7.4 缓存交互流程](#74-缓存交互流程)
 - [八、前端页面结构](#八前端页面结构)
-  - [8.1 页面路由规划](#81-页面路由规划)
-  - [8.2 核心页面说明](#82-核心页面说明)
+    - [8.1 页面路由规划](#81-页面路由规划)
+    - [8.2 核心页面说明](#82-核心页面说明)
 - [九、数据模型设计](#九数据模型设计)
-  - [9.1 设计原则](#91-设计原则)
-  - [9.2 核心数据表清单](#92-核心数据表清单)
-  - [9.3 扩展数据表设计](#93-扩展数据表设计)
+    - [9.1 设计原则](#91-设计原则)
+    - [9.2 核心数据表清单](#92-核心数据表清单)
+    - [9.3 扩展数据表设计](#93-扩展数据表设计)
 - [十、中间件设计规范](#十中间件设计规范)
-  - [10.1 Redis缓存Key标准化](#101-redis缓存key标准化)
-  - [10.2 Elasticsearch索引结构](#102-elasticsearch索引结构)
-  - [10.3 RabbitMQ消息队列设计](#103-rabbitmq消息队列设计)
+    - [10.1 Redis缓存Key标准化](#101-redis缓存key标准化)
+    - [10.2 Elasticsearch索引结构](#102-elasticsearch索引结构)
+    - [10.3 RabbitMQ消息队列设计](#103-rabbitmq消息队列设计)
 - [十一、核心API接口设计](#十一核心api接口设计)
-  - [11.1 认证接口](#111-认证接口)
-  - [11.2 论坛业务接口](#112-论坛业务接口)
-  - [11.3 AI能力接口](#113-ai能力接口)
-  - [11.4 用户接口](#114-用户接口)
-  - [11.5 消息通知接口](#115-消息通知接口)
+    - [11.1 认证接口](#111-认证接口)
+    - [11.2 论坛业务接口](#112-论坛业务接口)
+    - [11.3 AI能力接口](#113-ai能力接口)
+    - [11.4 用户接口](#114-用户接口)
+    - [11.5 消息通知接口](#115-消息通知接口)
 - [十二、后端工程目录结构](#十二后端工程目录结构)
 - [十三、安全与风控](#十三安全与风控)
 - [十四、分阶段迭代路线图](#十四分阶段迭代路线图)
@@ -66,7 +66,8 @@
 
 ### 1.1 项目愿景与定位
 
-LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微服务系统**。它不是传统的泛论坛平台，而是融合了 **AI创作助手** 和 **RAG智能知识库问答** 双引擎的新一代专业社区。
+LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微服务系统**。它不是传统的泛论坛平台，而是融合了 **AI创作助手** 和 *
+*RAG智能知识库问答** 双引擎的新一代专业社区。
 
 核心理念取自李商隐诗句「身无彩凤双飞翼，心有灵犀一点通」—— 寓意 **AI能够真正理解用户意图，精准连接人与知识**。
 
@@ -76,12 +77,12 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 
 ### 1.2 核心价值主张
 
-| 维度 | 价值承诺 | 对应功能 |
-|------|----------|----------|
+| 维度       | 价值承诺         | 对应功能                        |
+|----------|--------------|-----------------------------|
 | **创作提效** | "10分钟写出专业帖子" | AI标题生成、大纲辅助、智能润色、续写扩写、多语言翻译 |
-| **知识获取** | "一个问题，精准答案" | AI对话式问答、RAG检索增强生成、专家匹配推荐 |
-| **社区连接** | "找到懂你的人" | 多板块垂直分类、兴趣标签匹配、用户画像相似度推荐 |
-| **专业深度** | "每个板块都是知识库" | 行业知识沉淀、AI摘要归档、精华聚合、结构化发帖模板 |
+| **知识获取** | "一个问题，精准答案"  | AI对话式问答、RAG检索增强生成、专家匹配推荐    |
+| **社区连接** | "找到懂你的人"     | 多板块垂直分类、兴趣标签匹配、用户画像相似度推荐    |
+| **专业深度** | "每个板块都是知识库"  | 行业知识沉淀、AI摘要归档、精华聚合、结构化发帖模板  |
 
 ### 1.3 目标用户画像
 
@@ -109,18 +110,24 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 
 ### 2.1 技术栈总览
 
-| 技术层级 | 选定技术组件 | 核心用途 | 技术优势 |
-|----------|-------------|----------|----------|
-| 开发语言 | **Kotlin** | 后端唯一主力开发语言 | 空安全、函数式编程、杜绝NPE、代码量比Java减少30% |
-| 微服务框架 | **Spring Boot 4.0 + Spring Cloud** | 微服务工程搭建、服务治理 | 云原生适配、自动运维扩容、治理标准化 |
-| ORM框架 | **Jimmer** | PostgreSQL数据持久化 | 动态SQL、强类型实体、无需XML、开发效率翻倍 |
-| 核心数据库 | **PostgreSQL 16（主从）** | 全量核心业务结构化数据存储 | 事务强一致、JSONB扩展字段、复杂查询支持 |
-| 分布式缓存 | **Redis 7.0集群** | 热点缓存、会话、计数器、限流 | 毫秒级响应、冷热数据分离 |
-| 检索引擎 | **Elasticsearch 8.x集群** | 全站全文检索、关键词热搜 | 海量数据毫秒级返回 |
-| 向量数据库 | **Milvus** | 向量语义检索、个性化推荐 | 关键词+语义双引擎 |
-| 消息队列 | **RabbitMQ** | 异步削峰、事件驱动解耦 | 不阻塞主流程、高并发平稳 |
-| AI大模型 | **智谱GLM-4 + 通义千问 + Kimi（月之暗面）** | AI创作、问答、审核、摘要 | 国产模型合规性好、响应快、成本可控 |
-| 前端技术栈 | **React 19 + TypeScript + Vite 6 + Tailwind CSS 4** | 前端应用开发 | 现代化生态、类型安全、极致开发体验、响应式设计 |
+| 技术层级       | 选型组件                                                      | 核心用途                  | 技术优势                              |
+|------------|-----------------------------------------------------------|-----------------------|-----------------------------------|
+| 开发语言      | **Kotlin**                                                | 后端唯一主力开发语言           | 空安全、函数式编程、杜绝NPE、代码量比Java减少30%        |
+| 基础框架      | **Spring Boot 3.4.2**                                      | 应用运行容器、自动配置          | 成熟稳定、生态丰富、启动快                      |
+| 微服务治理     | **Spring Cloud Alibaba 2025.1.0.0**                            | 服务注册发现、配置中心、流量控制      | 国内生态完善、与 Spring Boot 深度集成、开箱即用         |
+| 服务注册/配置   | **Nacos**                                                  | 服务注册与发现、分布式配置管理       | 动态扩缩容、配置热更新、健康检查                   |
+| 流量控制      | **Sentinel**                                               | 限流熔断、系统自适应保护、网关流控    | 实时监控、灵活规则、无缝集成                    |
+| 服务网关      | **Spring Cloud Gateway**                                    | 统一入口、路由转发、鉴权限流       | 响应式非阻塞、动态路由、Filter链可扩展              |
+| 远程调用      | **OpenFeign**                                              | 声明式HTTP客户端、服务间调用       | 接口声明即调用、负载均衡、内置重试                  |
+| 鉴权框架      | **Sa-Token 1.39.0 + Redis**                                  | 统一会话鉴权、权限校验、Gateway统一鉴权 | 一行代码登录/鉴权、注解式权限控制、Redis分布式会话、踢人下线 |
+| ORM框架      | **Jimmer**                                                 | PostgreSQL数据持久化        | 动态SQL、强类型实体、无需XML、开发效率翻倍            |
+| 核心数据库     | **PostgreSQL 16（主从）**                                       | 全量核心业务结构化数据存储        | 事务强一致、JSONB扩展字段、复杂查询支持              |
+| 分布式缓存     | **Redis 7.0集群**                                            | 热点缓存、Sa-Token会话存储、计数器、限流 | 毫秒级响应、冷热数据分离                       |
+| 检索引擎      | **Elasticsearch 8.x集群**                                     | 全站全文检索、关键词热搜         | 海量数据毫秒级返回                          |
+| 向量数据库     | **Milvus**                                                  | 向量语义检索、个性化推荐         | 关键词+语义双引擎                          |
+| 消息队列      | **RabbitMQ**                                                | 异步削峰、事件驱动解耦          | 不阻塞主流程、高并发平稳                       |
+| AI大模型      | **智谱GLM-4 + 通义千问 + Kimi（月之暗面）**                             | AI创作、问答、审核、摘要        | 国产模型合规性好、响应快、成本可控                   |
+| 前端技术栈     | **React 19 + TypeScript + Vite 6 + Tailwind CSS 4**                   | 前端应用开发               | 现代化生态、类型安全、极致开发体验、响应式设计            |
 
 ### 2.2 微服务整体架构
 
@@ -139,14 +146,20 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    网关层 (Spring Cloud Gateway)                     │
-│              api-gateway — 统一入口、鉴权、限流、日志                 │
+│              api-gateway — 统一入口、Sa-Token鉴权、限流、日志          │
+│              ┌──────────────────────────────────────────┐           │
+│              │  Sa-Token Router Filter (统一身份校验)      │           │
+│              │  · 提取Token → Redis验证 → 注入LoginId      │           │
+│              │  · 白名单放行(登录/注册/公开接口)             │           │
+│              └──────────────────────────────────────────┘           │
 └─────────────────────────────────────────────────────────────────────┘
                                     │
         ┌───────────────────────────┼───────────────────────────┐
         ▼                           ▼                           ▼
 ┌───────────────┐          ┌───────────────┐          ┌───────────────┐
 │  auth-service │          │  user-service │          │ forum-service │
-│  认证权限服务 │          │  用户信息服务  │          │  论坛核心服务  │
+│  认证权限服务  │          │  用户信息服务  │          │  论坛核心服务  │
+│ (Sa-Token登录) │          │              │          │              │
 └───────────────┘          └───────────────┘          └───────────────┘
                                     │
                                     ▼
@@ -166,52 +179,65 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
         ▼           ▼               ▼               ▼               ▼
 ┌───────────┐ ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
 │ PostgreSQL │ │   Redis   │  │     ES    │  │  Milvus   │  │  RabbitMQ │
-│  (主从)    │ │  (集群)   │  │  (集群)   │  │ (向量库)  │  │  (集群)   │
+│  (主从)    │ │(缓存+会话) │  │  (集群)   │  │ (向量库)  │  │  (集群)   │
 └───────────┘ └───────────┘  └───────────┘  └───────────┘  └───────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                      基础设施层 (Spring Cloud Alibaba)                │
+│                                                                     │
+│  ┌──────────────────────┐  ┌──────────────────────┐                 │
+│  │       Nacos          │  │      Sentinel         │                 │
+│  │  · 服务注册与发现     │  │  · 流量控制(限流/熔断)   │                 │
+│  │  · 分布式配置中心     │  │  · 系统自适应保护        │                 │
+│  │  · 服务健康检查       │  │  · 网关流控规则          │                 │
+│  └──────────────────────┘  └──────────────────────┘                 │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 **设计原则**：
+
 - 每层只做单一职责，互不越权，扩容互不影响
 - 所有外部请求必须经过网关，禁止直连微服务
 - 中间件层支撑异步解耦和高性能查询
 
 ### 2.3 微服务拆分清单
 
-| 微服务名称 | 服务标识名 | 核心负责业务边界 | 依赖中间件 | 是否对外暴露 |
-|------------|-----------|------------------|-----------|:----------:|
-| **网关统一入口服务** | `api-gateway` | 路由转发、认证鉴权、限流防刷、跨域处理、灰度发布、全局请求日志 | Redis（限流缓存） | ✅ 唯一对外入口 |
-| **认证权限微服务** | `auth-service` | 用户注册、登录、令牌下发(JWT)、角色权限校验、账号安全管控、第三方登录预留 | PostgreSQL、Redis | ❌ 内部调用 |
-| **用户信息微服务** | `user-service` | 用户资料、积分等级、兴趣标签、关注粉丝、AI用户画像构建与维护 | PostgreSQL、Redis、Milvus、RabbitMQ | ❌ 内部调用 |
-| **论坛核心业务微服务** | `forum-service` | 帖子发布编辑、评论互动、分类标签管理、点赞收藏、板块管理 | PostgreSQL、Redis、RabbitMQ、Elasticsearch | ❌ 内部调用 |
-| **AI智能赋能微服务** | `ai-service` | AI创作辅助(8大功能)、AI内容审核、AI摘要生成、AI语义检索(RAG)、AI个性化推荐、多模型调度 | Elasticsearch、Milvus、RabbitMQ、大模型API | ❌ 内部调用 |
-| **消息通知微服务** | `message-service` | 站内信、点赞评论提醒、系统通知、AI推送消息统一下发、邮件/短信预留 | PostgreSQL、Redis、RabbitMQ | ❌ 内部调用 |
+| 微服务名称         | 服务标识名             | 核心负责业务边界                                             | 依赖中间件                                   |  是否对外暴露  |
+|---------------|-------------------|------------------------------------------------------|-----------------------------------------|:--------:|
+| **网关统一入口服务**  | `api-gateway`     | 路由转发、Sa-Token统一鉴权、限流防刷、跨域处理、灰度发布、全局请求日志              | Redis（限流缓存+Sa-Token会话）、Nacos（配置中心）、Sentinel（网关流控） | ✅ 唯一对外入口 |
+| **认证权限微服务**   | `auth-service`    | 用户注册、登录(Sa-Token登录)、角色权限校验(@SaCheckRole)、账号安全管控、第三方登录预留        | PostgreSQL、Redis、Nacos（服务注册）                |  ❌ 内部调用  |
+| **用户信息微服务**   | `user-service`    | 用户资料、积分等级、兴趣标签、关注粉丝、AI用户画像构建与维护                      | PostgreSQL、Redis、Milvus、RabbitMQ、Nacos（服务注册）     |  ❌ 内部调用  |
+| **论坛核心业务微服务** | `forum-service`   | 帖子发布编辑、评论互动、分类标签管理、点赞收藏、板块管理                         | PostgreSQL、Redis、RabbitMQ、Elasticsearch、Nacos（服务注册） |  ❌ 内部调用  |
+| **AI智能赋能微服务** | `ai-service`      | AI创作辅助(8大功能)、AI内容审核、AI摘要生成、AI语义检索(RAG)、AI个性化推荐、多模型调度 | Elasticsearch、Milvus、RabbitMQ、大模型API、Nacos（服务注册）   |  ❌ 内部调用  |
+| **消息通知微服务**   | `message-service` | 站内信、点赞评论提醒、系统通知、AI推送消息统一下发、邮件/短信预留                   | PostgreSQL、Redis、RabbitMQ、Nacos（服务注册）          |  ❌ 内部调用  |
 
 ### 2.4 数据存储分层分工
 
-| 存储组件 | 存储数据类型 | 写入操作归属 | 查询操作归属 | 设计原则 |
-|----------|-------------|-------------|-------------|----------|
-| **PostgreSQL主库** | 全量核心业务结构化数据（用户、帖子、评论、权限、日志） | Jimmer统一写入(CRUD) | 只做持久落地，不负责高频查询 | 主库保障事务安全可靠 |
-| **PostgreSQL从库** | 同主库全量数据，只读副本 | 无写入（主库自动同步） | Jimmer自动走读库，普通业务查询 | 读写分离减轻主库压力 |
-| **Redis集群** | 热点帖子列表、用户会话Token、权限缓存、点赞计数器、限流计数、临时数据 | 业务逻辑写入，同步更新缓存 | 高频访问优先读缓存，缓存未命中再查从库 | 冷热数据分离，毫秒级响应 |
-| **Elasticsearch集群** | 帖子标题、正文、标签、AI摘要、搜索索引数据 | 发帖/编辑后通过MQ异步同步写入索引 | 全站搜索、AI语义检索前置过滤专用 | 只做检索排序，不承载事务数据 |
-| **Milvus向量库** | 帖子内容向量Embedding、用户兴趣画像向量 | AI服务异步计算后写入 | AI相似度匹配、个性化推荐查询 | 只做AI语义计算匹配 |
+| 存储组件                | 存储数据类型                                | 写入操作归属             | 查询操作归属              | 设计原则           |
+|---------------------|---------------------------------------|--------------------|---------------------|----------------|
+| **PostgreSQL主库**    | 全量核心业务结构化数据（用户、帖子、评论、权限、日志）           | Jimmer统一写入(CRUD)   | 只做持久落地，不负责高频查询      | 主库保障事务安全可靠     |
+| **PostgreSQL从库**    | 同主库全量数据，只读副本                          | 无写入（主库自动同步）        | Jimmer自动走读库，普通业务查询  | 读写分离减轻主库压力     |
+| **Redis集群**         | 热点帖子列表、用户会话Token、权限缓存、点赞计数器、限流计数、临时数据 | 业务逻辑写入，同步更新缓存      | 高频访问优先读缓存，缓存未命中再查从库 | 冷热数据分离，毫秒级响应   |
+| **Elasticsearch集群** | 帖子标题、正文、标签、AI摘要、搜索索引数据                | 发帖/编辑后通过MQ异步同步写入索引 | 全站搜索、AI语义检索前置过滤专用   | 只做检索排序，不承载事务数据 |
+| **Milvus向量库**       | 帖子内容向量Embedding、用户兴趣画像向量              | AI服务异步计算后写入        | AI相似度匹配、个性化推荐查询     | 只做AI语义计算匹配     |
 
 ### 2.5 前端技术架构详细设计
 
 前端采用 **Monorepo** 架构（pnpm workspace），将通用逻辑、UI组件与业务应用解耦。
 
-| 模块/层次 | 技术实现 | 说明 |
-|----------|---------|------|
-| **基础框架** | React 19 + TypeScript | 利用 React 19 新特性（如 Action、Optimistic UI）提升体验 |
-| **构建工具** | Vite 6 + Tailwind CSS 4 | 极速热更新，零运行时 CSS，支持现代浏览器特性 |
-| **状态管理** | Zustand 5 | 轻量级、无模板代码的状态管理，支持持久化（Persist） |
-| **数据请求** | TanStack Query v5 + Axios | 强大的缓存机制、自动重试、SWR（Stale-While-Revalidate） |
-| **组件库** | shadcn/ui + Radix UI | 基于可访问性标准（A11y）的无样式组件，高度可定制 |
-| **路由管理** | React Router 7 | 统一的路由定义，支持嵌套路由与 Layout 布局隔离 |
-| **表单校验** | React Hook Form + Zod | 强类型的表单定义与实时校验 |
-| **动画效果** | Framer Motion | 流畅的页面过渡与交互动画 |
+| 模块/层次    | 技术实现                      | 说明                                          |
+|----------|---------------------------|---------------------------------------------|
+| **基础框架** | React 19 + TypeScript     | 利用 React 19 新特性（如 Action、Optimistic UI）提升体验 |
+| **构建工具** | Vite 6 + Tailwind CSS 4   | 极速热更新，零运行时 CSS，支持现代浏览器特性                    |
+| **状态管理** | Zustand 5                 | 轻量级、无模板代码的状态管理，支持持久化（Persist）               |
+| **数据请求** | TanStack Query v5 + Axios | 强大的缓存机制、自动重试、SWR（Stale-While-Revalidate）    |
+| **组件库**  | shadcn/ui + Radix UI      | 基于可访问性标准（A11y）的无样式组件，高度可定制                  |
+| **路由管理** | React Router 7            | 统一的路由定义，支持嵌套路由与 Layout 布局隔离                 |
+| **表单校验** | React Hook Form + Zod     | 强类型的表单定义与实时校验                               |
+| **动画效果** | Framer Motion             | 流畅的页面过渡与交互动画                                |
 
 **前端目录组织规范**：
+
 - `apps/web`: 主 Web 应用程序
 - `packages/ui`: 核心共享组件库（基于 shadcn/ui）
 - `packages/shared`: 共享类型定义、工具函数、常量
@@ -227,17 +253,18 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 
 ### 3.2 网关路由前缀映射表
 
-| 业务模块 | 网关统一路由前缀 | 转发目标微服务 | 接口访问权限级别 |
-|----------|-----------------|---------------|:---------------:|
-| 登录注册认证相关 | `/api/auth/**` | auth-service | 公开接口（无需登录） |
-| 用户资料与个人中心 | `/api/user/**` | user-service | 需登录鉴权 |
-| 论坛帖子核心业务 | `/api/forum/**` | forum-service | 部分公开，部分需登录 |
-| AI智能创作与审核 | `/api/ai/**` | ai-service | 需登录鉴权 |
-| 全站搜索与AI检索 | `/api/search/**` | ai-service | 公开可访问 |
-| 消息通知推送 | `/api/message/**` | message-service | 需登录鉴权 |
-| 后台管理运维接口 | `/api/admin/**` | 全服务内部聚合 | 超级管理员专属 |
+| 业务模块      | 网关统一路由前缀          | 转发目标微服务         |  接口访问权限级别  |
+|-----------|-------------------|-----------------|:----------:|
+| 登录注册认证相关  | `/api/auth/**`    | auth-service    | 公开接口（无需登录） |
+| 用户资料与个人中心 | `/api/user/**`    | user-service    |   需登录鉴权    |
+| 论坛帖子核心业务  | `/api/forum/**`   | forum-service   | 部分公开，部分需登录 |
+| AI智能创作与审核 | `/api/ai/**`      | ai-service      |   需登录鉴权    |
+| 全站搜索与AI检索 | `/api/search/**`  | ai-service      |   公开可访问    |
+| 消息通知推送    | `/api/message/**` | message-service |   需登录鉴权    |
+| 后台管理运维接口  | `/api/admin/**`   | 全服务内部聚合         |  超级管理员专属   |
 
 **网关全局处理**：
+
 - JWT Token解析与用户身份注入请求头
 - 接口级别限流（IP维度 + 用户维度）
 - 跨域CORS统一配置
@@ -290,15 +317,15 @@ LinkSee 社区
 
 每个一级板块可独立配置以下属性，打造差异化体验：
 
-| 配置项 | 说明 | 示例 |
-|--------|------|------|
-| **视觉标识** | 图标、主题色、Banner | 技术=科技蓝、创意=活力橙 |
-| **发帖模板** | 结构化引导式发帖表单 | 技术板块模板：问题描述/环境/尝试方案/期望结果 |
-| **AI助手人设** | 该板块AI助手的风格和语气 | 技术板=严谨工程师；生活板=温暖朋友 |
-| **自定义标签** | 板块内独立管理的标签体系 | #Kotlin #SpringBoot #微服务 |
-| **版主团队** | 板块级别的管理角色 | 每个板块可有1-N个版主 |
-| **准入规则** | 发帖/回复权限控制 | 某些板块需完成身份认证才可发帖 |
-| **排序策略** | 默认排序方式差异 | 学术=按引用/质量；生活=按热度/时间 |
+| 配置项        | 说明            | 示例                       |
+|------------|---------------|--------------------------|
+| **视觉标识**   | 图标、主题色、Banner | 技术=科技蓝、创意=活力橙            |
+| **发帖模板**   | 结构化引导式发帖表单    | 技术板块模板：问题描述/环境/尝试方案/期望结果 |
+| **AI助手人设** | 该板块AI助手的风格和语气 | 技术板=严谨工程师；生活板=温暖朋友       |
+| **自定义标签**  | 板块内独立管理的标签体系  | #Kotlin #SpringBoot #微服务 |
+| **版主团队**   | 板块级别的管理角色     | 每个板块可有1-N个版主             |
+| **准入规则**   | 发帖/回复权限控制     | 某些板块需完成身份认证才可发帖          |
+| **排序策略**   | 默认排序方式差异      | 学术=按引用/质量；生活=按热度/时间      |
 
 ---
 
@@ -330,30 +357,30 @@ LinkSee 社区
 
 **各角色权限矩阵**：
 
-| 权限项 | 游客 | 普通用户 | 认证用户 | 版主 | 管理员 | 超管 |
-|--------|:----:|:-------:|:-------:|:----:|:-----:|:----:|
-| 浏览帖子/搜索 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 注册登录 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 发布帖子 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 评论/回复 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 点赞/收藏/关注 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 使用AI助手(受限) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 使用AI问答 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| 板块内管理 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| 全站管理 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| 用户/角色管理 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| 系统配置 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| 权限项        | 游客 | 普通用户 | 认证用户 | 版主 | 管理员 | 超管 |
+|------------|:--:|:----:|:----:|:--:|:---:|:--:|
+| 浏览帖子/搜索    | ✅  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 注册登录       | ✅  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 发布帖子       | ❌  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 评论/回复      | ❌  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 点赞/收藏/关注   | ❌  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 使用AI助手(受限) | ❌  |  ✅   |  ✅   | ✅  |  ✅  | ✅  |
+| 使用AI问答     | ❌  |  ❌   |  ✅   | ✅  |  ✅  | ✅  |
+| 板块内管理      | ❌  |  ❌   |  ❌   | ✅  |  ✅  | ✅  |
+| 全站管理       | ❌  |  ❌   |  ❌   | ❌  |  ✅  | ✅  |
+| 用户/角色管理    | ❌  |  ❌   |  ❌   | ❌  |  ❌  | ✅  |
+| 系统配置       | ❌  |  ❌   |  ❌   | ❌  |  ❌  | ✅  |
 
 ### 5.2 用户等级成长体系（游戏化激励）
 
-| 等级 | 名称 | 所需经验值 | 解锁特权 | 图标 |
-|------|------|:---------:|----------|:----:|
-| **LV1** | 萌新小白 | 0 | 发帖评论、每日3次AI免费调用 | 🌱 |
-| **LV2** | 活跃新人 | 100 | 关注用户/收藏帖子、每日5次AI调用 | 🌿 |
-| **LV3** | 社区达人 | 500 | 创建个人标签、每日10次AI、自定义头像框 | 🌳 |
-| **LV4** | 领域专家 | 2000 | 板块认证标识、每日20次AI、优先审核通道 | 🔥 |
-| **LV5** | 灵犀之星 | 5000 | 版主提名资格、**无限AI调用**、专属发光标识 | ⭐ |
-| **LV6** | 社区领袖 | 10000+ | 特殊决策参与权、荣誉墙展示、定制徽章 | 👑 |
+| 等级      | 名称   | 所需经验值  | 解锁特权                     | 图标 |
+|---------|------|:------:|--------------------------|:--:|
+| **LV1** | 萌新小白 |   0    | 发帖评论、每日3次AI免费调用          | 🌱 |
+| **LV2** | 活跃新人 |  100   | 关注用户/收藏帖子、每日5次AI调用       | 🌿 |
+| **LV3** | 社区达人 |  500   | 创建个人标签、每日10次AI、自定义头像框    | 🌳 |
+| **LV4** | 领域专家 |  2000  | 板块认证标识、每日20次AI、优先审核通道    | 🔥 |
+| **LV5** | 灵犀之星 |  5000  | 版主提名资格、**无限AI调用**、专属发光标识 | ⭐  |
+| **LV6** | 社区领袖 | 10000+ | 特殊决策参与权、荣誉墙展示、定制徽章       | 👑 |
 
 ### 5.3 积分获取规则
 
@@ -382,6 +409,7 @@ LinkSee 社区
 ```
 
 **扣分机制（负向激励）**：
+
 - 帖子被删除/违规：-20 分
 - 评论被举报核实：-5 分
 - 被禁言：根据严重程度扣分
@@ -415,16 +443,16 @@ LinkSee 社区
 
 #### 各功能详细说明
 
-| 功能编号 | 功能名称 | 触发方式 | 输入 | 输出 | 使用场景 |
-|:-------:|----------|---------|------|------|----------|
-| F01 | **智能标题生成** | 点击按钮 | 正文内容或关键词描述 | 5个不同风格的候选标题（技术向/提问向/故事向/数据向/悬念向） | 写好正文后不知道起什么标题 |
-| F02 | **大纲辅助** | 点击按钮 | 话题主题 + 选择板块 + 细节程度 | 结构化的文章大纲（含章节标题和建议字数） | 有想法但不知道如何组织结构 |
-| F03 | **智能润色优化** | 选中文本后触发 | 选中的文字段落 + 强度选择（轻度/中度/深度） | 优化后的文本 + 差异高亮对比 | 觉得表达不够流畅或不够专业时 |
-| F04 | **智能续写扩写** | 光标放置位置触发 | 光标前的上下文 + 模式选择 | 自动续写的内容段（直接插入光标处） | 写到一半卡壳了需要启发 |
-| F05 | **多语言翻译** | 选中文本后触发 | 选中文本 + 目标语言 | 翻译结果 | 需要中英互译或多语言发布 |
-| F06 | **摘要提炼** | 点击按钮 | 完整文章内容 + 最大长度 | 精炼的摘要（用于SEO和列表展示） | 发布前自动生成摘要 |
-| F07 | **智能标签推荐** | 点击/自动触发 | 标题 + 正文 + 所选板块 | 推荐的相关标签列表 | 不知道用什么标签更好 |
-| F08 | **灵感激发** | 点击按钮 | 当前话题/板块 | 相关的角度、观点、案例建议 | 缺乏创作思路时获取启发 |
+| 功能编号 | 功能名称       | 触发方式     | 输入                       | 输出                               | 使用场景           |
+|:----:|------------|----------|--------------------------|----------------------------------|----------------|
+| F01  | **智能标题生成** | 点击按钮     | 正文内容或关键词描述               | 5个不同风格的候选标题（技术向/提问向/故事向/数据向/悬念向） | 写好正文后不知道起什么标题  |
+| F02  | **大纲辅助**   | 点击按钮     | 话题主题 + 选择板块 + 细节程度       | 结构化的文章大纲（含章节标题和建议字数）             | 有想法但不知道如何组织结构  |
+| F03  | **智能润色优化** | 选中文本后触发  | 选中的文字段落 + 强度选择（轻度/中度/深度） | 优化后的文本 + 差异高亮对比                  | 觉得表达不够流畅或不够专业时 |
+| F04  | **智能续写扩写** | 光标放置位置触发 | 光标前的上下文 + 模式选择           | 自动续写的内容段（直接插入光标处）                | 写到一半卡壳了需要启发    |
+| F05  | **多语言翻译**  | 选中文本后触发  | 选中文本 + 目标语言              | 翻译结果                             | 需要中英互译或多语言发布   |
+| F06  | **摘要提炼**   | 点击按钮     | 完整文章内容 + 最大长度            | 精炼的摘要（用于SEO和列表展示）                | 发布前自动生成摘要      |
+| F07  | **智能标签推荐** | 点击/自动触发  | 标题 + 正文 + 所选板块           | 推荐的相关标签列表                        | 不知道用什么标签更好     |
+| F08  | **灵感激发**   | 点击按钮     | 当前话题/板块                  | 相关的角度、观点、案例建议                    | 缺乏创作思路时获取启发    |
 
 ### 6.2 AI智能问答引擎（RAG）
 
@@ -533,14 +561,14 @@ LinkSee 社区
 
 ### 6.4 AI用量控制策略
 
-| 用户等级 | 每日免费额度 | 创作助手 | 智能问答 | 超出后的处理方式 |
-|:--------:|:-----------:|:-------:|:-------:|----------------|
-| LV1 萌新小白 | 3次/天 | ✅ 可用 | ❌ 仅预览前半部分 | 弹窗提示"升级等级解锁更多" |
-| LV2 活跃新人 | 5次/天 | ✅ 可用 | ✅ 可用 | 提示"今日额度已用完，明日再来" |
-| LV3 社区达人 | 10次/天 | ✅ 可用 | ✅ 可用 | 同上 |
-| LV4 领域专家 | 20次/天 | ✅ 可用 | ✅ 可用 | 正常使用（一般够用） |
-| LV5 灵犀之星 | **无限制** | ✅ | ✅ | 无任何限制 |
-| LV6 社区领袖 | **无限制 + 优先通道** | ✅ | ✅ | 最高优先级，高峰期不排队 |
+|   用户等级   |     每日免费额度     | 创作助手 |   智能问答    | 超出后的处理方式         |
+|:--------:|:--------------:|:----:|:---------:|------------------|
+| LV1 萌新小白 |      3次/天      | ✅ 可用 | ❌ 仅预览前半部分 | 弹窗提示"升级等级解锁更多"   |
+| LV2 活跃新人 |      5次/天      | ✅ 可用 |   ✅ 可用    | 提示"今日额度已用完，明日再来" |
+| LV3 社区达人 |     10次/天      | ✅ 可用 |   ✅ 可用    | 同上               |
+| LV4 领域专家 |     20次/天      | ✅ 可用 |   ✅ 可用    | 正常使用（一般够用）       |
+| LV5 灵犀之星 |    **无限制**     |  ✅   |     ✅     | 无任何限制            |
+| LV6 社区领袖 | **无限制 + 优先通道** |  ✅   |     ✅     | 最高优先级，高峰期不排队     |
 
 **注意**：此为V1阶段策略。后续商业化时可引入付费购买额外额度。
 
@@ -705,24 +733,28 @@ LinkSee 社区
 ### 8.2 核心页面说明
 
 #### 首页 (`/`)
+
 - **顶部导航栏**：Logo、搜索框（支持回车搜索/问AI）、板块快捷切换、消息铃铛、用户头像下拉菜单
 - **Tab栏**：推荐(默认) / 关注 / 热门 / 最新 / 精华
 - **信息流**：帖子卡片列表（虚拟滚动优化），每张卡片包含：作者头像+昵称+等级标签、板块标签、标题、AI摘要（如有）、底部操作栏（点赞/评论/收藏/分享数）
 - **右侧边栏**：热门话题榜、活跃用户榜、AI每日推荐
 
 #### 发帖编辑页 (`/post/create`)
+
 - **左侧主区域**：富文本Markdown编辑器（支持代码高亮、图片粘贴上传、LaTeX公式）
 - **右侧AI工具栏**：常驻悬浮面板，包含8个AI功能的快捷入口
 - **顶部选项**：选择板块（必填）、添加标签（AI推荐）、设置可见范围
 - **底部操作栏**：草稿自动保存、预览、发布按钮、AI质量检测提示
 
 #### 帖子详情页 (`/post/:id`)
+
 - **面包屑导航**：首页 > 板块名 > 帖子标题
 - **正文区**：标题 + 元信息（作者/时间/浏览量）+ 富文本渲染内容 + AI摘要卡片
 - **评论区**：支持二级嵌套回复，按热度/时间排序切换
 - **右侧边栏**：作者信息卡 + 关注按钮、文章目录（长文自动提取）、相关推荐、"AI总结此文"按钮、"继续提问"入口
 
 #### AI问答页 (`/ai`)
+
 - **左侧对话区**：类似ChatGPT的消息流界面，支持Markdown渲染
 - **每条AI回答包含**：结构化回答内容 + 引用来源链接 + 推荐追问气泡
 - **右侧辅助区**：热门问题列表、历史会话记录
@@ -742,181 +774,193 @@ LinkSee 社区
 
 ### 9.2 核心数据表清单
 
-| 表名 | 中文名称 | 核心存储内容 | 所属服务 | 是否同步ES |
-|------|----------|-------------|----------|:----------:|
-| `sys_user` | 用户主表 | 账号、密码哈希、昵称、头像URL、邮箱、手机号、状态 | user-service | 否 |
-| `sys_user_profile` | 用户扩展表 | 简介、所在地、社交链接、技能标签、教育背景、职业、等级、经验值 | user-service | 否 |
-| `sys_role` | 角色表 | 角色编码、名称、描述、权限范围 | auth-service | 否 |
-| `sys_user_role` | 用户角色关联 | user_id + role_id 多对多关系 | auth-service | 否 |
-| `forum_category` | 板块分类表 | 名称、图标、父级ID、描述、排序权重、状态 | forum-service | 是 |
-| `forum_post` | 帖子主表 | 标题、正文、作者ID、分类ID、封面图、状态(草稿/已发布/已删除)、是否精华/置顶、各类计数字段 | forum-service | **✅ 全量同步** |
-| `forum_post_ai_data` | 帖子AI增强数据 | AI摘要、AI关键词、情感倾向、质量评分、预估阅读时长、向量ID | ai-service | 部分 |
-| `forum_comment` | 评论表 | 内容、父评论ID、帖子ID、用户ID、点赞数、状态 | forum-service | **✅ 增量同步** |
-| `forum_like_record` | 点赞收藏记录 | 用户ID + 目标类型(post/comment) + 目标ID + 行为类型(like/collect) | forum-service | 否 |
-| `forum_follow` | 关注关系表 | 关注者ID + 被关注者ID + 创建时间 | forum-service | 否 |
-| `ai_task_record` | AI任务调用记录 | 任务类型、输入输出(脱敏)、使用模型、Token消耗、响应时间、状态 | ai-service | 否 |
-| `ai_moderation_log` | AI审核日志 | 内容ID、审核结果、违规类型、置信度、处理动作 | ai-service | 否 |
-| `message_notice` | 消息通知表 | 类型(互动/系统/AI)、标题、内容、收件人ID、是否已读 | message-service | 否 |
-| `user_level_log` | 用户等级变动日志 | 用户ID、旧等级、新等级、变动原因 | user-service | 否 |
+| 表名                   | 中文名称     | 核心存储内容                                                | 所属服务            |   是否同步ES   |
+|----------------------|----------|-------------------------------------------------------|-----------------|:----------:|
+| `sys_user`           | 用户主表     | 账号、密码哈希、昵称、头像URL、邮箱、手机号、状态                            | user-service    |     否      |
+| `sys_user_profile`   | 用户扩展表    | 简介、所在地、社交链接、技能标签、教育背景、职业、等级、经验值                       | user-service    |     否      |
+| `sys_role`           | 角色表      | 角色编码、名称、描述、权限范围                                       | auth-service    |     否      |
+| `sys_user_role`      | 用户角色关联   | user_id + role_id 多对多关系                               | auth-service    |     否      |
+| `forum_category`     | 板块分类表    | 名称、图标、父级ID、描述、排序权重、状态                                 | forum-service   |     是      |
+| `forum_post`         | 帖子主表     | 标题、正文、作者ID、分类ID、封面图、状态(草稿/已发布/已删除)、是否精华/置顶、各类计数字段     | forum-service   | **✅ 全量同步** |
+| `forum_post_ai_data` | 帖子AI增强数据 | AI摘要、AI关键词、情感倾向、质量评分、预估阅读时长、向量ID                      | ai-service      |     部分     |
+| `forum_comment`      | 评论表      | 内容、父评论ID、帖子ID、用户ID、点赞数、状态                             | forum-service   | **✅ 增量同步** |
+| `forum_like_record`  | 点赞收藏记录   | 用户ID + 目标类型(post/comment) + 目标ID + 行为类型(like/collect) | forum-service   |     否      |
+| `forum_follow`       | 关注关系表    | 关注者ID + 被关注者ID + 创建时间                                 | forum-service   |     否      |
+| `ai_task_record`     | AI任务调用记录 | 任务类型、输入输出(脱敏)、使用模型、Token消耗、响应时间、状态                    | ai-service      |     否      |
+| `ai_moderation_log`  | AI审核日志   | 内容ID、审核结果、违规类型、置信度、处理动作                               | ai-service      |     否      |
+| `message_notice`     | 消息通知表    | 类型(互动/系统/AI)、标题、内容、收件人ID、是否已读                         | message-service |     否      |
+| `user_level_log`     | 用户等级变动日志 | 用户ID、旧等级、新等级、变动原因                                     | user-service    |     否      |
 
 ### 9.3 扩展数据表设计详情
 
 #### sys_user (用户主表)
+
 ```sql
-CREATE TABLE sys_user (
-    id              BIGSERIAL PRIMARY KEY,
-    username        VARCHAR(50)  NOT NULL UNIQUE,       -- 登录用户名
-    password_hash   VARCHAR(255) NOT NULL,              -- BCrypt加密密码
-    nickname        VARCHAR(50)  NOT NULL DEFAULT '',    -- 昵称
-    avatar_url      VARCHAR(500) DEFAULT '',            -- 头像URL
-    email           VARCHAR(100) DEFAULT '',             -- 邮箱
-    phone           VARCHAR(20)  DEFAULT '',             -- 手机号
-    level           SMALLINT     NOT NULL DEFAULT 1,     -- 用户等级 LV1-6
-    experience      INT          NOT NULL DEFAULT 0,     -- 总经验值
-    daily_ai_calls  INT          NOT NULL DEFAULT 0,     -- 今日已用AI次数
-    status          SMALLINT     NOT NULL DEFAULT 1,     -- 1正常 0禁用
-    last_login_at   TIMESTAMPTZ,                          -- 最后登录时间
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    deleted         SMALLINT     NOT NULL DEFAULT 0      -- 逻辑删除标记
+CREATE TABLE sys_user
+(
+    id             BIGSERIAL PRIMARY KEY,
+    username       VARCHAR(50)  NOT NULL UNIQUE,     -- 登录用户名
+    password_hash  VARCHAR(255) NOT NULL,            -- BCrypt加密密码
+    nickname       VARCHAR(50)  NOT NULL DEFAULT '', -- 昵称
+    avatar_url     VARCHAR(500)          DEFAULT '', -- 头像URL
+    email          VARCHAR(100)          DEFAULT '', -- 邮箱
+    phone          VARCHAR(20)           DEFAULT '', -- 手机号
+    level          SMALLINT     NOT NULL DEFAULT 1,  -- 用户等级 LV1-6
+    experience     INT          NOT NULL DEFAULT 0,  -- 总经验值
+    daily_ai_calls INT          NOT NULL DEFAULT 0,  -- 今日已用AI次数
+    status         SMALLINT     NOT NULL DEFAULT 1,  -- 1正常 0禁用
+    last_login_at  TIMESTAMPTZ,                      -- 最后登录时间
+    created_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    deleted        SMALLINT     NOT NULL DEFAULT 0   -- 逻辑删除标记
 );
 
-CREATE INDEX idx_sys_user_username ON sys_user(username);
-CREATE INDEX idx_sys_user_email ON sys_user(email);
-CREATE INDEX idx_sys_user_status ON sys_user(status) WHERE deleted = 0;
+CREATE INDEX idx_sys_user_username ON sys_user (username);
+CREATE INDEX idx_sys_user_email ON sys_user (email);
+CREATE INDEX idx_sys_user_status ON sys_user (status) WHERE deleted = 0;
 ```
 
 #### sys_user_profile (用户扩展表)
+
 ```sql
-CREATE TABLE sys_user_profile (
-    id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT       NOT NULL UNIQUE REFERENCES sys_user(id),
-    bio             TEXT         DEFAULT '',              -- 个人简介
-    location        VARCHAR(100) DEFAULT '',              -- 所在城市
-    personal_website VARCHAR(500) DEFAULT '',             -- 个人网站
-    social_links    JSONB        DEFAULT '{}',            -- 社交媒体链接
-    skills_tags     JSONB        DEFAULT '[]',            -- 技能标签数组
-    education       VARCHAR(200) DEFAULT '',              -- 教育背景
-    occupation      VARCHAR(100) DEFAULT '',              -- 职业
-    is_verified     BOOLEAN      NOT NULL DEFAULT FALSE,  -- 是否认证用户
-    verify_info     JSONB        DEFAULT '{}',            -- 认证详细信息
-    follower_count  INT          NOT NULL DEFAULT 0,      -- 粉丝数(冗余)
-    following_count INT          NOT NULL DEFAULT 0,      -- 关注数(冗余)
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+CREATE TABLE sys_user_profile
+(
+    id               BIGSERIAL PRIMARY KEY,
+    user_id          BIGINT      NOT NULL UNIQUE REFERENCES sys_user (id),
+    bio              TEXT                 DEFAULT '',    -- 个人简介
+    location         VARCHAR(100)         DEFAULT '',    -- 所在城市
+    personal_website VARCHAR(500)         DEFAULT '',    -- 个人网站
+    social_links     JSONB                DEFAULT '{}',  -- 社交媒体链接
+    skills_tags      JSONB                DEFAULT '[]',  -- 技能标签数组
+    education        VARCHAR(200)         DEFAULT '',    -- 教育背景
+    occupation       VARCHAR(100)         DEFAULT '',    -- 职业
+    is_verified      BOOLEAN     NOT NULL DEFAULT FALSE, -- 是否认证用户
+    verify_info      JSONB                DEFAULT '{}',  -- 认证详细信息
+    follower_count   INT         NOT NULL DEFAULT 0,     -- 粉丝数(冗余)
+    following_count  INT         NOT NULL DEFAULT 0,     -- 关注数(冗余)
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
 #### forum_category (板块分类表)
+
 ```sql
-CREATE TABLE forum_category (
-    id              BIGSERIAL PRIMARY KEY,
-    name            VARCHAR(50)  NOT NULL,                -- 板块名称
-    icon            VARCHAR(50)  DEFAULT '',              -- 图标标识
-    parent_id       BIGINT       DEFAULT NULL,            -- 父级ID(一级分类为NULL)
-    description     TEXT         DEFAULT '',              -- 板块描述
-    sort_order      INT          NOT NULL DEFAULT 0,      -- 排序权重
-    post_count      INT          NOT NULL DEFAULT 0,      -- 帖子总数(冗余)
-    theme_color     VARCHAR(20)  DEFAULT '#1890ff',       -- 主题色
-    post_template   JSONB        DEFAULT '{}',            -- 发帖模板配置
-    ai_persona      VARCHAR(200) DEFAULT '专业友好的助手', -- AI人设描述
-    status          SMALLINT     NOT NULL DEFAULT 1,      -- 1启用 0禁用
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    deleted         SMALLINT     NOT NULL DEFAULT 0
+CREATE TABLE forum_category
+(
+    id            BIGSERIAL PRIMARY KEY,
+    name          VARCHAR(50) NOT NULL,                          -- 板块名称
+    icon          VARCHAR(50)          DEFAULT '',               -- 图标标识
+    parent_id     BIGINT               DEFAULT NULL,             -- 父级ID(一级分类为NULL)
+    description   TEXT                 DEFAULT '',               -- 板块描述
+    sort_order    INT         NOT NULL DEFAULT 0,                -- 排序权重
+    post_count    INT         NOT NULL DEFAULT 0,                -- 帖子总数(冗余)
+    theme_color   VARCHAR(20)          DEFAULT '#1890ff',        -- 主题色
+    post_template JSONB                DEFAULT '{}',             -- 发帖模板配置
+    ai_persona    VARCHAR(200)         DEFAULT '专业友好的助手', -- AI人设描述
+    status        SMALLINT    NOT NULL DEFAULT 1,                -- 1启用 0禁用
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted       SMALLINT    NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_forum_category_parent ON forum_category(parent_id) WHERE deleted = 0;
+CREATE INDEX idx_forum_category_parent ON forum_category (parent_id) WHERE deleted = 0;
 ```
 
 #### forum_post (帖子主表 — 核心业务表)
+
 ```sql
-CREATE TABLE forum_post (
+CREATE TABLE forum_post
+(
     id              BIGSERIAL PRIMARY KEY,
-    author_id       BIGINT       NOT NULL REFERENCES sys_user(id),
-    category_id     BIGINT       NOT NULL REFERENCES forum_category(id),
-    title           VARCHAR(200) NOT NULL,                -- 帖子标题
-    content         TEXT         NOT NULL,                -- 帖子正文(Markdown)
-    cover_image_url VARCHAR(500) DEFAULT '',              -- 封面图
-    summary         TEXT         DEFAULT '',              -- 手动或AI生成的摘要
-    tag_list        JSONB        DEFAULT '[]',            -- 标签数组
-    
+    author_id       BIGINT           NOT NULL REFERENCES sys_user (id),
+    category_id     BIGINT           NOT NULL REFERENCES forum_category (id),
+    title           VARCHAR(200)     NOT NULL,               -- 帖子标题
+    content         TEXT             NOT NULL,               -- 帖子正文(Markdown)
+    cover_image_url VARCHAR(500)              DEFAULT '',    -- 封面图
+    summary         TEXT                      DEFAULT '',    -- 手动或AI生成的摘要
+    tag_list        JSONB                     DEFAULT '[]',  -- 标签数组
+
     -- 统计字段(适度冗余, 通过异步事件更新)
-    view_count      INT          NOT NULL DEFAULT 0,
-    like_count      INT          NOT NULL DEFAULT 0,
-    comment_count   INT          NOT NULL DEFAULT 0,
-    collect_count   INT          NOT NULL DEFAULT 0,
-    
+    view_count      INT              NOT NULL DEFAULT 0,
+    like_count      INT              NOT NULL DEFAULT 0,
+    comment_count   INT              NOT NULL DEFAULT 0,
+    collect_count   INT              NOT NULL DEFAULT 0,
+
     -- 状态字段
-    status          SMALLINT     NOT NULL DEFAULT 0,      -- 0草稿 1已发布 2审核中 3违规
-    is_top          BOOLEAN      NOT NULL DEFAULT FALSE,   -- 是否置顶
-    is_essence      BOOLEAN      NOT NULL DEFAULT FALSE,   -- 是否精华帖
-    sort_weight     DOUBLE PRECISION NOT NULL DEFAULT 0,   -- 综合排序权重
-    
+    status          SMALLINT         NOT NULL DEFAULT 0,     -- 0草稿 1已发布 2审核中 3违规
+    is_top          BOOLEAN          NOT NULL DEFAULT FALSE, -- 是否置顶
+    is_essence      BOOLEAN          NOT NULL DEFAULT FALSE, -- 是否精华帖
+    sort_weight     DOUBLE PRECISION NOT NULL DEFAULT 0,     -- 综合排序权重
+
     -- 时间戳
-    published_at    TIMESTAMPTZ,                          -- 发布时间(首次发布时设置)
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    deleted         SMALLINT     NOT NULL DEFAULT 0
+    published_at    TIMESTAMPTZ,                             -- 发布时间(首次发布时设置)
+    created_at      TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    deleted         SMALLINT         NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_forum_post_author ON forum_post(author_id) WHERE deleted = 0 AND status = 1;
-CREATE INDEX idx_forum_post_category ON forum_post(category_id) WHERE deleted = 0 AND status = 1;
-CREATE INDEX idx_forum_post_status ON forum_post(status, created_at DESC) WHERE deleted = 0;
-CREATE INDEX idx_forum_post_hot ON forum_post(sort_weight DESC) WHERE deleted = 0 AND status = 1;
-CREATE INDEX idx_forum_post_published ON forum_post(published_at DESC) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_post_author ON forum_post (author_id) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_post_category ON forum_post (category_id) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_post_status ON forum_post (status, created_at DESC) WHERE deleted = 0;
+CREATE INDEX idx_forum_post_hot ON forum_post (sort_weight DESC) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_post_published ON forum_post (published_at DESC) WHERE deleted = 0 AND status = 1;
 ```
 
 #### forum_comment (评论表)
+
 ```sql
-CREATE TABLE forum_comment (
-    id              BIGSERIAL PRIMARY KEY,
-    post_id         BIGINT       NOT NULL REFERENCES forum_post(id),
-    user_id         BIGINT       NOT NULL REFERENCES sys_user(id),
-    parent_id       BIGINT       DEFAULT NULL,            -- 父评论ID(NULL=一级评论)
-    content         TEXT         NOT NULL,                -- 评论内容
-    like_count      INT          NOT NULL DEFAULT 0,
-    status          SMALLINT     NOT NULL DEFAULT 1,      -- 1正常 0隐藏/违规
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    deleted         SMALLINT     NOT NULL DEFAULT 0
+CREATE TABLE forum_comment
+(
+    id         BIGSERIAL PRIMARY KEY,
+    post_id    BIGINT      NOT NULL REFERENCES forum_post (id),
+    user_id    BIGINT      NOT NULL REFERENCES sys_user (id),
+    parent_id  BIGINT               DEFAULT NULL, -- 父评论ID(NULL=一级评论)
+    content    TEXT        NOT NULL,              -- 评论内容
+    like_count INT         NOT NULL DEFAULT 0,
+    status     SMALLINT    NOT NULL DEFAULT 1,    -- 1正常 0隐藏/违规
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted    SMALLINT    NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_forum_comment_post ON forum_comment(post_id, created_at ASC) WHERE deleted = 0 AND status = 1;
-CREATE INDEX idx_forum_comment_parent ON forum_comment(parent_id) WHERE deleted = 0;
+CREATE INDEX idx_forum_comment_post ON forum_comment (post_id, created_at ASC) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_comment_parent ON forum_comment (parent_id) WHERE deleted = 0;
 ```
 
 #### ai_task_record (AI任务调用记录表)
+
 ```sql
-CREATE TABLE ai_task_record (
-    id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT       NOT NULL REFERENCES sys_user(id),
-    
+CREATE TABLE ai_task_record
+(
+    id             BIGSERIAL PRIMARY KEY,
+    user_id        BIGINT      NOT NULL REFERENCES sys_user (id),
+
     -- 任务信息
-    task_type       VARCHAR(30)  NOT NULL,                -- TITLE_GENERATE / POLISH / QA_CHAT 等
-    input_summary   TEXT         DEFAULT '',              -- 输入摘要(脱敏存储)
-    output_content  TEXT,                                 -- AI输出结果
-    model_used      VARCHAR(50)  NOT NULL,                -- 实际调用的模型
-    
+    task_type      VARCHAR(30) NOT NULL,            -- TITLE_GENERATE / POLISH / QA_CHAT 等
+    input_summary  TEXT                 DEFAULT '', -- 输入摘要(脱敏存储)
+    output_content TEXT,                            -- AI输出结果
+    model_used     VARCHAR(50) NOT NULL,            -- 实际调用的模型
+
     -- 消耗指标
-    tokens_input    INT          DEFAULT 0,               -- 输入Token数
-    tokens_output   INT          DEFAULT 0,               -- 输出Token数
-    response_ms     INT          DEFAULT 0,               -- 响应耗时(毫秒)
-    
+    tokens_input   INT                  DEFAULT 0,  -- 输入Token数
+    tokens_output  INT                  DEFAULT 0,  -- 输出Token数
+    response_ms    INT                  DEFAULT 0,  -- 响应耗时(毫秒)
+
     -- 状态
-    status          SMALLINT     NOT NULL DEFAULT 0,      -- 0进行中 1成功 2失败 3超时
-    error_message   TEXT         DEFAULT '',
-    
+    status         SMALLINT    NOT NULL DEFAULT 0,  -- 0进行中 1成功 2失败 3超时
+    error_message  TEXT                 DEFAULT '',
+
     -- 关联(可选)
-    target_type     VARCHAR(20)  DEFAULT '',              -- 关联目标类型 post/comment
-    target_id       BIGINT       DEFAULT 0,               -- 关联目标ID
-    
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    target_type    VARCHAR(20)          DEFAULT '', -- 关联目标类型 post/comment
+    target_id      BIGINT               DEFAULT 0,  -- 关联目标ID
+
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_task_user ON ai_task_record(user_id, created_at DESC);
-CREATE INDEX idx_ai_task_type ON ai_task_record(task_type, created_at DESC);
-CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
+CREATE INDEX idx_ai_task_user ON ai_task_record (user_id, created_at DESC);
+CREATE INDEX idx_ai_task_type ON ai_task_record (task_type, created_at DESC);
+CREATE INDEX idx_ai_task_status ON ai_task_record (status, created_at DESC);
 ```
 
 ---
@@ -928,6 +972,7 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 **命名格式规范**：`{项目前缀}:{微服务名}:{业务模块}:{唯一标识}`
 
 **TTL分级策略**：
+
 - **永久缓存**：系统配置、字典数据、板块分类等低频变动的全局数据
 - **24小时**：用户基本信息、帖子元数据等中等频率变化的数据
 - **1小时**：热点帖子列表、排行榜等高频变化但允许短延迟的数据
@@ -935,23 +980,24 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 
 **核心缓存Key明细表**：
 
-| Key名称 | Key格式 | 缓存内容 | TTL | 更新时机 |
-|---------|---------|----------|:---:|----------|
-| 用户登录Token | `forum:auth:token:{userId}` | JWT令牌 + 设备指纹 + 登录状态 | 2小时 | 登录写入 / 退出删除 / 操作续期 |
-| 用户基础信息 | `forum:user:info:{userId}` | 昵称、头像、等级、经验值 | 24h | 资料修改时同步更新 |
-| 用户权限缓存 | `forum:user:perms:{userId}` | 角色+权限列表 | 2h | 角色变更时清除 |
-| 板块全量列表 | `forum:category:all` | 所有启用的板块分类树 | 永久 | 后台编辑板块时刷新 |
-| 板块下帖子列表 | `forum:post:list:{categoryId}:{page}:{sort}` | 分页帖子ID列表 | 10min | 发帖/删帖/置顶时清除 |
-| 热门帖子排行 | `forum:post:hot:{categoryId}` | Top-N热门帖子ID+分数 | 1h | 点赞/收藏/浏览时异步更新 |
-| 帖子详情 | `forum:post:detail:{postId}` | 帖子完整对象(不含正文) | 30min | 帖子编辑/统计数据变化时更新 |
-| 帖子点赞计数 | `forum:like:count:{postId}` | 实时点赞数量 | 永久 | 点赞/取消点赞原子增减 |
-| 帖子收藏计数 | `forum:collect:count:{postId}` | 实时收藏数量 | 永久 | 收藏/取消收藏原子增减 |
-| 用户点赞状态 | `forum:user:like:{userId}:{targetType}:{targetId}` | 已点赞集合(Set) | 24h | 点赞行为时Set操作 |
-| AI每日调用次数 | `forum:ai:daily:{userId}:{date}` | 当日已调用AI次数 | 到次日自然过期 | 每次调用INCR |
-| IP限流计数 | `forum:limit:{type}:{ip}` | 请求次数计数 | 1min/1h | 每次请求INCR |
-| 热搜关键词 | `forum:search:hot` | Top-20热搜关键词+热度 | 1h | 搜索时异步更新ZSET |
+| Key名称     | Key格式                                              | 缓存内容                |   TTL   | 更新时机               |
+|-----------|----------------------------------------------------|---------------------|:-------:|--------------------|
+| 用户登录Token | `forum:auth:token:{userId}`                        | JWT令牌 + 设备指纹 + 登录状态 |   2小时   | 登录写入 / 退出删除 / 操作续期 |
+| 用户基础信息    | `forum:user:info:{userId}`                         | 昵称、头像、等级、经验值        |   24h   | 资料修改时同步更新          |
+| 用户权限缓存    | `forum:user:perms:{userId}`                        | 角色+权限列表             |   2h    | 角色变更时清除            |
+| 板块全量列表    | `forum:category:all`                               | 所有启用的板块分类树          |   永久    | 后台编辑板块时刷新          |
+| 板块下帖子列表   | `forum:post:list:{categoryId}:{page}:{sort}`       | 分页帖子ID列表            |  10min  | 发帖/删帖/置顶时清除        |
+| 热门帖子排行    | `forum:post:hot:{categoryId}`                      | Top-N热门帖子ID+分数      |   1h    | 点赞/收藏/浏览时异步更新      |
+| 帖子详情      | `forum:post:detail:{postId}`                       | 帖子完整对象(不含正文)        |  30min  | 帖子编辑/统计数据变化时更新     |
+| 帖子点赞计数    | `forum:like:count:{postId}`                        | 实时点赞数量              |   永久    | 点赞/取消点赞原子增减        |
+| 帖子收藏计数    | `forum:collect:count:{postId}`                     | 实时收藏数量              |   永久    | 收藏/取消收藏原子增减        |
+| 用户点赞状态    | `forum:user:like:{userId}:{targetType}:{targetId}` | 已点赞集合(Set)          |   24h   | 点赞行为时Set操作         |
+| AI每日调用次数  | `forum:ai:daily:{userId}:{date}`                   | 当日已调用AI次数           | 到次日自然过期 | 每次调用INCR           |
+| IP限流计数    | `forum:limit:{type}:{ip}`                          | 请求次数计数              | 1min/1h | 每次请求INCR           |
+| 热搜关键词     | `forum:search:hot`                                 | Top-20热搜关键词+热度      |   1h    | 搜索时异步更新ZSET        |
 
 **缓存更新策略**：
+
 - **Cache-Aside（旁路缓存）**：读时先查缓存，未命中查DB再回写缓存
 - **Write-Through（写穿透）**：写DB成功后同步更新/删除缓存（保证一致性优先的场景）
 - **延迟双删**：先删缓存→写DB→延时(如500ms)再删一次缓存（防止并发脏读）
@@ -959,6 +1005,7 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 ### 10.2 Elasticsearch索引结构设计
 
 **设计原则**：
+
 - 仅存储搜索和展示所需的必要字段，不存储完整大文本正文
 - 帖子的增删改通过RabbitMQ异步同步到ES索引
 - 采用中文智能分词(IK Analyzer)，适配中文论坛搜索场景
@@ -976,12 +1023,18 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
         "ik_smart_synonym": {
           "type": "custom",
           "tokenizer": "ik_smart",
-          "filter": ["synonym_filter", "lowercase"]
+          "filter": [
+            "synonym_filter",
+            "lowercase"
+          ]
         },
         "ik_max_word_pinyin": {
           "type": "custom",
           "tokenizer": "ik_max_word",
-          "filter": ["pinyin_filter", "lowercase"]
+          "filter": [
+            "pinyin_filter",
+            "lowercase"
+          ]
         }
       },
       "filter": {
@@ -999,34 +1052,81 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
   },
   "mappings": {
     "properties": {
-      "postId":        { "type": "keyword" },
-      "title":        { 
-        "type": "text", 
+      "postId": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text",
         "analyzer": "ik_max_word",
         "fields": {
-          "smart": { "type": "text", "analyzer": "ik_smart" },
-          "pinyin": { "type": "text", "analyzer": "ik_max_word_pinyin" }
+          "smart": {
+            "type": "text",
+            "analyzer": "ik_smart"
+          },
+          "pinyin": {
+            "type": "text",
+            "analyzer": "ik_max_word_pinyin"
+          }
         }
       },
-      "summary":      { "type": "text", "analyzer": "ik_smart" },
-      "tagList":      { "type": "keyword" },
-      "categoryId":   { "type": "keyword" },
-      "categoryName": { "type": "keyword" },
-      "authorId":     { "type": "keyword" },
-      "authorName":   { "type": "keyword", "fields": { "pinyin": { "type": "text", "analyzer": "pinyin_filter" } } },
-      
-      "aiSummary":    { "type": "text", "analyzer": "ik_smart" },
-      "aiKeywords":   { "type": "keyword" },
-      
-      "hotScore":     { "type": "double" },
-      "qualityScore": { "type": "double" },       -- AI质量评分
-      
-      "status":       { "type": "keyword" },
-      "isEssence":    { "type": "boolean" },
-      "isTop":        { "type": "boolean" },
-      
-      "createTime":   { "type": "date", "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis" },
-      "publishedTime":{"type": "date", "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis" }
+      "summary": {
+        "type": "text",
+        "analyzer": "ik_smart"
+      },
+      "tagList": {
+        "type": "keyword"
+      },
+      "categoryId": {
+        "type": "keyword"
+      },
+      "categoryName": {
+        "type": "keyword"
+      },
+      "authorId": {
+        "type": "keyword"
+      },
+      "authorName": {
+        "type": "keyword",
+        "fields": {
+          "pinyin": {
+            "type": "text",
+            "analyzer": "pinyin_filter"
+          }
+        }
+      },
+      "aiSummary": {
+        "type": "text",
+        "analyzer": "ik_smart"
+      },
+      "aiKeywords": {
+        "type": "keyword"
+      },
+      "hotScore": {
+        "type": "double"
+      },
+      "qualityScore": {
+        "type": "double"
+      },
+      --
+      AI质量评分
+
+      "status": {
+        "type": "keyword"
+      },
+      "isEssence": {
+        "type": "boolean"
+      },
+      "isTop": {
+        "type": "boolean"
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "publishedTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      }
     }
   }
 }
@@ -1034,25 +1134,25 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 
 **搜索场景与查询策略**：
 
-| 搜索场景 | 查询字段组合 | 排序方式 |
-|----------|-------------|----------|
+| 搜索场景     | 查询字段组合                               | 排序方式           |
+|----------|--------------------------------------|----------------|
 | 全文搜索(默认) | `title^3 + summary^2 + aiKeywords^1` | 综合相关性得分 × 热度权重 |
-| 按板块筛选 | 上述 + `categoryId`精确过滤 | 同上 |
-| 按标签筛选 | `tagList`精确匹配 | 最新发布时间 |
-| 按作者搜索 | `title` + `authorName`拼音搜索 | 相关性 |
-| 热搜推荐 | `hotScore`降序 | 热度分 |
-| AI语义搜索 | 向量检索(Milvus) + ES结果混合 | 融合重排序 |
+| 按板块筛选    | 上述 + `categoryId`精确过滤                | 同上             |
+| 按标签筛选    | `tagList`精确匹配                        | 最新发布时间         |
+| 按作者搜索    | `title` + `authorName`拼音搜索           | 相关性            |
+| 热搜推荐     | `hotScore`降序                         | 热度分            |
+| AI语义搜索   | 向量检索(Milvus) + ES结果混合                | 融合重排序          |
 
 ### 10.3 RabbitMQ消息队列设计
 
 **Exchange与Queue规划**：
 
-| Exchange名称 | 类型 | 用途 | 绑定的Queue |
-|-------------|------|------|------------|
+| Exchange名称              | 类型     | 用途       | 绑定的Queue                                                          |
+|-------------------------|--------|----------|-------------------------------------------------------------------|
 | `forum.exchange.direct` | Direct | 论坛核心事件分发 | ai-moderate / es-sync / ai-summary / vector-ingest / stats-update |
-| `ai.exchange.direct` | Direct | AI任务分发 | llm-call-complete / moderation-result |
-| `user.exchange.fanout` | Fanout | 用户事件广播 | message-push / profile-cache-update |
-| `notify.exchange.topic` | Topic | 通知消息路由 | notice-email / notice-inapp / notice-push |
+| `ai.exchange.direct`    | Direct | AI任务分发   | llm-call-complete / moderation-result                             |
+| `user.exchange.fanout`  | Fanout | 用户事件广播   | message-push / profile-cache-update                               |
+| `notify.exchange.topic` | Topic  | 通知消息路由   | notice-email / notice-inapp / notice-push                         |
 
 **核心Queue定义**：
 
@@ -1079,6 +1179,7 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 ```
 
 **消息可靠性保障**：
+
 - 生产者端：开启 `confirm` 模式，确保消息到达Exchange
 - Queue端：声明 `durable` 持久化队列，防止Broker重启丢失
 - 消费者端：手动ACK，业务处理成功后才确认
@@ -1295,7 +1396,7 @@ GET    /api/message/unread-count           # 各类型未读数量
 
 ## 十二、后端工程目录结构
 
-所有微服务遵循统一的Kotlin + Spring Boot 4.0 + Jimmer工程目录规范：
+所有微服务遵循统一的 **Kotlin + Spring Boot 3.4.2 + Spring Cloud Alibaba + Jimmer** 工程目录规范：
 
 ```
 linksee-parent/                          # 父POM工程(统一依赖版本管理)
@@ -1353,13 +1454,13 @@ linksee-xxx-service/
 
 **分层职责约束**：
 
-| 层 | 可以做什么 | 禁止做什么 |
-|----|-----------|-----------|
-| **controller** | 参数校验、调用service、组装VO返回 | 编写业务逻辑、直接操作数据库 |
-| **domain/service** | 纯业务逻辑、事务管理、领域规则 | 引入框架注解(@Autowired除外)、HTTP相关知识 |
-| **entity** | 定义实体属性、关联关系、校验规则 | 包含业务方法(移至service) |
-| **infrastructure** | 对接外部服务/中间件、技术细节实现 | 编写业务规则 |
-| **common** | 本服务内的工具方法、常量定义 | 包含其他服务的业务概念 |
+| 层                  | 可以做什么                 | 禁止做什么                         |
+|--------------------|-----------------------|-------------------------------|
+| **controller**     | 参数校验、调用service、组装VO返回 | 编写业务逻辑、直接操作数据库                |
+| **domain/service** | 纯业务逻辑、事务管理、领域规则       | 引入框架注解(@Autowired除外)、HTTP相关知识 |
+| **entity**         | 定义实体属性、关联关系、校验规则      | 包含业务方法(移至service)             |
+| **infrastructure** | 对接外部服务/中间件、技术细节实现     | 编写业务规则                        |
+| **common**         | 本服务内的工具方法、常量定义        | 包含其他服务的业务概念                   |
 
 ---
 
@@ -1367,31 +1468,35 @@ linksee-xxx-service/
 
 ### 13.1 认证与授权
 
-- **认证方式**：JWT (JSON Web Token) + Refresh Token 双Token机制
-  - AccessToken：有效期2小时，携带用户身份和权限信息
-  - RefreshToken：有效期7天，用于静默刷新AccessToken，存储在HttpOnly Cookie中
+- **鉴权框架**：**Sa-Token + Redis 分布式会话**
+    - 采用 Sa-Token 框架实现统一身份认证与权限校验，Session 数据存储于 Redis，支持分布式集群部署
+    - **网关统一鉴权**：API Gateway 层通过 `Sa-Token Reactor` Filter 统一校验 Token 有效性，白名单接口（登录/注册/公开搜索等）放行
+    - **Token 传递**：网关校验通过后，将 `LoginId` 注入请求头传递给下游微服务；下游服务通过 Sa-Token 同步读取 Token，直接调用 `StpUtil.getLoginId()` 获取当前用户身份
+    - **登录认证**：auth-service 负责账号密码校验，校验通过后调用 `StpUtil.login(userId)` 签发 Token 返回前端
+    - **权限控制**：基于 Sa-Token 内置 RBAC 模型，使用 `@SaCheckRole("admin")` / `@SaCheckPermission("user:add")` 注解实现接口级权限控制
+    - **会话管理**：支持同端互斥登录、踢人下线、账号封禁、Token 过期续期等开箱即用能力
 - **密码安全**：BCrypt哈希加密，加盐存储，强度因子≥10
 - **敏感接口**：关键操作（删除、修改权限等）二次验证（密码确认/短信验证码）
 
 ### 13.2 接口安全
 
-| 安全措施 | 实现方式 | 覆盖范围 |
-|----------|----------|----------|
-| **XSS防护** | 前端输入过滤 + 后端输出转义 + Content-Security-Policy | 全局 |
-| **CSRF防护** | SameSite Cookie + Token双重验证 | 状态变更接口 |
-| **SQL注入** | Jimmer ORM参数化查询（天然免疫） | 全局 |
-| **接口限流** | 网关层：IP维度滑动窗口；业务层：用户维度令牌桶 | 全局 |
-| **防暴力破解** | 登录失败5次锁定15分钟 + 图形验证码 | 登录/注册接口 |
-| **敏感数据脱敏** | 手机号/邮箱中间位掩码、日志中不记录明密 | 日志/响应 |
+| 安全措施       | 实现方式                                      | 覆盖范围    |
+|------------|-------------------------------------------|---------|
+| **XSS防护**  | 前端输入过滤 + 后端输出转义 + Content-Security-Policy | 全局      |
+| **CSRF防护** | SameSite Cookie + Token双重验证               | 状态变更接口  |
+| **SQL注入**  | Jimmer ORM参数化查询（天然免疫）                     | 全局      |
+| **接口限流**   | 网关层：IP维度滑动窗口；业务层：用户维度令牌桶                  | 全局      |
+| **防暴力破解**  | 登录失败5次锁定15分钟 + 图形验证码                      | 登录/注册接口 |
+| **敏感数据脱敏** | 手机号/邮箱中间位掩码、日志中不记录明密                      | 日志/响应   |
 
 ### 13.3 内容安全
 
 - **敏感词系统**：本地敏感词库（DFA算法）+ 大模型AI审核双层过滤
 - **AI审核流程**：发帖 → 本地敏感词初筛 → MQ异步AI深度审核 → 结果判定
 - **审核结果处理**：
-  - ✅ **通过**：正常展示
-  - ⚠️ **疑似**：人工复审队列（版主/管理员处理）
-  - ❌ **违规**：自动屏蔽 + 通知用户修改 + 记录违规次数（累计达到阈值临时封号）
+    - ✅ **通过**：正常展示
+    - ⚠️ **疑似**：人工复审队列（版主/管理员处理）
+    - ❌ **违规**：自动屏蔽 + 通知用户修改 + 记录违规次数（累计达到阈值临时封号）
 - **图片审核**（V2）：接入第三方图片审核API（阿里云/腾讯云内容安全）
 
 ### 13.4 数据安全
@@ -1411,14 +1516,14 @@ linksee-xxx-service/
 
 **目标**：微服务骨架可运行，全链路连通，基础设施到位
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 1.1 | 工程初始化 | 创建父POM + 6个微服务Module + common公共模块，统一Spring Boot 4.0 + Kotlin + Jimmer版本 | `mvn clean compile` 通过 |
-| 1.2 | 数据库搭建 | PostgreSQL建库建表（执行全部DDL），Jimmer实体逆向生成或手写完成 | 可通过Jimmer查询任意表 |
-| 1.3 | Redis配置 | Redis连接池配置、缓存抽象基类封装、序列化策略(Kryo/String) | `SET/GET` 测试通过 |
-| 1.4 | 网关配置 | SpringCloudGateway路由规则配置、全局Filter(鉴权/限流/日志/CORS) | 请求可达各微服务且返回正确 |
-| 1.5 | 认证模块 | 用户注册(含密码加密)、JWT签发验签、登录登出完整流程 | 可注册新用户并登录获得Token |
-| 1.6 | MQ配置 | RabbitMQ连接、Exchange/Queue声明、生产者消费者模板 | 可发送消息并被消费 |
+| 序号  | 任务      | 详细内容                                                                    | 验收标准                   |
+|:---:|---------|-------------------------------------------------------------------------|------------------------|
+| 1.1 | 工程初始化   | 创建父工程 + 6个微服务Module + common公共模块，统一Spring Boot 3.4.2 + Spring Cloud Alibaba + Kotlin + Jimmer版本 | `gradle clean compile` 通过 |
+| 1.2 | 数据库搭建   | PostgreSQL建库建表（执行全部DDL），Jimmer实体逆向生成或手写完成                               | 可通过Jimmer查询任意表         |
+| 1.3 | Redis配置 | Redis连接池配置、缓存抽象基类封装、序列化策略(Kryo/String)                                  | `SET/GET` 测试通过         |
+| 1.4 | 网关配置    | SpringCloudGateway路由规则配置、全局Filter(鉴权/限流/日志/CORS)                        | 请求可达各微服务且返回正确          |
+| 1.5 | 认证模块    | 用户注册(含密码加密)、JWT签发验签、登录登出完整流程                                            | 可注册新用户并登录获得Token       |
+| 1.6 | MQ配置    | RabbitMQ连接、Exchange/Queue声明、生产者消费者模板                                    | 可发送消息并被消费              |
 
 **本周产出**：一个可以注册、登录、通过网关访问的系统骨架
 
@@ -1428,15 +1533,15 @@ linksee-xxx-service/
 
 **目标**：论坛基础功能完整可用，用户可以正常发帖评论互动
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 2.1 | 用户中心 | 个人资料CRUD、头像上传(OSS/MinIO)、关注/取关、个人主页展示 | 完整用户体系可用 |
-| 2.2 | 板块管理 | 一二级分类CRUD、板块列表/详情API、板块首页数据聚合 | 5大板块体系可浏览 |
-| 2.3 | 发帖功能 | Markdown编辑器集成、帖子发布(含板块选择/标签)、帖子编辑/删除 | 可发布一篇完整帖子 |
-| 2.4 | 评论系统 | 一级/二级嵌套评论、评论列表(分页/排序)、评论删除 | 帖子下可正常评论互动 |
-| 2.5 | 互动功能 | 点赞/取消点赞、收藏/取消收藏、计数器实时更新(Redis原子操作) | 互动功能即时反馈 |
-| 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab切换、帖子卡片列表、虚拟滚动 | 首页可流畅滚动浏览 |
-| 2.7 | 基础搜索 | ES索引同步(MQ异步)、关键词全文检索、搜索结果高亮 | 输入关键词可搜到帖子 |
+| 序号  | 任务    | 详细内容                                  | 验收标准       |
+|:---:|-------|---------------------------------------|------------|
+| 2.1 | 用户中心  | 个人资料CRUD、头像上传(OSS/MinIO)、关注/取关、个人主页展示 | 完整用户体系可用   |
+| 2.2 | 板块管理  | 一二级分类CRUD、板块列表/详情API、板块首页数据聚合         | 5大板块体系可浏览  |
+| 2.3 | 发帖功能  | Markdown编辑器集成、帖子发布(含板块选择/标签)、帖子编辑/删除  | 可发布一篇完整帖子  |
+| 2.4 | 评论系统  | 一级/二级嵌套评论、评论列表(分页/排序)、评论删除            | 帖子下可正常评论互动 |
+| 2.5 | 互动功能  | 点赞/取消点赞、收藏/取消收藏、计数器实时更新(Redis原子操作)    | 互动功能即时反馈   |
+| 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab切换、帖子卡片列表、虚拟滚动         | 首页可流畅滚动浏览  |
+| 2.7 | 基础搜索  | ES索引同步(MQ异步)、关键词全文检索、搜索结果高亮           | 输入关键词可搜到帖子 |
 
 **本周产出**：一个功能完整的论坛系统（不含AI功能）
 
@@ -1446,15 +1551,15 @@ linksee-xxx-service/
 
 **目标**：AI能力上线，形成核心差异化竞争力
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 3.1 | 大模型接入 | 智谱GLM-4 SDK + 通义千问 SDK + Kimi SDK 接入，Model Router实现 | 可调用任一模型并获得回复 |
-| 3.2 | 创作助手F01-F04 | 标题生成、大纲辅助、润色优化、续写扩写 4个核心功能 | 发帖编辑器内可使用AI辅助 |
-| 3.3 | 创作助手F05-F08 | 翻译、摘要提炼、标签推荐、灵感激发 4个辅助功能 | AI工具栏8个功能全部可用 |
-| 3.4 | RAG检索管线 | ES关键词检索 + Milvus向量检索 + PostgreSQL结构化查询并行执行 + 融合排序 | 混合检索可返回高质量结果 |
-| 3.5 | AI问答界面 | 对话式UI(SSE流式输出)、引用来源展示、追问建议、会话管理 | 可与AI进行多轮问答 |
-| 3.6 | MQ异步任务 | AI审核消费者、ES同步消费者、AI摘要生成、向量入库 | 发帖后异步流程全部跑通 |
-| 3.7 | 用量控制 | 用户等级与每日配额校验、调用计数(Redis原子INCR)、超额提示 | 不同等级用户配额限制生效 |
+| 序号  | 任务          | 详细内容                                                | 验收标准          |
+|:---:|-------------|-----------------------------------------------------|---------------|
+| 3.1 | 大模型接入       | 智谱GLM-4 SDK + 通义千问 SDK + Kimi SDK 接入，Model Router实现 | 可调用任一模型并获得回复  |
+| 3.2 | 创作助手F01-F04 | 标题生成、大纲辅助、润色优化、续写扩写 4个核心功能                          | 发帖编辑器内可使用AI辅助 |
+| 3.3 | 创作助手F05-F08 | 翻译、摘要提炼、标签推荐、灵感激发 4个辅助功能                            | AI工具栏8个功能全部可用 |
+| 3.4 | RAG检索管线     | ES关键词检索 + Milvus向量检索 + PostgreSQL结构化查询并行执行 + 融合排序   | 混合检索可返回高质量结果  |
+| 3.5 | AI问答界面      | 对话式UI(SSE流式输出)、引用来源展示、追问建议、会话管理                     | 可与AI进行多轮问答    |
+| 3.6 | MQ异步任务      | AI审核消费者、ES同步消费者、AI摘要生成、向量入库                         | 发帖后异步流程全部跑通   |
+| 3.7 | 用量控制        | 用户等级与每日配额校验、调用计数(Redis原子INCR)、超额提示                  | 不同等级用户配额限制生效  |
 
 **本周产出**：具备AI创作助手和AI智能问答两大核心能力的论坛
 
@@ -1464,14 +1569,14 @@ linksee-xxx-service/
 
 **目标**：生产环境可部署，正式对外发布运营
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 4.1 | 内容审核 | DFA敏感词库 + AI违规检测 + 人工审核后台 | 违规内容可有效拦截 |
-| 4.2 | 消息通知完善 | 站内信(点赞/评论/关注/系统/AI)、未读计数Badge | 消息及时准确送达 |
-| 4.3 | 运营后台 | 用户管理(禁言/封号/角色)、帖子管理(置顶/精华/删除)、板块配置、数据看板 | 管理员可通过后台管控 |
-| 4.4 | 性能优化 | 接口压测(JMeter/Gatling)、慢查询优化(EXPLAIN)、缓存命中率调优、SQL索引优化 | 核心接口P99 < 500ms |
-| 4.5 | 安全加固 | XSS/CSRF防护、限流策略细化、接口权限全面审查、渗透测试基础检查 | 安全扫描无明显漏洞 |
-| 4.6 | 文档与部署 | Swagger/OpenAPI文档完整、部署手册(Docker Compose/K8s)、运维脚本、监控告警(Prometheus+Grafana) | 其他人可按文档独立部署 |
+| 序号  | 任务     | 详细内容                                                                       | 验收标准            |
+|:---:|--------|----------------------------------------------------------------------------|-----------------|
+| 4.1 | 内容审核   | DFA敏感词库 + AI违规检测 + 人工审核后台                                                  | 违规内容可有效拦截       |
+| 4.2 | 消息通知完善 | 站内信(点赞/评论/关注/系统/AI)、未读计数Badge                                              | 消息及时准确送达        |
+| 4.3 | 运营后台   | 用户管理(禁言/封号/角色)、帖子管理(置顶/精华/删除)、板块配置、数据看板                                    | 管理员可通过后台管控      |
+| 4.4 | 性能优化   | 接口压测(JMeter/Gatling)、慢查询优化(EXPLAIN)、缓存命中率调优、SQL索引优化                        | 核心接口P99 < 500ms |
+| 4.5 | 安全加固   | XSS/CSRF防护、限流策略细化、接口权限全面审查、渗透测试基础检查                                        | 安全扫描无明显漏洞       |
+| 4.6 | 文档与部署  | Swagger/OpenAPI文档完整、部署手册(Docker Compose/K8s)、运维脚本、监控告警(Prometheus+Grafana) | 其他人可按文档独立部署     |
 
 **本周产出**：可正式上线的生产级系统
 
@@ -1482,13 +1587,13 @@ linksee-xxx-service/
 > V1.0阶段专注社区运营和用户增长，暂不引入付费功能。
 > 以下为未来商业化方向的预留设计考虑，确保架构可平滑演进。
 
-| 方向 | 模式 | 预留设计 | 引入时机 |
-|------|------|----------|----------|
-| **会员订阅** | Freemium | 用户等级体系已预留VIP等级位；AI调用额度系统已实现；只需加支付模块 | DAU > 1000 且用户反馈积极 |
-| **企业版** | SaaS租户 | 板块体系支持自定义创建；权限RBAC已完备；需加多租户隔离层 | 有企业主动咨询合作 |
-| **广告系统** | 信息流广告 | 帖子列表Feed已支持插入式布局；用户画像数据已有基础 | 日活 > 5000 |
-| **API开放平台** | 按调用量计费 | AI能力已封装为Service层；需加API Key管理 + 流量计费 | 外部开发者有接入需求 |
-| **内容付费** | 专栏/课程 | 帖子系统已支持可见范围字段；需加订单/支付/分成模块 | 社区内有大V产生优质独家内容 |
+| 方向          | 模式       | 预留设计                                | 引入时机               |
+|-------------|----------|-------------------------------------|--------------------|
+| **会员订阅**    | Freemium | 用户等级体系已预留VIP等级位；AI调用额度系统已实现；只需加支付模块 | DAU > 1000 且用户反馈积极 |
+| **企业版**     | SaaS租户   | 板块体系支持自定义创建；权限RBAC已完备；需加多租户隔离层      | 有企业主动咨询合作          |
+| **广告系统**    | 信息流广告    | 帖子列表Feed已支持插入式布局；用户画像数据已有基础         | 日活 > 5000          |
+| **API开放平台** | 按调用量计费   | AI能力已封装为Service层；需加API Key管理 + 流量计费 | 外部开发者有接入需求         |
+| **内容付费**    | 专栏/课程    | 帖子系统已支持可见范围字段；需加订单/支付/分成模块          | 社区内有大V产生优质独家内容     |
 
 ---
 
@@ -1496,15 +1601,15 @@ linksee-xxx-service/
 
 ### A. 项目代号与命名规范
 
-| 项目 | 说明 |
-|------|------|
-| 产品名称 | LinkSee 灵犀 |
-| 项目代号 | NulkFourm（内部Git仓库名） |
-| 包名前缀 | `com.linksee` |
-| 数据库Schema | `linksee` |
-| 缓存Key前缀 | `forum:` |
+| 项目            | 说明                                 |
+|---------------|------------------------------------|
+| 产品名称          | LinkSee 灵犀                         |
+| 项目代号          | NulkFourm（内部Git仓库名）                |
+| 包名前缀          | `com.linksee`                      |
+| 数据库Schema     | `linksee`                          |
+| 缓存Key前缀       | `forum:`                           |
 | MQ Exchange前缀 | `forum.exchange.` / `ai.exchange.` |
-| Docker镜像前缀 | `linksee/` |
+| Docker镜像前缀    | `linksee/`                         |
 
 ### B. 环境变量参考
 
@@ -1546,15 +1651,19 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 
 ### C. 技术选型决策记录 (ADR)
 
-| 决策项 | 选择 | 备选方案 | 决策理由 |
-|--------|------|---------|----------|
-| 语言 | Kotlin | Java | 空安全、表达式简洁、与Java 100%互操作、代码量少30% |
-| ORM | Jimmer | MyBatis-Plus / JPA | 无XML、强类型、动态SQL、PostgreSQL原生支持优秀 |
-| 缓存 | Redis 7.0 | Memcached | 数据类型丰富、持久化、集群成熟、生态好 |
-| 搜索 | ES 8.x | Meilisearch / Sphinx | 中文分词生态成熟、分布式能力强、查询DSL强大 |
-| 向量库 | Milvus | Pinecone / Weaviate | 开源可自部署、性能优异、国内社区活跃 |
-| 消息队列 | RabbitMQ | Kafka / RocketMQ | 管理友好、协议灵活、适合中小规模场景 |
-| 前端 | Vue 3 + TS | React / Nuxt | 学习曲线平缓、国内生态丰富、适合快速迭代 |
+| 决策项      | 选择                        | 备选方案                     | 决策理由                                              |
+|-----------|-------------------------|--------------------------|---------------------------------------------------|
+| 语言       | Kotlin                  | Java                     | 空安全、表达式简洁、与Java 100%互操作、代码量少30%                    |
+| ORM       | Jimmer                   | MyBatis-Plus / JPA        | 无XML、强类型、动态SQL、PostgreSQL原生支持优秀                      |
+| 缓存       | Redis 7.0                | Memcached                 | 数据类型丰富、持久化、集群成熟、生态好                               |
+| 搜索       | ES 8.x                  | Meilisearch / Sphinx      | 中文分词生态成熟、分布式能力强、查询DSL强大                             |
+| 向量库      | Milvus                   | Pinecone / Weaviate       | 开源可自部署、性能优异、国内社区活跃                                |
+| 消息队列     | RabbitMQ                 | Kafka / RocketMQ          | 管理友好、协议灵活、适合中小规模场景                                 |
+| 微服务治理    | **Spring Cloud Alibaba**   | Spring Cloud Netflix       | 国内生态完善、Nacos注册+配置一体化、Sentinel流控开箱即用、与Spring Boot深度集成     |
+| 服务注册/配置  | **Nacos**                Consul / Eureka + Config   | 注册与配置中心合二为一、配置热更新、国内社区活跃、阿里生产级验证                    |
+| 流量控制     | **Sentinel**             Hystrix / Resilience4j      | 实时监控Dashboard、规则持久化到Nacos、系统自适应保护、网关流控原生支持            |
+| 鉴权框架     | **Sa-Token + Redis**       手写JWT / Spring Security   | 一行代码登录鉴权、注解式RBAC权限、Redis分布式会话、Gateway响应式Filter支持、踢人下线内置 |
+| 前端框架     | React 19 + TypeScript      | Vue 3 + Nuxt              | React 19新特性(Action/Optimistic UI)、TanStack Query生态、类型安全更强         |
 
 ### D. 参考资源与致谢
 

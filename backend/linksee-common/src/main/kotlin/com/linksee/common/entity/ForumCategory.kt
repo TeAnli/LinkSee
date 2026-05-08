@@ -1,6 +1,7 @@
 package com.linksee.common.entity
 
 import org.babyfish.jimmer.sql.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "forum_category")
@@ -16,7 +17,7 @@ interface ForumCategory {
     @Column(name = "icon")
     val icon: String
 
-    @Column(name = "parent_id")
+    @IdView("parent")
     val parentId: Long?
 
     @Column(name = "description", sqlType = "TEXT")
@@ -41,10 +42,10 @@ interface ForumCategory {
     val status: Int
 
     @Column(name = "created_at")
-    val createdAt: java.time.LocalDateTime
+    val createdAt: LocalDateTime
 
     @Column(name = "updated_at")
-    val updatedAt: java.time.LocalDateTime
+    val updatedAt: LocalDateTime
 
     @Column(name = "deleted")
     val deleted: Int
