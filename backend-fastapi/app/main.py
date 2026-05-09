@@ -1,8 +1,19 @@
 from pathlib import Path
+from sqlite3 import IntegrityError
 
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi.exceptions import RequestValidationError
 from app.config import settings
+
+from app.exceptions import AppException
+
+from app.middleware.error_handler import (
+    app_exception_handler,
+    generic_exception_handler,
+    integrity_error_handler,
+    validation_exception_handler,
+)
 
 
 @asynccontextmanager
@@ -23,6 +34,12 @@ app = FastAPI(
     docs_url="/docs",
     lifespan=lifespan,
 )
+
+# Exception handlers
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(IntegrityError, integrity_error_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 
 @app.get("/")

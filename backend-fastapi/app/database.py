@@ -11,3 +11,14 @@ engine = create_async_engine(
 )
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+async def get_db() -> AsyncSession:
+    """获取数据库会话的异步生成器，用于依赖注入。"""
+    async with async_session() as session:
+        try:
+            yield session  # 提供会话给调用方
+            await session.commit()  # 正常完成时提交事务
+        except Exception:
+            await session.rollback()  # 异常时回滚事务
+            raise
