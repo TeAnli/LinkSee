@@ -8,16 +8,16 @@ async def list_notifications(
     db: AsyncSession, user_id: int, notice_type: str = "all",
     read_status: str = "all", page: int = 1, size: int = 20,
 ) -> dict:
-    conditions = [MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0]
+    conditions = [MessageNotice.receiver_id == user_id]
     if notice_type != "all":
-        conditions.append(MessageNotice.notice_type == notice_type)
+        conditions.append(MessageNotice.type == notice_type)
     if read_status == "unread":
         conditions.append(MessageNotice.is_read == False)
     elif read_status == "read":
         conditions.append(MessageNotice.is_read == True)
 
     unread_count = (await db.execute(
-        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0, MessageNotice.is_read == False)
+        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.is_read == False)
     )).scalar()
 
     count_stmt = select(func.count(MessageNotice.id)).where(and_(*conditions))
@@ -29,16 +29,10 @@ async def list_notifications(
 
     items = []
     for n in notices:
-        from app.models.user import SysUser
-        sender = await db.get(SysUser, n.sender_id) if n.sender_id else None
         items.append({
-            "id": n.id, "type": n.notice_type, "subType": n.sub_type,
+            "id": n.id, "type": n.type,
             "title": n.title, "content": n.content,
-            "targetType": n.target_type, "targetId": n.target_id,
-            "postId": n.post_id,
-            "triggerUserId": n.sender_id,
-            "triggerUserNickname": sender.nickname if sender else None,
-            "triggerUserAvatarUrl": sender.avatar_url if sender else None,
+            "relatedId": n.related_id,
             "isRead": n.is_read,
             "createdAt": n.created_at.isoformat() if n.created_at else None,
         })
@@ -56,7 +50,7 @@ async def mark_read(db: AsyncSession, notice_id: int, user_id: int):
 async def mark_all_read(db: AsyncSession, user_id: int, notice_type: str | None = None):
     conditions = [MessageNotice.receiver_id == user_id, MessageNotice.is_read == False]
     if notice_type:
-        conditions.append(MessageNotice.notice_type == notice_type)
+        conditions.append(MessageNotice.type == notice_type)
     result = await db.execute(update(MessageNotice).where(and_(*conditions)).values(is_read=True))
     await db.flush()
     return {"markedCount": result.rowcount}
@@ -64,15 +58,15 @@ async def mark_all_read(db: AsyncSession, user_id: int, notice_type: str | None 
 
 async def unread_count(db: AsyncSession, user_id: int) -> dict:
     total = (await db.execute(
-        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0, MessageNotice.is_read == False)
+        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.is_read == False)
     )).scalar()
     interaction = (await db.execute(
-        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0, MessageNotice.is_read == False, MessageNotice.notice_type == "interaction")
+        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.is_read == False, MessageNotice.type == "interaction")
     )).scalar()
     system = (await db.execute(
-        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0, MessageNotice.is_read == False, MessageNotice.notice_type == "system")
+        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.is_read == False, MessageNotice.type == "system")
     )).scalar()
     ai = (await db.execute(
-        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.deleted == 0, MessageNotice.is_read == False, MessageNotice.notice_type == "ai")
+        select(func.count(MessageNotice.id)).where(MessageNotice.receiver_id == user_id, MessageNotice.is_read == False, MessageNotice.type == "ai")
     )).scalar()
     return {"total": total, "interaction": interaction, "system": system, "ai": ai}

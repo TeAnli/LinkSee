@@ -14,9 +14,11 @@ from app.constants import (
     ERR_ACCOUNT_LOCKED,
     ERR_CAPTCHA_INVALID,
     ERR_CAPTCHA_WRONG,
+    ERR_EMAIL_CODE_INVALID,
+    ERR_EMAIL_CODE_SEND_FAILED,
+    ERR_EMAIL_CODE_RATE_LIMIT,
     ERR_EMAIL_EXISTS,
     ERR_PASSWORD_WRONG,
-    ERR_PHONE_EXISTS,
     ERR_REFRESH_EXPIRED,
     ERR_REFRESH_INVALID,
     ERR_USERNAME_EXISTS,
@@ -39,6 +41,11 @@ from app.security import (
     decode_token,
     hash_password,
     verify_password,
+)
+from app.services.email_service import (
+    check_email_rate_limit,
+    send_email_code_with_retry,
+    verify_email_code,
 )
 
 # In-memory captcha store: captcha_id -> (answer, expiry_timestamp)
@@ -124,9 +131,25 @@ def _verify_captcha(captcha_id: str, captcha_value: str) -> bool:
     return answer.upper() == captcha_value.upper()
 
 
+async def send_register_email_code(email: str) -> str:
+    """Send verification code to email before registration."""
+    if not await check_email_rate_limit(email):
+        raise AppException(ERR_EMAIL_CODE_RATE_LIMIT, "发送过于频繁，请稍后再试")
+    try:
+        return await send_email_code_with_retry(email)
+    except Exception:
+        raise AppException(ERR_EMAIL_CODE_SEND_FAILED, "验证码发送失败，请稍后重试")
+
+
 async def register(db: AsyncSession, req: RegisterRequest) -> dict:
     if not _verify_captcha(req.captchaId, req.captchaValue):
         raise AppException(ERR_CAPTCHA_INVALID, "验证码错误或过期")
+
+    if req.email:
+        if not req.emailCode:
+            raise AppException(ERR_EMAIL_CODE_INVALID, "请填写邮箱验证码")
+        if not await verify_email_code(req.email, req.emailCode):
+            raise AppException(ERR_EMAIL_CODE_INVALID, "邮箱验证码错误或过期")
 
     existing = await db.execute(select(SysUser).where(SysUser.username == req.username))
     if existing.scalar():
@@ -137,12 +160,7 @@ async def register(db: AsyncSession, req: RegisterRequest) -> dict:
         if existing.scalar():
             raise AppException(ERR_EMAIL_EXISTS, "邮箱已注册", 409)
 
-    if req.phone:
-        existing = await db.execute(select(SysUser).where(SysUser.phone == req.phone))
-        if existing.scalar():
-            raise AppException(ERR_PHONE_EXISTS, "手机号已注册", 409)
-
-    role_user = await db.execute(select(SysRole).where(SysRole.role_code == ROLE_USER))
+    role_user = await db.execute(select(SysRole).where(SysRole.code == ROLE_USER))
     role_user = role_user.scalar()
 
     user = SysUser(
@@ -150,7 +168,6 @@ async def register(db: AsyncSession, req: RegisterRequest) -> dict:
         password_hash=hash_password(req.password),
         nickname=req.username,
         email=req.email or "",
-        phone=req.phone or "",
     )
     if role_user:
         user.roles = [role_user]
@@ -173,6 +190,27 @@ async def register(db: AsyncSession, req: RegisterRequest) -> dict:
 
 
 async def login(db: AsyncSession, req: LoginRequest) -> dict:
+    """
+    用户登录验证并生成令牌。
+
+    该函数处理用户登录流程，包括：
+    - 检查登录失败次数限制和账号锁定状态
+    - 验证用户凭据（用户名/邮箱和密码）
+    - 验证验证码（当失败次数达到上限时）
+    - 检查账号状态
+    - 生成访问令牌和刷新令牌
+
+    Args:
+        db: 数据库异步会话
+        req: 登录请求对象，包含用户名、密码、验证码等信息
+
+    Returns:
+        包含用户ID、访问令牌、刷新令牌、过期时间和用户信息的字典
+
+    Raises:
+        AppException: 当账号被锁定、验证码错误、用户不存在、密码错误或账号被禁用时抛出
+    """
+
     _cleanup_expired()
 
     key = f"login:{req.username}"
@@ -189,9 +227,7 @@ async def login(db: AsyncSession, req: LoginRequest) -> dict:
 
     user = await db.execute(
         select(SysUser).where(
-            (SysUser.username == req.username)
-            | (SysUser.email == req.username)
-            | (SysUser.phone == req.username)
+            (SysUser.username == req.username) | (SysUser.email == req.username)
         )
     )
     user = user.scalar()
@@ -212,7 +248,7 @@ async def login(db: AsyncSession, req: LoginRequest) -> dict:
     LOGIN_FAILURES.pop(key, None)
 
     user_role_result = await db.execute(
-        select(SysRole.role_code)
+        select(SysRole.code)
         .select_from(SysRole)
         .join(SysRole.users)
         .where(SysUser.id == user.id)
@@ -254,7 +290,7 @@ async def refresh_token(db: AsyncSession, req: RefreshTokenRequest) -> dict:
         raise AppException(ERR_REFRESH_EXPIRED, "用户不存在", 401)
 
     user_role_result = await db.execute(
-        select(SysRole.role_code)
+        select(SysRole.code)
         .select_from(SysRole)
         .join(SysRole.users)
         .where(SysUser.id == user.id)

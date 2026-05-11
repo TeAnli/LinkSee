@@ -23,5 +23,5 @@ class ForumComment(Base):
 
     post: Mapped["ForumPost"] = relationship(back_populates="comments")
     author: Mapped["SysUser"] = relationship(foreign_keys=[user_id])
-    parent: Mapped[Optional["ForumComment"]] = relationship(back_populates="children", remote_side=[parent_id])
+    parent: Mapped[Optional["ForumComment"]] = relationship(back_populates="children", remote_side=[id])
     children: Mapped[list["ForumComment"]] = relationship(back_populates="parent")

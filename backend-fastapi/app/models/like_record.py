@@ -8,7 +8,7 @@ from app.models.base import Base
 
 class ForumLikeRecord(Base):
     __tablename__ = "forum_like_record"
-    __table_args__ = (UniqueConstraint("user_id", "target_type", "target_id"),)
+    __table_args__ = (UniqueConstraint("user_id", "target_type", "target_id", "action_type"),)
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("sys_user.id"), nullable=False)

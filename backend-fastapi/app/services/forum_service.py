@@ -143,7 +143,7 @@ async def get_post_detail(db: AsyncSession, post_id: int, viewer_id: int | None 
     if ai_row:
         ai_data_resp = {
             "aiSummary": ai_row.ai_summary, "aiKeywords": ai_row.ai_keywords or [],
-            "qualityScore": ai_row.quality_score, "estimatedReadTime": ai_row.read_duration_estimate,
+            "qualityScore": ai_row.quality_score, "estimatedReadTime": ai_row.estimated_read_minutes,
         }
 
     is_liked = False

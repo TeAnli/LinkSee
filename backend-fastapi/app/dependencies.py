@@ -103,7 +103,7 @@ async def get_user_role_codes(user: SysUser) -> list[str]:
     from app.database import async_session
     async with async_session() as session:
         stmt = (
-            sa_select(SysRole.role_code)
+            sa_select(SysRole.code)
             .select_from(SysRole)
             .join(SysRole.users)
             .where(SysUser.id == user.id)
