@@ -34,7 +34,9 @@ export function RegisterPage() {
     username: '',
     password: '',
     email: '',
-    captcha: '',
+    emailCode: '',
+    captchaId: '',
+    captchaValue: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,16 +46,44 @@ export function RegisterPage() {
     captchaId: string;
     captchaImageBase64: string;
   } | null>(null);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [codeCountdown, setCodeCountdown] = useState(0);
 
   useEffect(() => {
     loadCaptcha();
   }, []);
 
+  useEffect(() => {
+    if (codeCountdown > 0) {
+      const timer = setTimeout(() => setCodeCountdown(codeCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [codeCountdown]);
+
+  const handleSendEmailCode = async () => {
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError(t('auth.invalidEmail'));
+      return;
+    }
+    setSendingCode(true);
+    try {
+      await authApi.sendEmailCode({ email: form.email! });
+      setCodeCountdown(60);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? t('auth.failedSendEmailCode');
+      setError(msg);
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
   const loadCaptcha = async () => {
     try {
       const res = await authApi.getCaptcha();
-      console.log('Captcha data:', res.data.data);
       setCaptchaData(res.data.data);
+      setForm((prev) => ({ ...prev, captchaId: res.data.data.captchaId }));
     } catch {
       // captcha optional for now
     }
@@ -85,6 +115,10 @@ export function RegisterPage() {
       setError(t('auth.invalidEmail'));
       return;
     }
+    if (form.email && !form.emailCode) {
+      setError(t('auth.enterEmailCode'));
+      return;
+    }
 
     setLoading(true);
     try {
@@ -102,6 +136,8 @@ export function RegisterPage() {
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message ?? t('auth.registrationFailed');
       setError(msg);
+      loadCaptcha();
+      setForm((prev) => ({ ...prev, captchaValue: '' }));
     } finally {
       setLoading(false);
     }
@@ -205,6 +241,31 @@ export function RegisterPage() {
                 </div>
               </div>
 
+              {/* Email Code */}
+              {form.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && (
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="reg-email-code" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                    {t('auth.emailCode')}
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input id="reg-email-code" placeholder={t('auth.enterEmailCode')} maxLength={6} value={form.emailCode || ''} onChange={(e) => setForm({ ...form, emailCode: e.target.value })} autoComplete="off" />
+                    </div>
+                    <Button type="button" variant="outline" className="h-10 shrink-0 text-xs font-semibold" disabled={sendingCode || codeCountdown > 0} onClick={handleSendEmailCode}>
+                      {sendingCode ? (
+                        <span className="flex items-center gap-1">
+                          <Icon icon="mdi:loading" width={14} className="animate-spin" />
+                        </span>
+                      ) : codeCountdown > 0 ? (
+                        `${codeCountdown}s`
+                      ) : (
+                        t('auth.sendCode')
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="reg-password" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
@@ -272,7 +333,7 @@ export function RegisterPage() {
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Input id="reg-captcha" placeholder={t('auth.enterCaptcha')} value={form.captcha} onChange={(e) => setForm({ ...form, captcha: e.target.value })} autoComplete="off" />
+                      <Input id="reg-captcha" placeholder={t('auth.enterCaptcha')} value={form.captchaValue} onChange={(e) => setForm({ ...form, captchaValue: e.target.value })} autoComplete="off" />
                     </div>
                     <button type="button" onClick={loadCaptcha} className="h-10 rounded-xl border-[1.5px] overflow-hidden hover:opacity-80 transition-opacity" style={{ borderColor: 'var(--border-color)' }} title={t('auth.clickToRefresh')}>
                       {captchaData.captchaImageBase64 ? (
