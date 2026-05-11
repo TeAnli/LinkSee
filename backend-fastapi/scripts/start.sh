@@ -21,5 +21,5 @@ uv sync
 echo ":: 运行数据库迁移..."
 uv run alembic upgrade head || echo ":: 迁移失败，请检查数据库连接"
 
-echo ":: 启动 FastAPI 服务 (http://127.0.0.1:8000)..."
-uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+echo ":: 启动 FastAPI 服务 (http://127.0.0.1:8080)..."
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8080 --reload

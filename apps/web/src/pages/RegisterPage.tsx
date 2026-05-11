@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useTranslation } from 'react-i18next';
@@ -45,9 +45,14 @@ export function RegisterPage() {
     captchaImageBase64: string;
   } | null>(null);
 
+  useEffect(() => {
+    loadCaptcha();
+  }, []);
+
   const loadCaptcha = async () => {
     try {
       const res = await authApi.getCaptcha();
+      console.log('Captcha data:', res.data.data);
       setCaptchaData(res.data.data);
     } catch {
       // captcha optional for now
@@ -271,7 +276,7 @@ export function RegisterPage() {
                     </div>
                     <button type="button" onClick={loadCaptcha} className="h-10 rounded-xl border-[1.5px] overflow-hidden hover:opacity-80 transition-opacity" style={{ borderColor: 'var(--border-color)' }} title={t('auth.clickToRefresh')}>
                       {captchaData.captchaImageBase64 ? (
-                        <img src={`data:image/png;base64,${captchaData.captchaImageBase64}`} alt="Captcha" className="h-full w-24 object-cover" />
+                        <img src={`${captchaData.captchaImageBase64}`} alt="Captcha" className="h-full w-full" />
                       ) : (
                         <div className="flex h-full w-24 items-center justify-center text-xs font-semibold" style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-fg)' }}>
                           {t('common.loading')}

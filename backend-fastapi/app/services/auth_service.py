@@ -49,13 +49,17 @@ LOGIN_FAILURES: dict[str, tuple[int, float]] = {}
 MAX_LOGIN_FAILURES = 5
 LOGIN_LOCK_SECONDS = 900
 
+FONT = ImageFont.truetype("arial.ttf", 42)
+
 
 def _cleanup_expired():
     now = time.time()
     expired = [k for k, v in _captcha_store.items() if v[1] < now]
     for k in expired:
         del _captcha_store[k]
-    expired_l = [k for k, v in LOGIN_FAILURES.items() if v[1] + LOGIN_LOCK_SECONDS < now]
+    expired_l = [
+        k for k, v in LOGIN_FAILURES.items() if v[1] + LOGIN_LOCK_SECONDS < now
+    ]
     for k in expired_l:
         del LOGIN_FAILURES[k]
 
@@ -64,30 +68,50 @@ def generate_captcha() -> CaptchaData:
     _cleanup_expired()
     chars = string.ascii_uppercase + string.digits
     answer = "".join(random.choices(chars, k=4))
-    captcha_id = "cap_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=12))
+    captcha_id = "cap_" + "".join(
+        random.choices(string.ascii_lowercase + string.digits, k=12)
+    )
 
-    img = Image.new("RGB", (200, 80), color=(240, 240, 245))
+    W, H = 280, 100
+    img = Image.new("RGB", (W, H), color=(240, 240, 245))
     draw = ImageDraw.Draw(img)
     for i, ch in enumerate(answer):
-        x = 25 + i * 38 + random.randint(-5, 5)
-        y = random.randint(10, 25)
-        draw.text((x, y), ch, fill=(random.randint(20, 120), random.randint(20, 120), random.randint(20, 180)))
-    for _ in range(50):
-        x = random.randint(0, 199)
-        y = random.randint(0, 79)
-        draw.point((x, y), fill=(random.randint(100, 200), random.randint(100, 200), random.randint(100, 200)))
-    for _ in range(3):
-        x1 = random.randint(0, 199)
-        y1 = random.randint(0, 79)
-        x2 = x1 + random.randint(-30, 30)
-        y2 = y1 + random.randint(-10, 10)
-        draw.line((x1, y1, x2, y2), fill=(160, 160, 180), width=1)
+        x = 30 + i * 62 + random.randint(-6, 6)
+        y = random.randint(12, 28)
+        draw.text(
+            (x, y),
+            ch,
+            font=FONT,
+            fill=(
+                random.randint(20, 120),
+                random.randint(20, 120),
+                random.randint(20, 180),
+            ),
+        )
+    for _ in range(80):
+        x = random.randint(0, W - 1)
+        y = random.randint(0, H - 1)
+        r = random.randint(1, 3)
+        color = (
+            random.randint(100, 200),
+            random.randint(100, 200),
+            random.randint(100, 200),
+        )
+        draw.ellipse((x - r, y - r, x + r, y + r), fill=color)
+    for _ in range(4):
+        x1 = random.randint(0, W - 1)
+        y1 = random.randint(0, H - 1)
+        x2 = x1 + random.randint(-70, 70)
+        y2 = y1 + random.randint(-40, 40)
+        draw.line((x1, y1, x2, y2), fill=(160, 160, 180), width=2)
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     b64 = base64.b64encode(buf.getvalue()).decode()
     _captcha_store[captcha_id] = (answer, time.time() + 300)
-    return CaptchaData(captchaId=captcha_id, captchaImageBase64=f"data:image/png;base64,{b64}")
+    return CaptchaData(
+        captchaId=captcha_id, captchaImageBase64=f"data:image/png;base64,{b64}"
+    )
 
 
 def _verify_captcha(captcha_id: str, captcha_value: str) -> bool:
@@ -155,7 +179,9 @@ async def login(db: AsyncSession, req: LoginRequest) -> dict:
     failures, lock_until = LOGIN_FAILURES.get(key, (0, 0))
     if failures >= MAX_LOGIN_FAILURES and time.time() < lock_until:
         remaining = int(lock_until - time.time())
-        raise AppException(ERR_ACCOUNT_LOCKED, f"账号已锁定，请{remaining // 60}分钟后再试", 429)
+        raise AppException(
+            ERR_ACCOUNT_LOCKED, f"账号已锁定，请{remaining // 60}分钟后再试", 429
+        )
 
     if failures >= MAX_LOGIN_FAILURES and req.captchaId:
         if not _verify_captcha(req.captchaId, req.captchaValue):
@@ -174,7 +200,9 @@ async def login(db: AsyncSession, req: LoginRequest) -> dict:
 
     if not verify_password(req.password, user.password_hash):
         failures += 1
-        lock_until = time.time() + LOGIN_LOCK_SECONDS if failures >= MAX_LOGIN_FAILURES else 0
+        lock_until = (
+            time.time() + LOGIN_LOCK_SECONDS if failures >= MAX_LOGIN_FAILURES else 0
+        )
         LOGIN_FAILURES[key] = (failures, lock_until)
         raise AppException(ERR_PASSWORD_WRONG, "密码错误", 401)
 
@@ -184,7 +212,10 @@ async def login(db: AsyncSession, req: LoginRequest) -> dict:
     LOGIN_FAILURES.pop(key, None)
 
     user_role_result = await db.execute(
-        select(SysRole.role_code).select_from(SysRole).join(SysRole.users).where(SysUser.id == user.id)
+        select(SysRole.role_code)
+        .select_from(SysRole)
+        .join(SysRole.users)
+        .where(SysUser.id == user.id)
     )
     roles = list(user_role_result.scalars().all())
 
@@ -223,7 +254,10 @@ async def refresh_token(db: AsyncSession, req: RefreshTokenRequest) -> dict:
         raise AppException(ERR_REFRESH_EXPIRED, "用户不存在", 401)
 
     user_role_result = await db.execute(
-        select(SysRole.role_code).select_from(SysRole).join(SysRole.users).where(SysUser.id == user.id)
+        select(SysRole.role_code)
+        .select_from(SysRole)
+        .join(SysRole.users)
+        .where(SysUser.id == user.id)
     )
     roles = list(user_role_result.scalars().all())
 
