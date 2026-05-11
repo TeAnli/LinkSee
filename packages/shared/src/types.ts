@@ -30,7 +30,13 @@ export interface RegisterRequest {
   username: string;
   password: string;
   email?: string;
-  captcha: string;
+  emailCode?: string;
+  captchaId: string;
+  captchaValue: string;
+}
+
+export interface SendEmailCodeRequest {
+  email: string;
 }
 
 export interface ForgotPasswordRequest {

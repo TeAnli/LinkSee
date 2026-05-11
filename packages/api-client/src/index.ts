@@ -6,6 +6,7 @@ import type {
   RegisterRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  SendEmailCodeRequest,
 } from "@linksee/shared";
 
 const apiClient = axios.create({
@@ -63,6 +64,9 @@ export const authApi = {
     apiClient.get<ApiResponse<{ captchaId: string; captchaImageBase64: string }>>(
       "/auth/captcha",
     ),
+
+  sendEmailCode: (data: SendEmailCodeRequest) =>
+    apiClient.post<ApiResponse<null>>("/auth/send-email-code", data),
 
   forgotPassword: (data: ForgotPasswordRequest) =>
     apiClient.post<ApiResponse<null>>("/auth/forgot-password", data),
