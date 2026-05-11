@@ -4,6 +4,9 @@
 -- Schema: linksee
 -- ============================================================
 
+-- 强制客户端编码为 UTF-8，避免 Windows GBK 环境乱码
+SET client_encoding = 'UTF8';
+
 -- Create extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
