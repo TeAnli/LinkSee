@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import SysUser
-from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterRequest
+from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterRequest, SendEmailCodeRequest
 from app.services import auth_service
 from app.utils import ok
 
@@ -32,6 +32,12 @@ async def logout(user: SysUser = Depends(get_current_user)):
 async def refresh_token(req: RefreshTokenRequest, db: AsyncSession = Depends(get_db)):
     data = await auth_service.refresh_token(db, req)
     return ok(data, "token刷新成功")
+
+
+@router.post("/send-email-code")
+async def send_email_code(req: SendEmailCodeRequest):
+    await auth_service.send_register_email_code(req.email)
+    return ok(None, "验证码已发送")
 
 
 @router.get("/captcha")

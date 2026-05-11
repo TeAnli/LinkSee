@@ -16,7 +16,6 @@ class SysUser(Base):
     nickname: Mapped[str] = mapped_column(String(50), default="", nullable=False)
     avatar_url: Mapped[str] = mapped_column(String(500), default="")
     email: Mapped[str] = mapped_column(String(100), default="")
-    phone: Mapped[str] = mapped_column(String(20), default="")
     level: Mapped[int] = mapped_column(SmallInteger, default=1, nullable=False)
     experience: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     daily_ai_calls: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

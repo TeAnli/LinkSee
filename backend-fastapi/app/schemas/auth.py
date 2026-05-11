@@ -5,7 +5,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_]+$")
     password: str = Field(min_length=8, max_length=32)
     email: str | None = Field(default=None, max_length=100, pattern=r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
-    phone: str | None = Field(default=None, max_length=20)
+    emailCode: str | None = Field(default=None, max_length=6)
     captchaId: str
     captchaValue: str
 
@@ -17,9 +17,13 @@ class LoginRequest(BaseModel):
     captchaValue: str | None = None
 
 
+class SendEmailCodeRequest(BaseModel):
+    email: str
+    
+
+
 class RefreshTokenRequest(BaseModel):
     refreshToken: str
-
 
 class UserInfoBrief(BaseModel):
     id: int

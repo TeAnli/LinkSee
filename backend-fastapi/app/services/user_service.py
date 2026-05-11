@@ -56,14 +56,10 @@ async def get_profile(db: AsyncSession, user_id: int) -> dict:
         parts = email_masked.split("@")
         email_masked = parts[0][0] + "***" + parts[0][-1] + "@" + parts[1] if len(parts[0]) > 2 else parts[0][0] + "***@" + parts[1]
 
-    phone_masked = user.phone
-    if phone_masked and len(phone_masked) >= 7:
-        phone_masked = phone_masked[:3] + "****" + phone_masked[-4:]
-
     return {
         "user": {
             "id": user.id, "username": user.username, "nickname": user.nickname or user.username,
-            "avatarUrl": user.avatar_url, "email": email_masked, "phone": phone_masked,
+            "avatarUrl": user.avatar_url, "email": email_masked,
             "level": user.level, "experience": user.experience, "status": user.status,
             "createdAt": user.created_at.isoformat() if user.created_at else None,
         },

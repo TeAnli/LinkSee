@@ -24,8 +24,7 @@ async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSON
             return JSONResponse(status_code=409, content=fail(40001, "用户名已存在"))
         if "email" in msg:
             return JSONResponse(status_code=409, content=fail(40002, "邮箱已注册"))
-        if "phone" in msg:
-            return JSONResponse(status_code=409, content=fail(40003, "手机号已注册"))
+
         return JSONResponse(status_code=409, content=fail(40000, "数据重复冲突"))
     return JSONResponse(status_code=500, content=fail(50000, "数据库操作异常"))
 

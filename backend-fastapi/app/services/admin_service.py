@@ -67,7 +67,7 @@ async def list_users_admin(db: AsyncSession, keyword: str | None = None, status:
     for u in users:
         items.append({
             "id": u.id, "username": u.username, "nickname": u.nickname,
-            "email": u.email, "phone": u.phone, "level": u.level,
+            "email": u.email, "level": u.level,
             "experience": u.experience, "status": u.status,
             "createdAt": u.created_at.isoformat() if u.created_at else None,
         })
@@ -84,7 +84,7 @@ async def update_user_roles(db: AsyncSession, user_id: int, role_codes: list[str
     from app.models.role import SysRole, sys_user_role
     user = await db.get(SysUser, user_id)
     if user:
-        result = await db.execute(select(SysRole).where(SysRole.role_code.in_(role_codes)))
+        result = await db.execute(select(SysRole).where(SysRole.code.in_(role_codes)))
         roles = result.scalars().all()
         user.roles = list(roles)
         await db.flush()
