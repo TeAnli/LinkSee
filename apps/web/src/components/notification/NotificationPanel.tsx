@@ -80,7 +80,7 @@ function NotiItem({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className="flex-shrink-0 size-2 rounded-full bg-primary"
+                className="shrink-0 size-2 rounded-full bg-primary"
               />
             )}
           </AnimatePresence>
@@ -150,7 +150,6 @@ export function NotificationPanel() {
               <Badge
                 variant="destructive"
                 className="absolute -top-1 -right-1 size-[18px] p-0 justify-center text-[10px] font-bold rounded-full"
-                asChild
               >
                 <motion.span
                   key={unreadCount}
@@ -204,22 +203,22 @@ export function NotificationPanel() {
           <TabBtn
             active={activeTab === 'all'}
             onClick={() => setActiveTab('all')}
-            label={tabLabel.all}
+            label={tabLabel.all!!}
             badge={activeTab === 'all' ? filteredUnread : undefined}
           />
           {tabs.map((tab) => {
             const count =
               activeTab === tab
                 ? mockNotifications.filter(
-                    (n) => n.type === tab && !readIds.has(n.id)
-                  ).length
+                  (n) => n.type === tab && !readIds.has(n.id)
+                ).length
                 : undefined;
             return (
               <TabBtn
                 key={tab}
                 active={activeTab === tab}
                 onClick={() => setActiveTab(tab)}
-                label={tabLabel[tab]}
+                label={tabLabel[tab]!!}
                 badge={count}
               />
             );

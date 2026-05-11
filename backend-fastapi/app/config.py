@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     email_code_expire_seconds: int = 300
     email_code_rate_limit_seconds: int = 60
+    encryption_enabled: bool = True
+    rsa_key_dir: str = "./keys"
 
     @property
     def allowed_origins_list(self) -> list[str]:

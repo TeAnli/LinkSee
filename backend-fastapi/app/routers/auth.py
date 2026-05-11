@@ -5,6 +5,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import SysUser
 from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterRequest, SendEmailCodeRequest
+from app.crypto import get_public_key_pem
 from app.services import auth_service
 from app.utils import ok
 
@@ -44,3 +45,8 @@ async def send_email_code(req: SendEmailCodeRequest):
 async def get_captcha():
     data = auth_service.generate_captcha()
     return ok(data)
+
+
+@router.get("/public-key")
+async def public_key():
+    return ok({"publicKey": get_public_key_pem()})

@@ -9,7 +9,9 @@ from sqlalchemy.exc import IntegrityError
 import uvicorn
 
 from app.config import settings
+from app.crypto import generate_rsa_key_pair
 from app.exceptions import AppException
+from app.middleware.decrypt import DecryptionMiddleware
 from app.middleware.error_handler import (
     app_exception_handler,
     generic_exception_handler,
@@ -21,6 +23,8 @@ from app.middleware.error_handler import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
+    if settings.encryption_enabled:
+        generate_rsa_key_pair()
     yield
 
 
@@ -36,6 +40,12 @@ app = FastAPI(
     docs_url="/docs",
     lifespan=lifespan,
 )
+
+"""
+请求解密中间件 - 在 CORS 之前注册，确保加密请求先被解密
+拦截带有 X-Encrypted: true 头的请求，解密后传递给下游路由
+"""
+app.add_middleware(DecryptionMiddleware)
 
 """
 跨域中间件配置，允许前端应用访问API
