@@ -41,15 +41,12 @@ export interface RegisterRequest {
 
 export interface SendEmailCodeRequest {
   email: string;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-  captcha?: string;
+  type?: string; // "register" or "reset-password"
 }
 
 export interface ResetPasswordRequest {
-  token: string;
+  email: string;
+  code: string;
   newPassword: string;
   confirmPassword: string;
 }

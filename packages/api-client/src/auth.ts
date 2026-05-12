@@ -3,7 +3,6 @@ import type {
     LoginRequest,
     LoginResponse,
     RegisterRequest,
-    ForgotPasswordRequest,
     ResetPasswordRequest,
     SendEmailCodeRequest,
 } from "@linksee/shared";
@@ -34,9 +33,6 @@ export const authApi = {
 
     sendEmailCode: (data: SendEmailCodeRequest) =>
         apiClient.post<ApiResponse<null>>("/auth/send-email-code", data),
-
-    forgotPassword: (data: ForgotPasswordRequest) =>
-        apiClient.post<ApiResponse<null>>("/auth/forgot-password", data),
 
     resetPassword: (data: ResetPasswordRequest) =>
         apiClient.post<ApiResponse<null>>("/auth/reset-password", data),
