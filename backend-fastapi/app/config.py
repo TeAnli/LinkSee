@@ -20,8 +20,10 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from_email: str = ""
     smtp_use_tls: bool = True
-    email_code_expire_seconds: int = 300
-    email_code_rate_limit_seconds: int = 60
+    email_code_expire_seconds: int = 60
+    email_code_rate_limit_seconds: int = 300
+    password_reset_token_expire_seconds: int = 60
+    frontend_url: str = "http://localhost:5173"
     encryption_enabled: bool = True
     rsa_key_dir: str = "./keys"
 

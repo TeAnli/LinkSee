@@ -4,7 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import SysUser
-from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterRequest, SendEmailCodeRequest
+from app.schemas.auth import (
+    LoginRequest,
+    RefreshTokenRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
+    SendEmailCodeRequest,
+)
 from app.crypto import get_public_key_pem
 from app.services import auth_service
 from app.utils import ok
@@ -36,8 +42,8 @@ async def refresh_token(req: RefreshTokenRequest, db: AsyncSession = Depends(get
 
 
 @router.post("/send-email-code")
-async def send_email_code(req: SendEmailCodeRequest):
-    await auth_service.send_register_email_code(req.email)
+async def send_email_code(req: SendEmailCodeRequest, db: AsyncSession = Depends(get_db)):
+    await auth_service.send_email_code(db, req)
     return ok(None, "验证码已发送")
 
 
@@ -45,6 +51,12 @@ async def send_email_code(req: SendEmailCodeRequest):
 async def get_captcha():
     data = auth_service.generate_captcha()
     return ok(data)
+
+
+@router.post("/reset-password")
+async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    await auth_service.reset_password(db, req)
+    return ok(None, "密码重置成功")
 
 
 @router.get("/public-key")

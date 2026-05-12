@@ -12,6 +12,7 @@ from app.config import settings
 from app.constants import (
     ERR_ACCOUNT_DISABLED,
     ERR_ACCOUNT_LOCKED,
+    ERR_BAD_REQUEST,
     ERR_CAPTCHA_INVALID,
     ERR_CAPTCHA_WRONG,
     ERR_EMAIL_CODE_INVALID,
@@ -29,11 +30,14 @@ from app.exceptions import AppException
 from app.models.role import SysRole
 from app.models.user import SysUser
 from app.models.user_profile import SysUserProfile
+from app.redis import redis_client
 from app.schemas.auth import (
     CaptchaData,
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
+    ResetPasswordRequest,
+    SendEmailCodeRequest,
 )
 from app.security import (
     create_access_token,
@@ -46,6 +50,7 @@ from app.services.email_service import (
     check_email_rate_limit,
     send_email_code_with_retry,
     verify_email_code,
+    verify_reset_email_code,
 )
 
 # In-memory captcha store: captcha_id -> (answer, expiry_timestamp)
@@ -131,12 +136,20 @@ def _verify_captcha(captcha_id: str, captcha_value: str) -> bool:
     return answer.upper() == captcha_value.upper()
 
 
-async def send_register_email_code(email: str) -> str:
-    """Send verification code to email before registration."""
-    if not await check_email_rate_limit(email):
+async def send_email_code(db: AsyncSession, req: SendEmailCodeRequest) -> str:
+    """Send verification code for registration or password reset."""
+    if req.type == "reset-password":
+        user = await db.execute(select(SysUser).where(SysUser.email == req.email))
+        user = user.scalar()
+        if not user:
+            return ""  # Don't reveal whether the email exists
+        if user.status == 0:
+            raise AppException(ERR_ACCOUNT_DISABLED, "账号已被禁用", 403)
+
+    if not await check_email_rate_limit(req.email):
         raise AppException(ERR_EMAIL_CODE_RATE_LIMIT, "发送过于频繁，请稍后再试")
     try:
-        return await send_email_code_with_retry(email)
+        return await send_email_code_with_retry(req.email, req.type)
     except Exception:
         raise AppException(ERR_EMAIL_CODE_SEND_FAILED, "验证码发送失败，请稍后重试")
 
@@ -305,3 +318,20 @@ async def refresh_token(db: AsyncSession, req: RefreshTokenRequest) -> dict:
         "refreshToken": new_refresh_token,
         "expiresIn": settings.jwt_expiration_seconds,
     }
+
+
+async def reset_password(db: AsyncSession, req: ResetPasswordRequest) -> None:
+    """Reset the user's password using the verification code."""
+    if req.newPassword != req.confirmPassword:
+        raise AppException(ERR_BAD_REQUEST, "两次密码不一致")
+
+    if not await verify_reset_email_code(req.email, req.code):
+        raise AppException(ERR_EMAIL_CODE_INVALID, "验证码错误或过期")
+
+    user = await db.execute(select(SysUser).where(SysUser.email == req.email))
+    user = user.scalar()
+    if not user or user.deleted:
+        raise AppException(ERR_USER_NOT_FOUND, "用户不存在", 401)
+
+    user.password_hash = hash_password(req.newPassword)
+    await db.flush()

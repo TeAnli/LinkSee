@@ -19,6 +19,7 @@ class LoginRequest(BaseModel):
 
 class SendEmailCodeRequest(BaseModel):
     email: str
+    type: str = "register"  # "register" or "reset-password"
     
 
 
@@ -56,6 +57,13 @@ class TokenData(BaseModel):
     token: str
     refreshToken: str
     expiresIn: int
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str = Field(max_length=100, pattern=r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+    code: str = Field(min_length=6, max_length=6)
+    newPassword: str = Field(min_length=8, max_length=32)
+    confirmPassword: str = Field(min_length=8, max_length=32)
 
 
 class CaptchaData(BaseModel):
