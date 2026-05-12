@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { authApi } from '@linksee/api-client';
 
 const fadeUp = {
@@ -211,19 +213,47 @@ export function ForgotPasswordPage() {
                     )}
 
                     {/* Verification code */}
-                    <div className="flex flex-col gap-1.5">
-                      <label htmlFor="reset-code" className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
+                    <div className="flex flex-col gap-3">
+                      <label className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
                         {t('auth.emailCode')}
                       </label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Icon icon="mdi:shield-key-outline" width={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-fg)' }} />
-                          <Input id="reset-code" type="text" maxLength={6} placeholder={t('auth.enterEmailCode')} className="pl-10" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} autoComplete="one-time-code" />
-                        </div>
-                        <Button type="button" variant="outline" className="shrink-0 text-sm font-bold" disabled={cooldown > 0 || loading} onClick={handleResend}>
-                          {cooldown > 0 ? t('auth.resendIn', { seconds: cooldown }) : t('auth.resendEmail')}
-                        </Button>
-                      </div>
+
+                      <InputOTP
+                        maxLength={6}
+                        pattern="^[0-9]+$"
+                        value={code}
+                        onChange={(val) => setCode(val)}
+                        containerClassName="justify-center"
+                      >
+                        <InputOTPGroup>
+                          {Array.from({ length: 6 }, (_, i) => (
+                            <InputOTPSlot
+                              key={i}
+                              index={i}
+                              className={cn(
+                                'otp-slot-enter h-12 w-12 text-lg font-extrabold',
+                                'border-2 border-[var(--border-color)]',
+                                'first:rounded-l-xl last:rounded-r-xl',
+                                'transition-all duration-200',
+                                'data-[active=true]:z-10 data-[active=true]:scale-[1.04] data-[active=true]:border-[var(--primary)] data-[active=true]:shadow-flat',
+                              )}
+                              style={{ animationDelay: `${i * 60}ms` }}
+                            />
+                          ))}
+                        </InputOTPGroup>
+                      </InputOTP>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="text-sm font-bold"
+                        disabled={cooldown > 0 || loading}
+                        onClick={handleResend}
+                      >
+                        {cooldown > 0
+                          ? t('auth.resendIn', { seconds: cooldown })
+                          : t('auth.resendEmail')}
+                      </Button>
                     </div>
 
                     {/* New password */}
