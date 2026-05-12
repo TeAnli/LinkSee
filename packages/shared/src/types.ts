@@ -5,6 +5,10 @@ export interface ApiResponse<T = unknown> {
   message: string;
   data: T;
 }
+export interface PaginatedRequest {
+  page: number;
+  size: number;
+}
 
 export interface PaginatedResponse<T> {
   total: number;
@@ -161,6 +165,14 @@ export interface AiChatSession {
   title: string;
   lastMessageAt: string;
   messageCount: number;
+}
+
+// === Check-in Types ===
+
+export interface CheckInResponse {
+  pointsEarned: number;
+  consecutiveDays: number;
+  totalPoints: number;
 }
 
 // === Message Types ===

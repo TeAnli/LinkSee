@@ -8,7 +8,7 @@ import type {
     SendEmailCodeRequest,
 } from "@linksee/shared";
 
-import apiClient from "./index";
+import apiClient from ".";
 
 export const authApi = {
     login: (data: LoginRequest) =>

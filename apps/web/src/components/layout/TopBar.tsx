@@ -14,6 +14,7 @@ import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { NotificationPanel } from '../notification/NotificationPanel';
+import { CheckInPanel } from '../checkin/CheckInPanel';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const PAGE_TITLE_KEYS: Record<string, string> = {
@@ -69,6 +70,9 @@ export function TopBar() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Check-in */}
+          <CheckInPanel />
+
           {/* Notifications */}
           <NotificationPanel />
 
@@ -108,17 +112,17 @@ export function TopBar() {
             <TooltipContent side="bottom">
               {isAuthenticated
                 ? (
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="font-bold text-xs">{user?.nickname ?? 'User'}</span>
-                      <button
-                        className="text-xs font-medium hover:underline"
-                        style={{ color: 'var(--primary)' }}
-                        onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
-                      >
-                        {t('auth.signOut')}
-                      </button>
-                    </div>
-                  )
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="font-bold text-xs">{user?.nickname ?? 'User'}</span>
+                    <button
+                      className="text-xs font-medium hover:underline"
+                      style={{ color: 'var(--primary)' }}
+                      onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
+                    >
+                      {t('auth.signOut')}
+                    </button>
+                  </div>
+                )
                 : t('auth.signIn')}
             </TooltipContent>
           </Tooltip>
