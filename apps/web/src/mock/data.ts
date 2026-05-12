@@ -1,5 +1,5 @@
 import i18n from '@/i18n';
-import type { PostListItem, PostDetail, Category, UserInfo, UserProfile, Notification } from '@linksee/shared';
+import type { PostListItem, PostDetail, Category, UserInfo, Notification } from '@linksee/shared';
 
 // === Mock Users ===
 
@@ -16,7 +16,12 @@ export const mockUsers = [
 
 // === Mock User Profiles ===
 
-export const mockUserProfiles: Record<number, UserProfile> = {
+type MockProfile = UserInfo & {
+  bio: string; location: string; skillsTags: string[];
+  occupation: string; isVerified: boolean; followerCount: number; followingCount: number;
+};
+
+export const mockUserProfiles: Record<number, MockProfile> = {
   1: {
     id: 1, username: 'linxiaobai', nickname: '林小白', avatarUrl: '', email: 'linxiaobai@example.com',
     level: 5, experience: 3200, status: 1,
@@ -74,7 +79,7 @@ export const mockUserProfiles: Record<number, UserProfile> = {
   },
 };
 
-export function getUserProfile(userId: number): UserProfile | undefined {
+export function getUserProfile(userId: number): MockProfile | undefined {
   return mockUserProfiles[userId];
 }
 

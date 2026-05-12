@@ -63,6 +63,7 @@ export interface UserInfo {
   level: number;
   experience: number;
   status: number;
+  createdAt?: string;
 }
 
 // === Forum Types ===
@@ -117,20 +118,34 @@ export interface Comment {
 
 // === User Types ===
 
-export interface UserProfile extends UserInfo {
+export interface UserProfileDetail {
   bio: string;
   location: string;
+  personalWebsite: string;
+  socialLinks: Record<string, string>;
   skillsTags: string[];
+  education: string;
   occupation: string;
   isVerified: boolean;
   followerCount: number;
   followingCount: number;
 }
 
-export interface LevelInfo {
+export interface UserLevelInfo {
   currentLv: number;
+  currentLvName: string;
+  currentLvExp: number;
   nextLvExp: number;
   progress: number;
+  nextLvName: string;
+  todayAiCallsRemaining: number;
+  todayAiCallsTotal: number;
+}
+
+export interface UserProfileResponse {
+  user: UserInfo;
+  profile: UserProfileDetail;
+  levelInfo: UserLevelInfo;
 }
 
 // === AI Types ===
