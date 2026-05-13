@@ -55,9 +55,28 @@ export function SettingsPage() {
       <h1 className="text-xl font-bold">{t('settings.title')}</h1>
 
       <div className="flex flex-col md:flex-row gap-5">
-        {/* Tab Navigation */}
+        {/* Tab Navigation — horizontal scroll on mobile, vertical sidebar on desktop */}
         <nav className="md:w-48 shrink-0">
-          <Card>
+          {/* Mobile: horizontal pills */}
+          <div className="flex md:hidden gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors',
+                  activeTab === tab.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {/* Desktop: vertical card */}
+          <Card className="hidden md:block">
             <CardContent className="p-2">
               {tabs.map((tab) => (
                 <button

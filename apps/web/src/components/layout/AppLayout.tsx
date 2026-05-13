@@ -5,6 +5,7 @@ import { RightPanel, RIGHT_PANEL_WIDTH } from './RightPanel';
 import { BottomNav } from './BottomNav';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useSyncCSSVar } from '@/hooks/useSyncCSSVar';
+import { cn } from '@/lib/utils';
 
 export function AppLayout() {
   const collapsed = useThemeStore((s) => s.sidebarCollapsed);
@@ -23,10 +24,11 @@ export function AppLayout() {
       <TopBar />
 
       <main
-        className="pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8 min-h-screen"
+        className={cn(
+          'pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8 min-h-screen lg:ml-[var(--sidebar-w)]',
+          !hideRightPanel && 'xl:mr-[var(--right-panel-w)]',
+        )}
         style={{
-          marginLeft: 'var(--sidebar-w, 0px)',
-          marginRight: hideRightPanel ? 0 : 'var(--right-panel-w, 0px)',
           transition: 'margin 250ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
