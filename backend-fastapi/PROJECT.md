@@ -15,6 +15,9 @@ LinkSee FastAPI 后端是一个面向技术社区的 RESTful API 服务，提供
 | **数据库迁移**  | Alembic (async mode)                           |
 | **数据校验**   | Pydantic v2 + pydantic-settings                |
 | **认证**     | JWT (HS256) + bcrypt (12 rounds)               |
+| **缓存**     | Redis (aioredis) — 邮箱验证码、频率限制             |
+| **加密**     | RSA-2048 + AES-GCM 混合加密                      |
+| **邮件**     | aiosmtplib (SMTP)                              |
 | **异步**     | Python asyncio (native)                        |
 | **Python** | 3.12+                                          |
 | **包管理**    | uv (pyproject.toml)                            |
@@ -24,7 +27,7 @@ LinkSee FastAPI 后端是一个面向技术社区的 RESTful API 服务，提供
 ### 与 Spring Boot 版本的关系
 
 项目同时存在 `backend/`（Spring Boot + Kotlin）和 `backend-fastapi/`（FastAPI + Python）两个后端实现。Spring
-版本仅完成实体定义和项目脚手架，FastAPI 版本是功能完整的可运行实现，包含 51 个 API 端点、完整的业务逻辑层和测试。
+版本仅完成实体定义和项目脚手架，FastAPI 版本是功能完整的可运行实现，包含 65 个 API 端点、完整的业务逻辑层和测试。
 
 ---
 
@@ -39,23 +42,41 @@ backend-fastapi/
 ├── alembic/
 │   ├── env.py                # 异步 Alembic 运行环境
 │   └── versions/
-│       └── 001_initial_schema.py  # 初始迁移：14 张表 + 种子数据
+│       └── 001_initial_schema.py  # 初始迁移：13 张表 + 种子数据
+├── keys/
+│   ├── private_key.pem       # RSA-2048 私钥（启动时自动生成）
+│   └── public_key.pem        # RSA-2048 公钥
+├── uploads/                  # 用户上传文件目录
+├── scripts/
+│   ├── start.sh / start.bat / start.ps1
 ├── app/
 │   ├── __init__.py
 │   ├── main.py               # FastAPI 应用工厂（CORS、异常处理、路由注册）
 │   ├── config.py             # 配置中心（pydantic-settings）
 │   ├── constants.py          # 错误码、等级配置、积分、角色常量
+│   ├── crypto.py             # RSA/AES 混合加解密
 │   ├── database.py           # 异步 SQLAlchemy 引擎与会话工厂
 │   ├── dependencies.py       # FastAPI 依赖注入（认证、角色、等级守卫）
 │   ├── exceptions.py         # 自定义 AppException
+│   ├── redis.py              # 异步 Redis 客户端
 │   ├── security.py           # bcrypt 密码哈希 + JWT 签发/解码
 │   ├── utils.py              # ok() / fail() 统一响应构建器
 │   ├── middleware/
+│   │   ├── decrypt.py        # 解密中间件（RSA+AES 混合解密请求体）
 │   │   └── error_handler.py  # 4 个全局异常处理器
-│   ├── models/               # SQLAlchemy ORM 模型（14 张表）
-│   ├── schemas/               # Pydantic 请求/响应模型
-│   ├── services/              # 业务逻辑层
-│   └── routers/               # API 路由层（7 个路由模块）
+│   ├── models/               # SQLAlchemy ORM 模型（13 张表）
+│   ├── schemas/              # Pydantic 请求/响应模型
+│   ├── services/             # 业务逻辑层
+│   │   ├── auth_service.py   # 注册、登录、token 刷新、验证码
+│   │   ├── user_service.py   # 个人资料 CRUD、关注、排行榜、签到
+│   │   ├── forum_service.py  # 分类树、帖子 CRUD、评论、点赞/收藏/关注
+│   │   ├── search_service.py # 全文搜索、热门关键词、自动补全
+│   │   ├── ai_service.py     # 额度检查/消费、任务记录、配额查询
+│   │   ├── ai_mock.py        # 8 种 AI 创作 + SSE 流式对话 Mock
+│   │   ├── message_service.py # 通知列表、标记已读、未读计数
+│   │   ├── admin_service.py  # 仪表盘、用户/帖子/分类管理、AI 统计
+│   │   └── email_service.py  # SMTP 邮件发送、验证码管理、频率限制
+│   └── routers/              # API 路由层（7 个路由模块，65 个端点）
 └── tests/
     ├── conftest.py            # pytest 夹具（client, auth_client）
     └── test_auth.py           # 认证模块测试
@@ -73,7 +94,7 @@ backend-fastapi/
 ├─────────────────────────────────────────────┤
 │                 Services                     │  ← 服务层：业务逻辑
 │   auth / user / forum / search /            │    数据库操作
-│   ai / ai_mock / message / admin            │    事务编排
+│   ai / ai_mock / message / admin / email    │    事务编排
 ├─────────────────────────────────────────────┤
 │              Models + Schemas               │  ← 数据层
 │   SQLAlchemy ORM (models/)                  │    表映射
@@ -82,6 +103,8 @@ backend-fastapi/
 │              Infrastructure                  │
 │   database.py (async engine/session)        │  ← 基础设施
 │   security.py (JWT + bcrypt)                │
+│   crypto.py (RSA + AES-GCM)                 │
+│   redis.py (async Redis client)             │
 │   config.py (Settings)                      │
 │   dependencies.py (DI guards)               │
 └─────────────────────────────────────────────┘
@@ -92,22 +115,23 @@ backend-fastapi/
 ```
 HTTP Request
   │
-  ├─ CORS Middleware        ← 跨域校验
+  ├─ CORS Middleware          ← 跨域校验
+  ├─ DecryptionMiddleware     ← X-Encrypted: true 时解密请求体
   │
-  ├─ Router Layer           ← 路径匹配、Pydantic 参数校验
-  │   └─ Depends(get_db)    ← 注入异步数据库会话
+  ├─ Router Layer             ← 路径匹配、Pydantic 参数校验
+  │   └─ Depends(get_db)      ← 注入异步数据库会话
   │   └─ Depends(get_current_user) ← JWT 解析、用户加载
   │   └─ Depends(require_admin()) ← 角色校验
   │
-  ├─ Service Layer          ← 业务逻辑、数据库查询、事务编排
+  ├─ Service Layer            ← 业务逻辑、数据库查询、事务编排
   │
-  ├─ Response Builder       ← ok(data) / fail(code, msg)
+  ├─ Response Builder         ← ok(data) / fail(code, msg)
   │
-  └─ Exception Handlers     ← 统一异常 → JSON 错误响应
-      ├─ AppException       → 业务异常（自定义 code + status_code）
-      ├─ ValidationError    → 422 参数校验失败
-      ├─ IntegrityError     → 409 数据冲突（唯一约束）
-      └─ Exception          → 500 内部错误
+  └─ Exception Handlers       ← 统一异常 → JSON 错误响应
+      ├─ AppException         → 业务异常（自定义 code + status_code）
+      ├─ ValidationError      → 422 参数校验失败
+      ├─ IntegrityError       → 409 数据冲突（唯一约束）
+      └─ Exception            → 500 内部错误
 ```
 
 ### 3.2 统一响应格式
@@ -118,9 +142,7 @@ HTTP Request
 {
   "code": 0,
   "message": "success",
-  "data": {
-    ...
-  },
+  "data": { ... },
   "timestamp": 1744567890123
 }
 ```
@@ -139,9 +161,9 @@ HTTP Request
 # app/database.py
 engine = create_async_engine(
     settings.database_url,  # postgresql+asyncpg://...
-    pool_size=20,  # 连接池大小
-    max_overflow=10,  # 最大溢出连接
-    pool_recycle=3600,  # 连接回收时间（秒）
+    pool_size=20,           # 连接池大小
+    max_overflow=10,        # 最大溢出连接
+    pool_recycle=3600,      # 连接回收时间（秒）
 )
 
 async_session = async_sessionmaker(
@@ -168,7 +190,7 @@ async def get_db() -> AsyncSession:
 ```
 DeclarativeBase (Base)
   └── TimestampMixin (created_at, updated_at)
-        ├── SysUser           ← 独立时间戳（不使用 Mixin）
+        ├── SysUser
         ├── SysUserProfile
         ├── SysRole
         ├── ForumCategory     ← 自引用树（parent_id）
@@ -214,11 +236,11 @@ message_notice ──N:1── sys_user (sender, nullable)
 ```python
 # 用户状态
 USER_STATUS_DISABLED = 0  # 禁用
-USER_STATUS_NORMAL = 1  # 正常
-USER_STATUS_MUTED = 2  # 禁言
+USER_STATUS_NORMAL = 1    # 正常
+USER_STATUS_MUTED = 2     # 禁言
 
 # 帖子状态
-POST_STATUS_DRAFT = 0  # 草稿
+POST_STATUS_DRAFT = 0      # 草稿
 POST_STATUS_PUBLISHED = 1  # 已发布
 POST_STATUS_REVIEWING = 2  # 审核中
 POST_STATUS_VIOLATION = 3  # 违规
@@ -236,7 +258,7 @@ AI_TASK_TIMEOUT = 3
 alembic/
 ├── env.py                          ← 异步引擎配置
 └── versions/
-    └── 001_initial_schema.py       ← 14 张表 + 索引 + FK + 种子数据
+    └── 001_initial_schema.py       ← 13 张表 + 索引 + FK + 种子数据
 ```
 
 迁移使用 `run_async_migrations()` 保证与 asyncpg 兼容。种子数据包含 5 个默认角色和 20 个论坛板块分类。
@@ -257,13 +279,15 @@ alembic downgrade -1                                # 回滚一步
 
 ```
 注册: POST /api/auth/register
-  ┌─ 校验验证码（GET /api/auth/captcha 获取）
+  ┌─ 校验图形验证码（GET /api/auth/captcha 获取）
+  ├─ 校验邮箱验证码（POST /api/auth/send-email-code 获取）
   ├─ bcrypt(12 rounds) 哈希密码
   ├─ 创建 SysUser + SysUserProfile
   └─ 返回 access_token + refresh_token + user info
 
 登录: POST /api/auth/login
   ┌─ 支持 username / email / phone 三种方式
+  ├─ 失败 5 次后需验证码
   ├─ bcrypt 验证密码
   ├─ 更新 last_login_at
   └─ 返回 access_token + refresh_token + user info
@@ -271,6 +295,11 @@ alembic downgrade -1                                # 回滚一步
 刷新: POST /api/auth/refresh-token
   ┌─ 验证 refresh_token
   └─ 签发新的 access_token + refresh_token
+
+重置密码: POST /api/auth/reset-password
+  ┌─ 验证邮箱验证码
+  ├─ bcrypt 哈希新密码
+  └─ 更新用户密码
 ```
 
 ### 5.2 JWT 双 Token 机制
@@ -285,11 +314,8 @@ alembic downgrade -1                                # 回滚一步
 ```json
 // access_token
 {
-  "sub": "42",
-  // user_id
-  "roles": [
-    "ROLE_USER"
-  ],
+  "sub": "42",           // user_id
+  "roles": ["ROLE_USER"],
   "exp": 1744654890,
   "type": "access"
 }
@@ -307,12 +333,12 @@ Token 通过 `Authorization: Bearer <token>` 头传递，由 `OAuth2PasswordBear
 ### 5.3 依赖注入守卫链
 
 ```
-get_current_user            ← 必需登录（token 无效 → 401）
-  └── require_roles(*roles) ← 角色校验（无权限 → 403）
-  └── require_admin()       ← 管理员校验
-  └── require_level(min_lv) ← 等级校验
+get_current_user              ← 必需登录（token 无效 → 401）
+  └── require_roles(*roles)   ← 角色校验（无权限 → 403）
+  └── require_admin()         ← 管理员校验
+  └── require_level(min_lv)   ← 等级校验
 
-get_current_user_optional   ← 可选登录（未登录返回 None）
+get_current_user_optional     ← 可选登录（未登录返回 None）
 ```
 
 角色体系（5 级）：
@@ -338,9 +364,46 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 
 ---
 
-## 6. API 端点全景
+## 6. 客户端加密
 
-### 6.1 认证模块 (`/api/auth`) — 5 端点
+### 6.1 架构
+
+当客户端请求头 `X-Encrypted: true` 且请求体包含 `"encrypted": true` 时，`DecryptionMiddleware` 自动解密请求体。
+
+```
+客户端                                    服务端
+  │                                         │
+  ├─ 1. GET /api/auth/public-key ──────────→│ 返回 RSA 公钥 (PEM)
+  │                                         │
+  ├─ 2. 生成随机 AES-256 密钥                 │
+  ├─ 3. AES-GCM 加密请求体                   │
+  ├─ 4. RSA-OAEP 加密 AES 密钥               │
+  ├─ 5. POST {encrypted, key, iv, data} ──→│ DecryptionMiddleware
+  │                                         ├─ RSA 解密 AES 密钥
+  │                                         ├─ AES-GCM 解密请求体
+  │                                         ├─ 注入明文到 request._body
+  │                                         └─ Router 正常处理
+```
+
+### 6.2 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `crypto.py` | RSA 密钥对生成与管理、AES-GCM 加解密、混合解密入口 |
+| `middleware/decrypt.py` | Starlette BaseHTTPMiddleware，拦截加密请求并解密 |
+
+### 6.3 配置项
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `ENCRYPTION_ENABLED` | `true` | 是否启用加密中间件 |
+| `RSA_KEY_DIR` | `./keys` | RSA 密钥存储目录 |
+
+---
+
+## 7. API 端点全景
+
+### 7.1 认证模块 (`/api/auth`) — 8 端点
 
 | 方法     | 路径               | 说明             | 认证 |
 |--------|------------------|----------------|----|
@@ -349,8 +412,11 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 | `POST` | `/login`         | 登录（用户名/邮箱/手机号） | 否  |
 | `POST` | `/logout`        | 登出             | 是  |
 | `POST` | `/refresh-token` | 刷新 token       | 否  |
+| `POST` | `/send-email-code` | 发送邮箱验证码     | 否  |
+| `POST` | `/reset-password`  | 重置密码         | 否  |
+| `GET`  | `/public-key`      | 获取 RSA 公钥    | 否  |
 
-### 6.2 用户模块 (`/api/user`) — 9 端点
+### 7.2 用户模块 (`/api/user`) — 9 端点
 
 | 方法     | 路径                   | 说明       | 认证 |
 |--------|----------------------|----------|----|
@@ -364,7 +430,7 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 | `GET`  | `/{user_id}/profile` | 查看他人公开资料 | 可选 |
 | `GET`  | `/{user_id}/posts`   | 查看他人帖子   | 否  |
 
-### 6.3 论坛模块 (`/api/forum`) — 15 端点
+### 7.3 论坛模块 (`/api/forum`) — 14 端点
 
 | 方法       | 路径                    | 说明              | 认证    |
 |----------|-----------------------|-----------------|-------|
@@ -385,7 +451,7 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 
 **排序方式**：`hot`（综合热度权重）、`latest`（最新发布）、`essence`（精华优先）
 
-### 6.4 搜索模块 (`/api/search`) — 3 端点
+### 7.4 搜索模块 (`/api/search`) — 3 端点
 
 | 方法    | 路径         | 说明          | 认证 |
 |-------|------------|-------------|----|
@@ -393,7 +459,7 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 | `GET` | `/hot`     | 热门搜索词       | 否  |
 | `GET` | `/suggest` | 搜索建议/自动补全   | 否  |
 
-### 6.5 AI 模块 (`/api/ai`) — 15 端点
+### 7.5 AI 模块 (`/api/ai`) — 14 端点
 
 **创作辅助（8 个）**：
 
@@ -424,10 +490,9 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 | `GET`  | `/usage/quota`   | 查询 AI 使用额度 |
 | `POST` | `/chat/feedback` | 提交回答反馈     |
 
-**流式响应 (SSE)**：`chat/send` 在 `stream=true` 时返回 `text/event-stream`，事件类型包括 `thinking`（思考过程）、`sources`
-（引用来源）、`content`（回答内容）、`followups`（追问建议）、`done`（完成标记）。
+**流式响应 (SSE)**：`chat/send` 在 `stream=true` 时返回 `text/event-stream`，事件类型包括 `thinking`（思考过程）、`sources`（引用来源）、`content`（回答内容）、`followups`（追问建议）、`done`（完成标记）。
 
-### 6.6 消息模块 (`/api/message`) — 4 端点
+### 7.6 消息模块 (`/api/message`) — 4 端点
 
 | 方法    | 路径                  | 说明        | 认证 |
 |-------|---------------------|-----------|----|
@@ -436,7 +501,7 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 | `PUT` | `/read-all`         | 全部标记已读    | 是  |
 | `GET` | `/unread-count`     | 未读数量（按类型） | 是  |
 
-### 6.7 管理后台 (`/api/admin`) — 12 端点
+### 7.7 管理后台 (`/api/admin`) — 12 端点
 
 所有端点需要 `ROLE_ADMIN` 或 `ROLE_SUPER_ADMIN` 角色。
 
@@ -457,9 +522,9 @@ get_current_user_optional   ← 可选登录（未登录返回 None）
 
 ---
 
-## 7. AI 子系统设计
+## 8. AI 子系统设计
 
-### 7.1 架构概览
+### 8.1 架构概览
 
 ```
 Router (ai.py)
@@ -470,7 +535,7 @@ Router (ai.py)
   └─ consume_quota(...)     ← 扣减额度
 ```
 
-### 7.2 额度系统
+### 8.2 额度系统
 
 每次 AI 调用前校验当日剩余额度：
 
@@ -479,21 +544,23 @@ daily_remaining = LEVEL_CONFIG[user.level]["daily_ai"] - user.daily_ai_calls
 ```
 
 - Lv1~4 有每日使用上限，Lv5~6 无限额
+- AI 问答 (`/chat/send`) 额外要求用户等级 ≥ Lv2
 - 自动记录每次调用的 task_type、输入摘要、输出内容、模型、token 数
 - 可通过管理后台查看 AI 使用统计
 
-### 7.3 Mock 模式
+### 8.3 Mock 模式
 
 当前 AI 功能使用 `ai_mock.py` 提供模拟响应。通过配置 `AI_MOCK_ENABLED=true` 控制。
 
 Mock 提供：
 
-- **标题生成**：5 种风格（academic/trendy/question/howto/controversal）
-- **大纲辅助**：3 级详细程度
-- **文本续写**：4 种模式（detail/summary/example/counterargument）
+- **标题生成**：5 种风格（technical / story / question / data / suspense）
+- **大纲辅助**：3 级详细程度（brief / standard / detailed）
+- **文本续写**：4 种模式（detail / argument / counterpoint / extend）
+- **翻译**：5 种目标语言（en / ja / ko / fr / de）
 - **SSE 流式对话**：完整模拟 thinking → sources → content → followups → done 事件流
 
-### 7.4 对接真实 AI 的扩展点
+### 8.4 对接真实 AI 的扩展点
 
 在 `app/services/ai_service.py` 中替换 mock 调用即可：
 
@@ -509,9 +576,44 @@ data = await openai_client.title_generate(req.content, req.style)
 
 ---
 
-## 8. 配置管理
+## 9. 邮件服务
 
-### 8.1 配置加载
+### 9.1 架构
+
+`email_service.py` 通过 `aiosmtplib` 发送 HTML 邮件，Redis 管理验证码存储与频率限制。
+
+```
+POST /api/auth/send-email-code
+  │
+  ├─ check_email_rate_limit(email)  ← Redis 检查 5 分钟内是否已发送
+  ├─ send_email_code_with_retry()   ← SMTP 发送（最多重试 2 次）
+  └─ redis.setex(code, 60s)        ← Redis 存储 6 位数字验证码
+
+注册 / 重置密码
+  ├─ verify_email_code() / verify_reset_email_code()
+  └─ 验证后自动删除 Redis 中的验证码
+```
+
+### 9.2 配置项
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `SMTP_HOST` | `smtp.qq.com` | SMTP 服务器 |
+| `SMTP_PORT` | `587` | SMTP 端口 |
+| `SMTP_USERNAME` | — | SMTP 账号 |
+| `SMTP_PASSWORD` | — | SMTP 密码 |
+| `SMTP_FROM_EMAIL` | — | 发件人地址 |
+| `SMTP_USE_TLS` | `true` | 启用 TLS |
+| `EMAIL_CODE_EXPIRE_SECONDS` | `60` | 验证码有效期（秒） |
+| `EMAIL_CODE_RATE_LIMIT_SECONDS` | `300` | 重发冷却时间（秒） |
+
+> 未配置 SMTP 凭证时，验证码会打印到控制台（开发模式）。
+
+---
+
+## 10. 配置管理
+
+### 10.1 配置加载
 
 ```
 .env → pydantic-settings → app.config.settings (全局单例)
@@ -531,37 +633,61 @@ class Settings(BaseSettings):
     max_upload_size: int = 5 * 1024 * 1024  # 5MB
     allowed_origins: str = "http://localhost:5173,http://localhost:3000"
     ai_mock_enabled: bool = True
+    encryption_enabled: bool = True
+    rsa_key_dir: str = "./keys"
+    # SMTP 配置
+    smtp_host: str = "smtp.qq.com"
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from_email: str = ""
+    smtp_use_tls: bool = True
+    email_code_expire_seconds: int = 60
+    email_code_rate_limit_seconds: int = 300
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 ```
 
-### 8.2 环境变量清单
+### 10.2 环境变量清单
 
-| 变量                               | 说明                 | 默认值                                                              |
-|----------------------------------|--------------------|------------------------------------------------------------------|
-| `DATABASE_URL`                   | PostgreSQL 连接字符串   | `postgresql+asyncpg://linksee:linksee123@localhost:5432/linksee` |
-| `JWT_SECRET`                     | JWT 签名密钥           | 内置换开发用默认值                                                        |
-| `JWT_EXPIRATION_SECONDS`         | access token 过期秒数  | `7200`                                                           |
-| `JWT_REFRESH_EXPIRATION_SECONDS` | refresh token 过期秒数 | `604800`                                                         |
-| `REDIS_URL`                      | Redis 连接（预留）       | `redis://localhost:6379/0`                                       |
-| `ALLOWED_ORIGINS`                | CORS 允许源（逗号分隔）     | `http://localhost:5173,http://localhost:3000`                    |
-| `UPLOAD_DIR`                     | 文件上传目录             | `./uploads`                                                      |
-| `AI_MOCK_ENABLED`                | AI Mock 开关         | `true`                                                           |
+| 变量                               | 说明                   | 默认值                                                              |
+|----------------------------------|----------------------|------------------------------------------------------------------|
+| `DATABASE_URL`                   | PostgreSQL 连接字符串     | `postgresql+asyncpg://postgres:123456@localhost:5432/linksee`   |
+| `JWT_SECRET`                     | JWT 签名密钥             | 内置换开发用默认值                                                        |
+| `JWT_EXPIRATION_SECONDS`         | access token 过期秒数    | `7200`                                                           |
+| `JWT_REFRESH_EXPIRATION_SECONDS` | refresh token 过期秒数   | `604800`                                                         |
+| `REDIS_URL`                      | Redis 连接字符串          | `redis://localhost:6379/0`                                       |
+| `ALLOWED_ORIGINS`                | CORS 允许源（逗号分隔）       | `http://localhost:5173,http://localhost:3000`                    |
+| `UPLOAD_DIR`                     | 文件上传目录               | `./uploads`                                                      |
+| `MAX_UPLOAD_SIZE`                | 上传文件大小限制（字节）         | `5242880` (5MB)                                                  |
+| `AI_MOCK_ENABLED`                | AI Mock 开关           | `true`                                                           |
+| `ENCRYPTION_ENABLED`             | 请求体加解密开关             | `true`                                                           |
+| `RSA_KEY_DIR`                    | RSA 密钥存储目录           | `./keys`                                                         |
+| `SMTP_HOST`                      | SMTP 服务器             | `smtp.qq.com`                                                   |
+| `SMTP_PORT`                      | SMTP 端口              | `587`                                                            |
+| `SMTP_USERNAME`                  | SMTP 账号              | —                                                                |
+| `SMTP_PASSWORD`                  | SMTP 密码              | —                                                                |
+| `SMTP_FROM_EMAIL`                | 发件人地址                | —                                                                |
+| `SMTP_USE_TLS`                   | 启用 TLS               | `true`                                                           |
+| `EMAIL_CODE_EXPIRE_SECONDS`      | 邮箱验证码有效期（秒）          | `60`                                                             |
+| `EMAIL_CODE_RATE_LIMIT_SECONDS`  | 邮箱重发冷却时间（秒）          | `300`                                                            |
+| `FRONTEND_URL`                   | 前端地址（密码重置等场景）        | `http://localhost:5173`                                          |
 
 ---
 
-## 9. 错误处理机制
+## 11. 错误处理机制
 
-### 9.1 异常层级
+### 11.1 异常层级
 
 ```
 FastAPI RequestValidationError  →  422, code=40000
+DecryptionMiddleware            →  400, code=40003 (解密失败)
 SQLAlchemy IntegrityError        →  409, code=40001~40003 (按约束名分发)
 AppException(code, msg, status)  →  status, code=传入值
 Exception (兜底)                 →  500, code=50000
 ```
 
-### 9.2 完整错误码表
+### 11.2 完整错误码表
 
 | 错误码     | HTTP 状态 | 说明                |
 |---------|---------|-------------------|
@@ -569,7 +695,7 @@ Exception (兜底)                 →  500, code=50000
 | `40000` | 400/422 | 请求参数错误            |
 | `40001` | 409     | 用户名已存在            |
 | `40002` | 409     | 邮箱已注册             |
-| `40003` | 409     | 手机号已注册            |
+| `40003` | 400/409 | 请求解密失败 / 手机号已注册   |
 | `40004` | 400     | 验证码错误/过期          |
 | `40010` | 404     | 用户不存在             |
 | `40011` | 401     | 密码错误              |
@@ -595,7 +721,7 @@ Exception (兜底)                 →  500, code=50000
 | `50001` | 504     | 第三方服务超时           |
 | `50002` | 503     | 第三方服务不可用          |
 
-### 9.3 IntegrityError 解析
+### 11.3 IntegrityError 解析
 
 `error_handler.py` 通过解析 PostgreSQL 错误消息中的约束名，自动匹配到对应的业务错误码：
 
@@ -607,7 +733,7 @@ Exception (兜底)                 →  500, code=50000
 
 ---
 
-## 10. 积分系统
+## 12. 积分系统
 
 用户通过社区行为获取经验值，经验值决定等级和 AI 使用额。
 
@@ -630,7 +756,7 @@ Exception (兜底)                 →  500, code=50000
 
 ---
 
-## 11. 分页规范
+## 13. 分页规范
 
 所有列表接口统一使用 `page` + `size` 分页参数，返回统一的 `PageResponse` 结构：
 
@@ -642,9 +768,7 @@ Exception (兜底)                 →  500, code=50000
     "page": 1,
     "size": 20,
     "hasMore": true,
-    "list": [
-      
-    ]
+    "list": [ ... ]
   }
 }
 ```
@@ -655,24 +779,22 @@ Exception (兜底)                 →  500, code=50000
 
 ---
 
-## 12. 测试
+## 14. 测试
 
-### 12.1 测试基础设施
+### 14.1 测试基础设施
 
 ```python
 # tests/conftest.py
 @pytest.fixture
 async def client():
-    pass
-    # httpx.AsyncClient，app 级生命周期
+    pass  # httpx.AsyncClient，app 级生命周期
 
 @pytest.fixture
 async def auth_client(client):
-    pass
-    # 自动注册 + 登录，返回带 Bearer token 的 client
+    pass  # 自动注册 + 登录，返回带 Bearer token 的 client
 ```
 
-### 12.2 当前测试覆盖（`tests/test_auth.py`）
+### 14.2 当前测试覆盖（`tests/test_auth.py`）
 
 | 测试                         | 说明                        |
 |----------------------------|---------------------------|
@@ -681,7 +803,7 @@ async def auth_client(client):
 | `test_login_success`       | 正常登录流程（username/password） |
 | `test_unauthorized_access` | 未登录访问需认证接口 → 401          |
 
-### 12.3 运行测试
+### 14.3 运行测试
 
 ```bash
 pytest                          # 运行全部
@@ -691,9 +813,9 @@ pytest -k "test_register"       # 按名称过滤
 
 ---
 
-## 13. 开发工作流
+## 15. 开发工作流
 
-### 13.1 环境搭建
+### 15.1 环境搭建
 
 ```bash
 # 1. 安装依赖
@@ -703,7 +825,7 @@ uv sync
 cp .env.example .env
 # 编辑 .env 填写实际配置
 
-# 3. 确保 PostgreSQL 运行，创建数据库
+# 3. 确保 PostgreSQL 和 Redis 运行，创建数据库
 createdb linksee
 
 # 4. 运行数据库迁移
@@ -717,7 +839,7 @@ uvicorn app.main:app --reload --port 8080
 # ReDoc:      http://localhost:8080/redoc
 ```
 
-### 13.2 代码质量
+### 15.2 代码质量
 
 ```bash
 ruff check .           # Lint 检查
@@ -725,7 +847,7 @@ ruff format .          # 代码格式化
 mypy app/              # 类型检查
 ```
 
-### 13.3 数据库迁移
+### 15.3 数据库迁移
 
 ```bash
 # 修改 models/ 中的 ORM 模型后
@@ -740,7 +862,7 @@ alembic downgrade -1
 
 ---
 
-## 14. 架构决策记录
+## 16. 架构决策记录
 
 ### ADR-1: 为什么选择 async/await 全异步
 
@@ -772,26 +894,35 @@ alembic downgrade -1
 - refresh_token 长有效期（7d）避免频繁登录
 - 职责分离：access 含 roles 信息，refresh 仅含 user_id
 
+### ADR-6: 为什么引入客户端加密层
+
+- 敏感操作（注册、登录、重置密码）的请求体在传输层额外加密
+- RSA-2048 保护 AES 密钥交换，AES-GCM 保护数据机密性与完整性
+- 通过中间件透明解密，Router/Service 层无感知
+
 ---
 
 ## 附录 A: 文件职责速查
 
 | 文件                            | 职责                                                               |
 |-------------------------------|------------------------------------------------------------------|
-| `main.py`                     | FastAPI app 工厂，中间件/CORS/异常处理器/路由注册                               |
-| `config.py`                   | Settings 单例，从 .env 加载                                            |
+| `main.py`                     | FastAPI app 工厂，生命周期管理、中间件/CORS/异常处理器/路由注册                        |
+| `config.py`                   | Settings 单例，从 .env 加载所有配置项                                       |
 | `database.py`                 | async engine + async_session + get_db 生成器                        |
 | `dependencies.py`             | get_current_user / require_roles / require_admin / require_level |
 | `security.py`                 | hash_password / verify_password / JWT 签发与解码                      |
+| `crypto.py`                   | RSA 密钥对生成与管理、AES-GCM 加解密、解密入口                                  |
+| `redis.py`                    | 异步 Redis 客户端（aioredis）                                           |
 | `exceptions.py`               | AppException(code, message, status_code)                         |
 | `utils.py`                    | ok(data, msg) / fail(code, msg) 统一响应                             |
 | `constants.py`                | 错误码 / 等级经验表 / 状态枚举 / 积分值 / 角色码                                   |
+| `middleware/decrypt.py`       | DecryptionMiddleware — 客户端加密请求体透明解密                             |
 | `middleware/error_handler.py` | 4 个全局异常 → JSON 响应转换器                                             |
 | `models/base.py`              | DeclarativeBase + TimestampMixin                                 |
-| `models/*.py`                 | 14 张表的 ORM 映射                                                    |
+| `models/*.py`                 | 13 张表的 ORM 映射                                                    |
 | `schemas/common.py`           | ApiResponse / PageResponse / PageParams / UserBriefInfo          |
 | `schemas/*.py`                | Pydantic 请求/响应 DTO                                               |
-| `services/auth_service.py`    | 注册、登录、token 刷新、验证码                                               |
+| `services/auth_service.py`    | 注册、登录、token 刷新、验证码生成、密码重置                                      |
 | `services/user_service.py`    | 个人资料 CRUD、关注关系、排行榜、签到                                            |
 | `services/forum_service.py`   | 分类树、帖子 CRUD、评论嵌套、点赞/收藏/关注切换                                      |
 | `services/search_service.py`  | 全文搜索、热门关键词、自动补全                                                  |
@@ -799,11 +930,12 @@ alembic downgrade -1
 | `services/ai_mock.py`         | 8 种 AI 创作 + SSE 流式对话的 Mock 实现                                    |
 | `services/message_service.py` | 通知列表、标记已读、未读计数                                                   |
 | `services/admin_service.py`   | 仪表盘、用户/帖子/分类管理、AI 统计                                             |
-| `routers/auth.py`             | 5 端点                                                             |
+| `services/email_service.py`   | SMTP 邮件发送、验证码 Redis 存储/校验、频率限制                                   |
+| `routers/auth.py`             | 8 端点                                                             |
 | `routers/user.py`             | 9 端点                                                             |
-| `routers/forum.py`            | 15 端点                                                            |
+| `routers/forum.py`            | 14 端点                                                            |
 | `routers/search.py`           | 3 端点                                                             |
-| `routers/ai.py`               | 15 端点                                                            |
+| `routers/ai.py`               | 14 端点                                                            |
 | `routers/message.py`          | 4 端点                                                             |
 | `routers/admin.py`            | 12 端点                                                            |
 | `tests/conftest.py`           | pytest fixtures                                                  |
