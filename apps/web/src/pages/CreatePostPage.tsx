@@ -37,7 +37,6 @@ import {
 } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { mockCategories, mockTags } from '@/mock/data';
 import type { Category } from '@linksee/shared';
 import { forumApi } from '@linksee/api-client/forum';
 import { toast } from 'sonner';
@@ -71,9 +70,6 @@ function getFlatCategories(categories: Category[]): { id: number; name: string; 
   }
   return result;
 }
-
-const FLAT_CATEGORIES = getFlatCategories(mockCategories);
-const TAG_SUGGESTIONS = mockTags.map((t) => t.name);
 
 function estimateReadingTime(text: string): number {
   const cleaned = text.replace(/\s/g, '');
@@ -172,6 +168,7 @@ function SettingsPanel({
   canPublish, isPublishing,
   onPublish, onSaveDraft,
   compact,
+  categories, flatCategories,
 }: {
   categoryId: string; setCategoryId: (v: string) => void;
   tags: string[]; tagInput: string; setTagInput: (v: string) => void;
@@ -183,9 +180,11 @@ function SettingsPanel({
   canPublish: boolean; isPublishing: boolean;
   onPublish: () => void; onSaveDraft: () => void;
   compact?: boolean;
+  categories: Category[];
+  flatCategories: { id: number; name: string; icon: string }[];
 }) {
   const { t } = useTranslation();
-  const selectedCategory = FLAT_CATEGORIES.find((c) => c.id === Number(categoryId));
+  const selectedCategory = flatCategories.find((c) => c.id === Number(categoryId));
 
   const handleTagKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && tagInput.trim()) {
@@ -210,7 +209,7 @@ function SettingsPanel({
             <SelectValue placeholder={t('create.selectCategory')} />
           </SelectTrigger>
           <SelectContent>
-            {mockCategories.map((cat) => (
+            {categories.map((cat) => (
               <SelectGroup key={cat.id}>
                 <SelectLabel className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                   <Icon icon={cat.icon} width={14} />
@@ -397,14 +396,43 @@ export function CreatePostPage() {
 
   const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
 
-  const selectedCategory = FLAT_CATEGORIES.find((c) => c.id === Number(categoryId));
+  const [categories, setCategories] = useState<Category[]>([]);
+  const flatCategories = useMemo(() => getFlatCategories(categories), [categories]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.listCategories();
+        if (!cancelled) {
+          const raw = res.data.data;
+          setCategories(Array.isArray(raw) ? raw : []);
+        }
+      } catch {}
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, []);
+
+  const tagSuggestions = useMemo(() => {
+    const allTags = new Set<string>();
+    categories.forEach((cat) => {
+      if (cat.children) {
+        cat.children.forEach((child) => {
+          child.name.split(/[\/&]/).forEach((t) => { if (t.trim()) allTags.add(t.trim()); });
+        });
+      }
+      cat.name.split(/[\/&]/).forEach((t) => { if (t.trim()) allTags.add(t.trim()); });
+    });
+    return Array.from(allTags);
+  }, [categories]);
 
   const filteredTagSuggestions = useMemo(() => {
-    if (!tagInput.trim()) return TAG_SUGGESTIONS;
-    return TAG_SUGGESTIONS.filter(
+    if (!tagInput.trim()) return tagSuggestions;
+    return tagSuggestions.filter(
       (tg) => tg.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tg),
     );
-  }, [tagInput, tags]);
+  }, [tagInput, tags, tagSuggestions]);
 
   const handleAddTag = useCallback((tag: string) => {
     const trimmed = tag.trim();
@@ -419,7 +447,7 @@ export function CreatePostPage() {
     setTags((prev) => prev.filter((tg) => tg !== tag));
   }, []);
 
-  const canPublish = title.trim() && categoryId && content.trim();
+  const canPublish = !!(title.trim() && categoryId && content.trim());
 
   // === Auto-save draft ===
 
@@ -521,6 +549,7 @@ export function CreatePostPage() {
     canPublish, isPublishing,
     onPublish: handlePublish,
     onSaveDraft: handleSaveDraft,
+    categories, flatCategories,
   };
 
   return (

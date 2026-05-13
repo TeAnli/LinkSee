@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -24,12 +23,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Pagination } from '@/components/ui/pagination';
+import { PostListItem, Category } from '@linksee/shared';
+import { forumApi } from '@linksee/api-client/forum';
 import {
-  mockCategories,
-  mockPosts,
   formatRelativeTime,
   formatCount,
-} from '@/mock/data';
+} from '@/lib/format';
 
 type SortType = 'latest' | 'hottest' | 'essence';
 const PAGE_SIZE = 5;
@@ -40,59 +39,62 @@ export function ForumPage() {
   const [sortType, setSortType] = useState<SortType>('latest');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [allPosts, setAllPosts] = useState<PostListItem[]>([]);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPosts = useMemo(() => {
-    let posts = [...mockPosts];
+  useEffect(() => {
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.listCategories();
+        if (!cancelled) {
+          const raw = res.data.data;
+          setCategories(Array.isArray(raw) ? raw : []);
+        }
+      } catch {}
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, []);
 
-    // Filter by category (including children)
-    if (activeCategory !== null) {
-      const category = mockCategories.find((c) => c.id === activeCategory);
-      if (category) {
-        const categoryIds = [
-          category.id,
-          ...(category.children?.map((c) => c.id) ?? []),
-        ];
-        posts = posts.filter((p) => categoryIds.includes(p.categoryId));
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    const sortMap: Record<SortType, string> = {
+      latest: 'latest',
+      hottest: 'hot',
+      essence: 'featured',
+    };
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.listPosts({
+          categoryId: activeCategory ?? undefined,
+          sort: sortMap[sortType] as 'hot' | 'latest' | 'featured',
+          keyword: searchQuery.trim() || undefined,
+          page,
+          size: PAGE_SIZE,
+        });
+        if (!cancelled) {
+          const data = res.data.data;
+          setAllPosts(Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : []));
+          setTotalPosts(data?.total ?? 0);
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setAllPosts([]);
+          setTotalPosts(0);
+          setLoading(false);
+        }
       }
-    }
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, [activeCategory, sortType, searchQuery, page]);
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      posts = posts.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.summary.toLowerCase().includes(q) ||
-          p.tagList.some((tag) => tag.toLowerCase().includes(q))
-      );
-    }
-
-    // Sort
-    switch (sortType) {
-      case 'hottest':
-        posts.sort((a, b) => b.viewCount - a.viewCount);
-        break;
-      case 'essence':
-        posts = posts.filter((p) => p.isEssence);
-        break;
-      default: // latest
-        posts.sort(
-          (a, b) =>
-            new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-        );
-    }
-
-    // Pinned posts always on top
-    const pinned = posts.filter((p) => p.isTop);
-    const normal = posts.filter((p) => !p.isTop);
-    return [...pinned, ...normal];
-  }, [activeCategory, sortType, searchQuery]);
-
-  const totalPages = Math.ceil(filteredPosts.length / PAGE_SIZE);
-  const paginatedPosts = filteredPosts.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
-  );
+  const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
 
   const handleCategoryChange = (categoryId: number | null) => {
     setActiveCategory(categoryId);
@@ -114,10 +116,10 @@ export function ForumPage() {
             icon={<Sparkles className="h-3.5 w-3.5" />}
             color="#6366F1"
             active={activeCategory === null}
-            count={mockPosts.length}
+            count={totalPosts}
             onClick={() => handleCategoryChange(null)}
           />
-          {mockCategories.map((cat) => (
+          {categories.map((cat) => (
             <CategoryPill
               key={cat.id}
               name={cat.name}
@@ -168,13 +170,17 @@ export function ForumPage() {
           </TabsList>
         </Tabs>
         <span className="text-xs text-muted-foreground ml-auto">
-          {t('forum.totalPosts', { count: filteredPosts.length })}
+          {t('forum.totalPosts', { count: totalPosts })}
         </span>
       </div>
 
       {/* Post List */}
       <AnimatePresence mode="wait">
-        {paginatedPosts.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Icon icon="mdi:loading" width={24} className="animate-spin text-muted-foreground" />
+          </div>
+        ) : allPosts.length > 0 ? (
           <motion.div
             key={`${activeCategory}-${sortType}-${page}`}
             initial={{ opacity: 0, y: 8 }}
@@ -183,7 +189,7 @@ export function ForumPage() {
             transition={{ duration: 0.2 }}
             className="flex flex-col gap-3"
           >
-            {paginatedPosts.map((post, idx) => (
+            {allPosts.map((post, idx) => (
               <PostCard key={post.id} post={post} index={idx} />
             ))}
           </motion.div>
@@ -213,7 +219,7 @@ export function ForumPage() {
         <div className="flex justify-center pt-2">
           <Pagination
             page={page}
-            total={filteredPosts.length}
+            total={totalPosts}
             pageSize={PAGE_SIZE}
             onChange={setPage}
           />
@@ -252,9 +258,9 @@ function CategoryPill({
       style={
         active
           ? {
-              backgroundColor: color,
-              boxShadow: `2px 2px 0px 0px ${color}88`,
-            }
+            backgroundColor: color,
+            boxShadow: `2px 2px 0px 0px ${color}88`,
+          }
           : undefined
       }
     >
@@ -278,7 +284,7 @@ function PostCard({
   post,
   index,
 }: {
-  post: (typeof mockPosts)[number];
+  post: PostListItem;
   index: number;
 }) {
   const { t } = useTranslation();

@@ -16,7 +16,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { getMockPostDetail, formatRelativeTime, formatCount } from '@/mock/data';
+import { PostDetail, PostDetailResponse } from '@linksee/shared';
+import { forumApi } from '@linksee/api-client/forum';
+import { formatRelativeTime, formatCount } from '@/lib/format';
 import 'highlight.js/styles/atom-one-dark.css';
 
 // === Types ===
@@ -224,13 +226,55 @@ export function PostDetailPage() {
   const articleRef = useRef<HTMLElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [post, setPost] = useState<PostDetail | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const post = useMemo(() => getMockPostDetail(Number(id)), [id]);
+    if (!id) return;
+    let cancelled = false;
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.getPostDetail(Number(id));
+        if (!cancelled) {
+          const detailRes: PostDetailResponse = res.data.data;
+          if (detailRes?.post) {
+            const p = detailRes.post;
+            const author = detailRes.author;
+            setPost({
+              id: p.id,
+              title: p.title,
+              content: p.content,
+              summary: p.summary,
+              coverImageUrl: p.coverImageUrl,
+              tagList: p.tagList,
+              categoryId: p.categoryId,
+              categoryName: p.categoryName,
+              viewCount: p.viewCount,
+              likeCount: p.likeCount,
+              commentCount: p.commentCount,
+              collectCount: p.collectCount,
+              isTop: p.isTop,
+              isEssence: p.isEssence,
+              publishedAt: p.publishedAt ?? '',
+              author: author
+                ? { id: author.id, nickname: author.nickname, avatarUrl: author.avatarUrl, level: author.level }
+                : { id: p.authorId, nickname: p.authorNickname, avatarUrl: p.authorAvatarUrl, level: p.authorLevel },
+              aiSummary: detailRes.aiData?.aiSummary,
+              aiKeywords: detailRes.aiData?.aiKeywords,
+            });
+          }
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setPost(null);
+          setLoading(false);
+        }
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, [id]);
   const toc = useMemo(() => (post ? extractToc(post.content) : []), [post]);
 
   // Intersection Observer for active heading tracking

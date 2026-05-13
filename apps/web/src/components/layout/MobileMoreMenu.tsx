@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,14 @@ import { ColorPicker } from '@/components/theme/ColorPicker';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { userApi } from '@linksee/api-client/user';
-import { mockNotifications, formatRelativeTime } from '@/mock/data';
+import { notificationApi } from '@linksee/api-client/notification';
+import { formatRelativeTime } from '@/lib/format';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import type { Notification } from '@linksee/shared';
 
 export function MobileMoreMenu() {
   const { t, i18n } = useTranslation();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [open, setOpen] = useState(false);
 
   return (
@@ -191,8 +192,35 @@ function CheckInSection({ onClose }: { onClose: () => void }) {
 
 function NotificationSection() {
   const { t } = useTranslation();
-  const recentNotifications = mockNotifications.slice(0, 3);
-  const unreadCount = mockNotifications.filter((n) => !n.isRead).length;
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+        const [listRes, countRes] = await Promise.all([
+          notificationApi.list(),
+          notificationApi.getUnreadCount(),
+        ]);
+        if (!cancelled) {
+          const rawList = listRes.data.data;
+          setNotifications(Array.isArray(rawList) ? rawList : []);
+          const rawCount = countRes.data.data;
+          setUnreadCount(rawCount?.total ?? 0);
+        }
+      } catch {
+        if (!cancelled) {
+          setNotifications([]);
+          setUnreadCount(0);
+        }
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, []);
+
+  const recentNotifications = notifications.slice(0, 3);
 
   return (
     <div className="px-4 py-3">

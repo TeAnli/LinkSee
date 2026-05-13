@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { mockNotifications, formatRelativeTime } from '@/mock/data';
+import { formatRelativeTime } from '@/lib/format';
+import { notificationApi } from '@linksee/api-client/notification';
 import { cn } from '@/lib/utils';
 import type { Notification } from '@linksee/shared';
 
@@ -104,27 +105,54 @@ function NotiItem({
 export function NotificationPanel() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [readIds, setReadIds] = useState<Set<number>>(
-    () => new Set(mockNotifications.filter((n) => n.isRead).map((n) => n.id))
-  );
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [readIds, setReadIds] = useState<Set<number>>(() => new Set());
+  const [loading, setLoading] = useState(true);
 
-  const unreadCount = mockNotifications.length - readIds.size;
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const res = await notificationApi.list();
+        if (!cancelled) {
+          const raw = res.data.data;
+          const data = Array.isArray(raw) ? raw : [];
+          setNotifications(data);
+          setReadIds(new Set(data.filter((n: Notification) => n.isRead).map((n: Notification) => n.id)));
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setNotifications([]);
+          setLoading(false);
+        }
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, [open]);
+
+  const unreadCount = notifications.length - readIds.size;
 
   const markRead = useCallback((id: number) => {
     setReadIds((prev) => new Set(prev).add(id));
+    notificationApi.markRead(id).catch(() => {});
   }, []);
 
   const markAllRead = useCallback(() => {
-    setReadIds(new Set(mockNotifications.map((n) => n.id)));
-  }, []);
+    setReadIds(new Set(notifications.map((n) => n.id)));
+    notificationApi.markAllRead().catch(() => {});
+  }, [notifications]);
 
   const tabs: Notification['type'][] = ['interaction', 'system', 'ai'];
   const [activeTab, setActiveTab] = useState<Notification['type'] | 'all'>('all');
 
   const filtered =
     activeTab === 'all'
-      ? mockNotifications
-      : mockNotifications.filter((n) => n.type === activeTab);
+      ? notifications
+      : notifications.filter((n) => n.type === activeTab);
 
   const filteredUnread = filtered.filter((n) => !readIds.has(n.id)).length;
 
@@ -209,7 +237,7 @@ export function NotificationPanel() {
           {tabs.map((tab) => {
             const count =
               activeTab === tab
-                ? mockNotifications.filter(
+                ? notifications.filter(
                   (n) => n.type === tab && !readIds.has(n.id)
                 ).length
                 : undefined;
@@ -229,7 +257,11 @@ export function NotificationPanel() {
 
         {/* List */}
         <ScrollArea className="h-[320px]">
-          {filtered.length > 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
+              <Icon icon="mdi:loading" width={24} className="animate-spin text-muted-foreground/40" />
+            </div>
+          ) : filtered.length > 0 ? (
             <div className="flex flex-col py-1">
               {filtered.map((n) => (
                 <NotiItem
