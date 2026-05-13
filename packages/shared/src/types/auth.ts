@@ -9,6 +9,7 @@ export interface UserInfo {
   level: number;
   experience: number;
   status: number;
+  roles?: string[];
   createdAt?: string;
 }
 
