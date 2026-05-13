@@ -314,6 +314,9 @@ export default {
     confirmPassword: '确认新密码',
     updateProfile: '更新资料',
     profileUpdated: '资料已更新',
+    profileUpdateFailed: '资料更新失败',
+    saving: '保存中...',
+    skillsHint: '多个标签用逗号分隔',
     // Appearance
     themeMode: '主题模式',
     light: '浅色',

@@ -11,6 +11,9 @@ export const userApi = {
         return apiClient.post<ApiResponse<null>>("/user/avatar", formData);
     },
 
+    updateProfile: (data: Record<string, unknown>) =>
+        apiClient.put<ApiResponse<null>>("/user/profile", data),
+
     checkIn: () =>
         apiClient.get<ApiResponse<CheckInResponse>>("/user/check-in"),
 
