@@ -7,7 +7,7 @@ export const userApi = {
 
     uploadAvatar: (file: File) => {
         const formData = new FormData();
-        formData.append("avatar", file);
+        formData.append("file", file);
         return apiClient.post<ApiResponse<null>>("/user/avatar", formData);
     },
 
