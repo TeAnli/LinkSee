@@ -182,6 +182,18 @@ export default {
     mathFormula: '数学公式',
     publishSuccess: '文章发布成功，正在审核中...',
     publishFailed: '发布失败，请稍后重试',
+    coverImage: '封面图片',
+    coverImageHint: '输入封面图片链接（可选）',
+    summary: '文章摘要',
+    summaryHint: '简要描述文章内容，将展示在文章列表中（可选，最多200字）',
+    readingTime: '阅读时间',
+    approxMinutes: '约 {{minutes}} 分钟',
+    fullscreen: '全屏编辑',
+    exitFullscreen: '退出全屏',
+    autoSaved: '草稿已自动保存',
+    draftRestored: '已恢复上次编辑的草稿',
+    settings: '文章设置',
+    closeSettings: '关闭设置',
   },
 
   // ===== Right Panel =====

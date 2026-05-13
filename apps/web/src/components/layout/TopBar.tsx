@@ -25,7 +25,17 @@ const PAGE_TITLE_KEYS: Record<string, string> = {
   '/messages': 'nav.messages',
   '/profile': 'nav.profile',
   '/settings': 'nav.settings',
+  '/create': 'nav.createPost',
+  '/login': 'auth.signIn',
+  '/register': 'auth.register',
+  '/forgot-password': 'auth.forgotPassword',
+  '/reset-password': 'auth.resetPassword',
 };
+
+function resolveTitle(pathname: string): string {
+  if (PAGE_TITLE_KEYS[pathname]) return PAGE_TITLE_KEYS[pathname];
+  return 'common.appName';
+}
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -34,7 +44,7 @@ export function TopBar() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const title = PAGE_TITLE_KEYS[location.pathname] ?? 'common.noData';
+  const title = resolveTitle(location.pathname);
 
   return (
     <TooltipProvider delayDuration={300}>

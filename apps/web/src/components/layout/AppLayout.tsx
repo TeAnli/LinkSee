@@ -25,7 +25,10 @@ export function AppLayout() {
 
       <main
         className={cn(
-          'pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8 min-h-screen lg:ml-[var(--sidebar-w)]',
+          'min-h-screen lg:ml-[var(--sidebar-w)]',
+          isCreatePost
+            ? 'pt-[60px] pb-0 px-0'
+            : 'pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8',
           !hideRightPanel && 'xl:mr-[var(--right-panel-w)]',
         )}
         style={{

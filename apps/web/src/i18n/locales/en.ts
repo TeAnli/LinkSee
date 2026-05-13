@@ -188,6 +188,18 @@ const en: DeepString<typeof zhCN> = {
     mathFormula: 'Math Formula',
     publishSuccess: 'Post published successfully, under review...',
     publishFailed: 'Publish failed, please try again',
+    coverImage: 'Cover Image',
+    coverImageHint: 'Enter cover image URL (optional)',
+    summary: 'Summary',
+    summaryHint: 'Brief description shown in post listings (optional, max 200 chars)',
+    readingTime: 'Reading time',
+    approxMinutes: '~{{minutes}} min read',
+    fullscreen: 'Fullscreen',
+    exitFullscreen: 'Exit fullscreen',
+    autoSaved: 'Draft auto-saved',
+    draftRestored: 'Restored previous draft',
+    settings: 'Post Settings',
+    closeSettings: 'Close Settings',
   },
 
   // ===== Right Panel =====
