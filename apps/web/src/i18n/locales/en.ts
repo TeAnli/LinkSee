@@ -186,6 +186,8 @@ const en: DeepString<typeof zhCN> = {
     link: 'Link',
     image: 'Image',
     mathFormula: 'Math Formula',
+    publishSuccess: 'Post published successfully, under review...',
+    publishFailed: 'Publish failed, please try again',
   },
 
   // ===== Right Panel =====

@@ -39,6 +39,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { mockCategories, mockTags } from '@/mock/data';
 import type { Category } from '@linksee/shared';
+import { forumApi } from '@linksee/api-client/forum';
+import { toast } from 'sonner';
 
 // === Animation ===
 const fadeUp = {
@@ -200,9 +202,20 @@ export function CreatePostPage() {
   const handlePublish = async () => {
     if (!canPublish) return;
     setIsPublishing(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setIsPublishing(false);
-    navigate('/');
+    try {
+      const res = await forumApi.createPost({
+        categoryId: Number(categoryId),
+        title: title.trim(),
+        content: content.trim(),
+        tagList: tags.length > 0 ? tags : undefined,
+      });
+      toast.success(res.data.message || t('create.publishSuccess'));
+      navigate(`/post/${res.data.data.postId}`);
+    } catch {
+      toast.error(t('create.publishFailed'));
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handleSaveDraft = async () => {

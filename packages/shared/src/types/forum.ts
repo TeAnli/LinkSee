@@ -60,6 +60,12 @@ export interface PostCreateRequest {
   coverImageUrl?: string;
 }
 
+export interface PostCreateResponse {
+  postId: number;
+  status: number;
+  message: string;
+}
+
 export interface PostUpdateRequest {
   title?: string;
   content?: string;

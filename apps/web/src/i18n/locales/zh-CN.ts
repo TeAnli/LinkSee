@@ -180,6 +180,8 @@ export default {
     link: '链接',
     image: '图片',
     mathFormula: '数学公式',
+    publishSuccess: '文章发布成功，正在审核中...',
+    publishFailed: '发布失败，请稍后重试',
   },
 
   // ===== Right Panel =====
