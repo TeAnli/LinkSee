@@ -43,6 +43,7 @@ const en: DeepString<typeof zhCN> = {
     createPost: 'Write Post',
     expandSidebar: 'Expand sidebar',
     collapseSidebar: 'Collapse sidebar',
+    more: 'More',
   },
 
   // ===== Auth =====

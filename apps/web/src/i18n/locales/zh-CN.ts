@@ -37,6 +37,7 @@ export default {
     createPost: '写文章',
     expandSidebar: '展开侧边栏',
     collapseSidebar: '收起侧边栏',
+    more: '更多',
   },
 
   // ===== Auth =====

@@ -15,6 +15,7 @@ import { DarkModeToggle } from '../theme/DarkModeToggle';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { NotificationPanel } from '../notification/NotificationPanel';
 import { CheckInPanel } from '../checkin/CheckInPanel';
+import { MobileMoreMenu } from './MobileMoreMenu';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const PAGE_TITLE_KEYS: Record<string, string> = {
@@ -70,20 +71,17 @@ export function TopBar() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Check-in */}
-          <CheckInPanel />
+          {/* Mobile more menu (hidden on desktop) */}
+          <MobileMoreMenu />
 
-          {/* Notifications */}
-          <NotificationPanel />
-
-          {/* Theme settings */}
-          <ThemeSettingsPanel />
-
-          {/* Language switcher */}
-          <LanguageSwitcher />
-
-          {/* Dark mode toggle */}
-          <DarkModeToggle />
+          {/* Desktop-only action buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <CheckInPanel />
+            <NotificationPanel />
+            <ThemeSettingsPanel />
+            <LanguageSwitcher />
+            <DarkModeToggle />
+          </div>
 
           {/* User avatar / Login */}
           <Tooltip>
