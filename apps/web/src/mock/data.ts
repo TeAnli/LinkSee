@@ -19,6 +19,7 @@ export const mockUsers = [
 type MockProfile = UserInfo & {
   bio: string; location: string; skillsTags: string[];
   occupation: string; isVerified: boolean; followerCount: number; followingCount: number;
+  personalWebsite?: string; education?: string; socialLinks?: Record<string, string>;
 };
 
 export const mockUserProfiles: Record<number, MockProfile> = {
@@ -28,6 +29,9 @@ export const mockUserProfiles: Record<number, MockProfile> = {
     bio: '全栈开发者，热爱开源。正在探索 AI 与前端的结合点，偶尔写写技术博客。相信技术可以让世界更美好。',
     location: '北京', occupation: '高级前端工程师', skillsTags: ['React', 'TypeScript', 'Node.js', 'Go', 'Docker'],
     isVerified: true, followerCount: 1280, followingCount: 96,
+    personalWebsite: 'https://linxiaobai.dev',
+    education: '清华大学',
+    socialLinks: { github: 'https://github.com/linxiaobai', juejin: 'https://juejin.cn/user/linxiaobai' },
   },
   2: {
     id: 2, username: 'codehunter', nickname: '代码猎人', avatarUrl: '', email: 'hunter@example.com',
@@ -35,6 +39,8 @@ export const mockUserProfiles: Record<number, MockProfile> = {
     bio: '后端开发，专注 Java 生态。微服务架构实践者，偶尔写写 Rust。',
     location: '上海', occupation: 'Java 后端工程师', skillsTags: ['Java', 'Spring Boot', 'Redis', 'MySQL', 'Kubernetes'],
     isVerified: false, followerCount: 856, followingCount: 72,
+    education: '复旦大学',
+    socialLinks: { github: 'https://github.com/codehunter' },
   },
   3: {
     id: 3, username: 'techrabbit', nickname: '技术小白兔', avatarUrl: '', email: 'rabbit@example.com',

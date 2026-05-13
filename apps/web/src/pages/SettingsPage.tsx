@@ -10,6 +10,7 @@ import {
   Save,
   Check,
   ChevronRight,
+  Camera,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -19,7 +20,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarUpload } from '@/components/avatar/AvatarUpload';
 import {
   Select,
   SelectContent,
@@ -104,6 +106,7 @@ function AccountSettings() {
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [bio, setBio] = useState('');
   const [saved, setSaved] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   const handleSave = () => {
     updateUser({ nickname });
@@ -121,15 +124,33 @@ function AccountSettings() {
         <CardContent className="flex flex-col gap-5">
           {/* Avatar */}
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-                {(user?.nickname ?? 'U').slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
+            <button
+              type="button"
+              className="group relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              onClick={() => setAvatarOpen(true)}
+              title={t('settings.changeAvatar')}
+            >
+              <Avatar className="h-16 w-16">
+                {user?.avatarUrl ? (
+                  <AvatarImage src={user.avatarUrl} alt={user.nickname} />
+                ) : null}
+                <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
+                  {(user?.nickname ?? 'U').slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="h-5 w-5 text-white" />
+              </div>
+            </button>
             <div className="flex flex-col gap-1">
               <span className="text-sm font-medium">{user?.nickname ?? 'User'}</span>
-              <span className="text-xs text-muted-foreground">@{user?.nickname ?? 'user'}</span>
-              <Button variant="outline" size="sm" className="w-fit mt-1">
+              <span className="text-xs text-muted-foreground">@{user?.username ?? 'user'}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit mt-1"
+                onClick={() => setAvatarOpen(true)}
+              >
                 {t('settings.changeAvatar')}
               </Button>
             </div>
@@ -215,6 +236,8 @@ function AccountSettings() {
           <Button size="sm">{t('auth.signInToAccount')}</Button>
         </CardContent>
       </Card>
+
+      <AvatarUpload open={avatarOpen} onOpenChange={setAvatarOpen} />
     </div>
   );
 }

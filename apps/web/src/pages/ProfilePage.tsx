@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import { motion, type Variants } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarUpload } from '@/components/avatar/AvatarUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -27,6 +28,23 @@ const stagger = {
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+};
+
+/* ── Social Icon Map ── */
+
+const socialIconMap: Record<string, string> = {
+  github: 'mdi:github',
+  twitter: 'mdi:twitter',
+  x: 'mdi:twitter',
+  linkedin: 'mdi:linkedin',
+  website: 'mdi:web',
+  blog: 'mdi:post-outline',
+  juejin: 'mdi:card-text-outline',
+  zhihu: 'mdi:message-text-outline',
+  bilibili: 'mdi:television-play',
+  weibo: 'mdi:chat-outline',
+  telegram: 'mdi:telegram',
+  discord: 'mdi:discord',
 };
 
 /* ── Components ── */
@@ -133,6 +151,7 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<UserProfileResponse | null>(null);
   const [userPosts, setUserPosts] = useState<PostListItem[]>([]);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -173,10 +192,10 @@ export function ProfilePage() {
               profile: {
                 bio: mockProfile.bio,
                 location: mockProfile.location,
-                personalWebsite: '',
-                socialLinks: {},
+                personalWebsite: mockProfile.personalWebsite ?? '',
+                socialLinks: mockProfile.socialLinks ?? {},
                 skillsTags: mockProfile.skillsTags,
-                education: '',
+                education: mockProfile.education ?? '',
                 occupation: mockProfile.occupation,
                 isVerified: mockProfile.isVerified,
                 followerCount: mockProfile.followerCount,
@@ -281,14 +300,24 @@ export function ProfilePage() {
               {/* Avatar + name */}
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10">
                 <div className="relative shrink-0">
-                  <Avatar className="size-20 border-[3px] shadow-flat" style={{ borderColor: 'var(--card-bg)' }}>
-                    {displayUser.avatarUrl ? (
-                      <AvatarImage src={displayUser.avatarUrl} alt={displayUser.nickname} />
-                    ) : null}
-                    <AvatarFallback className="text-xl font-extrabold" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
-                      {displayUser.nickname.slice(0, 1)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <button
+                    type="button"
+                    className="group relative block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    onClick={() => setAvatarOpen(true)}
+                    title={t('settings.changeAvatar')}
+                  >
+                    <Avatar className="size-20 border-[3px] shadow-flat" style={{ borderColor: 'var(--card-bg)' }}>
+                      {displayUser.avatarUrl ? (
+                        <AvatarImage src={displayUser.avatarUrl} alt={displayUser.nickname} />
+                      ) : null}
+                      <AvatarFallback className="text-xl font-extrabold" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
+                        {displayUser.nickname.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Icon icon="mdi:camera-plus-outline" width={22} height={22} className="text-white" />
+                    </div>
+                  </button>
                   {profileDetail?.isVerified && (
                     <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center size-6 rounded-full text-[10px]"
                       style={{ backgroundColor: 'var(--card-bg)', border: '2px solid var(--border-color)' }}>
@@ -312,6 +341,7 @@ export function ProfilePage() {
                     size="sm"
                     className="self-start sm:self-auto font-bold shrink-0"
                     style={{ boxShadow: 'var(--shadow-flat)' }}
+                    onClick={() => navigate('/settings')}
                   >
                     <Icon icon="mdi:pencil-outline" width={14} height={14} className="mr-1.5" />
                     {t('profile.editProfile')}
@@ -332,11 +362,28 @@ export function ProfilePage() {
                     {profileDetail.occupation}
                   </span>
                 )}
+                {profileDetail?.education && (
+                  <span className="flex items-center gap-1">
+                    <Icon icon="mdi:school-outline" width={14} height={14} />
+                    {profileDetail.education}
+                  </span>
+                )}
                 {profileDetail?.location && (
                   <span className="flex items-center gap-1">
                     <Icon icon="mdi:map-marker-outline" width={14} height={14} />
                     {profileDetail.location}
                   </span>
+                )}
+                {profileDetail?.personalWebsite && (
+                  <a
+                    href={profileDetail.personalWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <Icon icon="mdi:web" width={14} height={14} />
+                    {t('profile.personalWebsite')}
+                  </a>
                 )}
                 <span className="flex items-center gap-1">
                   <Icon icon="mdi:calendar-outline" width={14} height={14} />
@@ -344,11 +391,39 @@ export function ProfilePage() {
                 </span>
               </div>
 
+              {/* Social links */}
+              {profileDetail?.socialLinks && Object.keys(profileDetail.socialLinks).length > 0 && (
+                <div className="flex items-center gap-2 mt-3">
+                  {Object.entries(profileDetail.socialLinks).map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      title={platform}
+                    >
+                      <Icon icon={socialIconMap[platform.toLowerCase()] ?? 'mdi:link-variant'} width={16} height={16} />
+                    </a>
+                  ))}
+                </div>
+              )}
+
               <Separator className="my-4" />
 
               {/* Level progress */}
               {levelInfo && (
                 <LevelProgressBar experience={displayUser.experience} level={displayUser.level} />
+              )}
+
+              {/* AI calls remaining */}
+
+              
+              {levelInfo && (
+                <div className="flex items-center gap-1.5 mt-2 text-[10px] font-semibold text-muted-foreground">
+                  <Icon icon="mdi:robot-outline" width={13} height={13} />
+                  <span>{t('profile.aiCallsRemaining')}: {levelInfo.todayAiCallsRemaining}/{levelInfo.todayAiCallsTotal}</span>
+                </div>
               )}
 
               <Separator className="my-4" />
@@ -411,6 +486,8 @@ export function ProfilePage() {
         </motion.div>
 
       </div>
+
+      <AvatarUpload open={avatarOpen} onOpenChange={setAvatarOpen} />
     </motion.div>
   );
 }
