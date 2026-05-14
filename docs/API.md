@@ -1,6 +1,6 @@
 # LinkSee 灵犀 — 完整 API 接口文档
 
-> **版本**: v1.0 | **最后更新**: 2026-05-04 | **基础路径**: `/api`
+> **版本**: v1.2 | **最后更新**: 2026-05-13 | **基础路径**: `/api`
 
 ---
 
@@ -115,7 +115,7 @@ POST /api/auth/register
   "username": "string (3-50字符, 必填)",
   "password": "string (8-32字符, 必填)",
   "email": "string (可选, 邮箱格式)",
-  "phone": "string (可选, 手机号格式)",
+  "emailCode": "string (可选, 6位邮箱验证码)",
   "captchaId": "string (必填, 验证码ID)",
   "captchaValue": "string (必填, 验证码值)"
 }
@@ -124,9 +124,9 @@ POST /api/auth/register
 | 字段 | 类型 | 必填 | 校验规则 |
 |------|------|:----:|----------|
 | `username` | String | ✅ | 3-50 字符，字母/数字/下划线，唯一 |
-| `password` | String | ✅ | 8-32 字符，需含大小写字母+数字 |
+| `password` | String | ✅ | 8-32 字符 |
 | `email` | String | ❌ | 合法邮箱格式，全局唯一 |
-| `phone` | String | ❌ | 合法手机号格式（中国大陆），全局唯一 |
+| `emailCode` | String | 条件 | 填写 `email` 时必填，需先调用 `/send-email-code` 获取 |
 | `captchaId` | String | ✅ | 获取验证码时返回的 ID |
 | `captchaValue` | String | ✅ | 用户输入的验证码 |
 
@@ -145,7 +145,7 @@ POST /api/auth/register
 }
 ```
 
-**错误码**: `40001` 用户名已存在 | `40002` 邮箱已注册 | `40003` 手机号已注册 | `40004` 验证码错误/过期
+**错误码**: `40001` 用户名已存在 | `40002` 邮箱已注册 | `40004` 验证码错误/过期 | `40032` 邮箱验证码错误/过期
 
 ---
 
@@ -219,7 +219,7 @@ POST /api/auth/logout
 }
 ```
 
-**说明**: 将当前 Token 加入黑名单，同时清除 RefreshToken
+**说明**: 当前为简易实现。Token 黑名单和 RefreshToken 清除逻辑待后续版本完善，前端应清除本地存储的 Token。
 
 ---
 
@@ -255,7 +255,87 @@ POST /api/auth/refresh-token
 
 ---
 
-### 2.5 获取图形验证码
+### 2.5 发送邮箱验证码
+
+```
+POST /api/auth/send-email-code
+```
+
+**权限**: 🔓 公开
+
+**请求体**:
+
+```json
+{
+  "email": "string (必填, 邮箱格式)",
+  "type": "string (可选, \"register\" 或 \"reset-password\", 默认 \"register\")"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|:----:|------|
+| `email` | String | ✅ | 接收验证码的邮箱 |
+| `type` | String | ❌ | `register`(注册验证) / `reset-password`(密码重置)，默认 `register` |
+
+**响应**:
+
+```json
+{
+  "code": 0,
+  "message": "验证码已发送",
+  "data": null
+}
+```
+
+**说明**: 验证码 5 分钟内有效，60 秒内不可重复发送。`type="reset-password"` 时不泄露邮箱是否已注册。
+
+**错误码**: `40031` 发送频率限制 | `40030` 邮件发送失败
+
+---
+
+### 2.6 忘记密码 / 重置密码
+
+```
+POST /api/auth/reset-password
+```
+
+> 密码重置采用「邮箱验证码」方式，不再使用链接 Token。先通过 `/send-email-code` (`type: "reset-password"`) 获取验证码。
+
+**权限**: 🔓 公开
+
+**请求体**:
+
+```json
+{
+  "email": "string (必填, 邮箱格式)",
+  "code": "string (必填, 6位数字验证码)",
+  "newPassword": "string (8-32字符, 必填)",
+  "confirmPassword": "string (8-32字符, 必填)"
+}
+```
+
+| 字段 | 类型 | 必填 | 校验规则 |
+|------|------|:----:|----------|
+| `email` | String | ✅ | 合法邮箱格式 |
+| `code` | String | ✅ | 6 位数字验证码 |
+| `newPassword` | String | ✅ | 8-32 字符 |
+| `confirmPassword` | String | ✅ | 需与 `newPassword` 一致 |
+
+**响应**:
+
+```json
+{
+  "code": 0,
+  "message": "密码重置成功",
+  "data": null
+}
+```
+
+**错误码**: `40000` 两次密码不一致 | `40032` 验证码错误或过期 | `40010` 用户不存在
+
+---
+
+### 2.7 获取图形验证码
 
 ```
 GET /api/auth/captcha
@@ -274,6 +354,29 @@ GET /api/auth/captcha
 ```
 
 **说明**: 验证码 5 分钟内有效，使用后立即失效
+
+---
+
+### 2.8 获取 RSA 公钥
+
+```
+GET /api/auth/public-key
+```
+
+**权限**: 🔓 公开
+
+**响应**:
+
+```json
+{
+  "code": 0,
+  "data": {
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0B..."
+  }
+}
+```
+
+**说明**: 前端使用此公钥对敏感数据（如密码）进行 RSA 加密后传输。仅当服务端 `encryption_enabled=true` 时有效。
 
 ---
 
@@ -303,7 +406,6 @@ GET /api/user/profile
       "nickname": "张三",
       "avatarUrl": "https://cdn.linksee.com/avatars/100001.jpg",
       "email": "z***n@example.com",
-      "phone": "138****5678",
       "level": 3,
       "experience": 650,
       "status": 1,
@@ -552,7 +654,7 @@ GET /api/user/rankings
 ### 3.9 每日签到
 
 ```
-POST /api/user/check-in
+GET /api/user/check-in
 ```
 
 **权限**: 🔐 登录
@@ -1254,6 +1356,8 @@ GET /api/search/suggest
 ## 6. AI 能力接口
 
 > **路由前缀**: `/api/ai` | **目标服务**: `ai-service` | **权限**: 🔐 登录
+> 
+> **当前状态**: AI 创作类接口（6.1-6.8）返回 mock 数据用于开发测试。AI 问答（6.9-6.12）会话列表/消息/删除/反馈为 stub 实现（返回固定 mock 数据或空操作）。额度检查逻辑已完整实现。
 
 ### AI 用量额度（按等级）
 
@@ -1639,20 +1743,26 @@ POST /api/ai/chat/send
 ```
 Content-Type: text/event-stream
 
+event: message
 data: {"type":"thinking","content":"正在检索相关帖子..."}
 
-data: {"type":"sources","items":[{"postId":100001,"title":"Spring Boot 4.0 新特性","authorName":"李四","relevance":0.92},{"postId":100050,"title":"GraalVM 实战指南","authorName":"王五","relevance":0.85}]}
+event: message
+data: {"type":"sources","items":[{"postId":100001,"title":"深入解析JVM垃圾回收机制","authorName":"李四","relevance":0.92},{"postId":100050,"title":"Java性能优化实战","authorName":"王五","relevance":0.85}]}
 
-data: {"type":"content","delta":"根据社区中的相关讨论，Spring Boot 4.0 "}
+event: message
+data: {"type":"content","delta":"关于「..."}
 
-data: {"type":"content","delta":"主要带来了以下几项重要改进：\n\n1. "}
+event: message
+data: {"type":"content","delta":"**1. 核心概念**\n..."}
 
-data: {"type":"content","delta":"**原生编译支持**：通过与 GraalVM 深度集成..."}
+event: message
+data: {"type":"followups","suggestions":["能给我举个具体的例子吗？","这个问题的深层原因是什么？","有什么推荐的学习资料？"]}
 
-data: {"type":"followups","suggestions":["Spring Boot 4.0 如何配置 GraalVM？","虚拟线程在实际项目中有什么注意事项？","从 3.x 迁移到 4.0 需要注意什么？"]}
-
+event: message
 data: {"type":"done","sessionId":"sess_abc123","tokensUsed":{"input":520,"output":380}}
 ```
+
+**说明**: 每条消息格式为 `event: message` + `data: <JSON>`，以双换行 `\n\n` 分隔。
 
 **非流式响应**:
 
@@ -1852,36 +1962,24 @@ GET /api/message/notifications
       {
         "id": 90001,
         "type": "interaction",
-        "subType": "like",
         "title": "李四 赞了你的帖子",
         "content": "\"Spring Boot 4.0 新特性全面解析\"",
-        "targetType": "post",
-        "targetId": 100001,
-        "triggerUserId": 100002,
-        "triggerUserNickname": "李四",
-        "triggerUserAvatarUrl": "...",
+        "relatedId": 100001,
         "isRead": false,
         "createdAt": "2026-04-20T15:00:00+08:00"
       },
       {
         "id": 90002,
         "type": "interaction",
-        "subType": "comment",
         "title": "王五 评论了你的帖子",
         "content": "写得很详细，收藏了！",
-        "targetType": "comment",
-        "targetId": 80001,
-        "postId": 100001,
-        "triggerUserId": 100003,
-        "triggerUserNickname": "王五",
-        "triggerUserAvatarUrl": "...",
+        "relatedId": 80001,
         "isRead": false,
         "createdAt": "2026-04-20T14:30:00+08:00"
       },
       {
         "id": 90003,
         "type": "system",
-        "subType": "notice",
         "title": "系统通知",
         "content": "你的帖子已被管理员设为精华帖，+20 积分奖励",
         "isRead": true,
@@ -1890,7 +1988,6 @@ GET /api/message/notifications
       {
         "id": 90004,
         "type": "ai",
-        "subType": "moderation",
         "title": "AI 审核结果",
         "content": "你的帖子《xxx》已通过审核",
         "isRead": false,
@@ -2218,14 +2315,6 @@ GET /api/admin/ai/usage/stats
 
 **权限**: 🔑 管理员
 
-**查询参数**:
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `startDate` | String | 起始日期 `yyyy-MM-dd` |
-| `endDate` | String | 结束日期 `yyyy-MM-dd` |
-| `groupBy` | String | `user` / `model` / `type` |
-
 **响应**:
 
 ```json
@@ -2279,13 +2368,15 @@ GET /api/admin/ai/tasks
 | **40000** | 400 | 请求参数错误 |
 | **40001** | 409 | 用户名已存在 |
 | **40002** | 409 | 邮箱已注册 |
-| **40003** | 409 | 手机号已注册 |
 | **40004** | 400 | 验证码错误或过期 |
 | **40010** | 401 | 用户不存在 |
 | **40011** | 401 | 密码错误 |
 | **40012** | 403 | 账号已被禁用 |
 | **40013** | 400 | 验证码错误 |
 | **40014** | 429 | 账号已锁定 |
+| **40030** | 400 | 邮件发送失败 |
+| **40031** | 429 | 邮箱验证码发送频率限制 |
+| **40032** | 400 | 邮箱验证码错误或过期 |
 | **40020** | 401 | refreshToken 无效 |
 | **40021** | 401 | refreshToken 已过期 |
 | **40100** | 401 | 未登录或 Token 无效 |
@@ -2398,7 +2489,7 @@ GET /api/admin/ai/tasks
 
 ---
 
-> **文档版本**: v1.0
-> **最后更新**: 2026-05-04
+> **文档版本**: v1.2
+> **最后更新**: 2026-05-13
 > **维护者**: LinkSee Team
 > **状态**: 可作为前后端开发实施依据

@@ -5,14 +5,17 @@ import { Icon } from '@iconify/react';
 import { motion, type Variants } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarUpload } from '@/components/avatar/AvatarUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ProfileSkeleton } from '@/components/skeletons';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getUserProfile, mockPosts, formatCount, formatRelativeTime } from '@/mock/data';
+import { userApi } from '@linksee/api-client/user';
+import { mockPosts, formatCount, formatRelativeTime } from '@/mock/data';
 import { USER_LEVEL_NAMES, USER_LEVEL_ICONS, USER_LEVEL_EXP } from '@linksee/shared';
 import { UserLevel } from '@linksee/shared';
+import type { UserProfileResponse, PostListItem } from '@linksee/shared';
 import { cn } from '@/lib/utils';
 
 /* ── Animation Variants ── */
@@ -25,6 +28,23 @@ const stagger = {
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+};
+
+/* ── Social Icon Map ── */
+
+const socialIconMap: Record<string, string> = {
+  github: 'mdi:github',
+  twitter: 'mdi:twitter',
+  x: 'mdi:twitter',
+  linkedin: 'mdi:linkedin',
+  website: 'mdi:web',
+  blog: 'mdi:post-outline',
+  juejin: 'mdi:card-text-outline',
+  zhihu: 'mdi:message-text-outline',
+  bilibili: 'mdi:television-play',
+  weibo: 'mdi:chat-outline',
+  telegram: 'mdi:telegram',
+  discord: 'mdi:discord',
 };
 
 /* ── Components ── */
@@ -85,7 +105,7 @@ function SkillTag({ name }: { name: string }) {
   );
 }
 
-function PostItem({ post }: { post: typeof mockPosts[number] }) {
+function PostItem({ post }: { post: PostListItem }) {
   const navigate = useNavigate();
 
   return (
@@ -129,21 +149,86 @@ export function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<UserProfileResponse | null>(null);
+  const [userPosts, setUserPosts] = useState<PostListItem[]>([]);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!isAuthenticated || !user) {
+      setLoading(false);
+      return;
+    }
 
-  const profile = useMemo(() => {
-    if (!user) return null;
-    return getUserProfile(user.id);
-  }, [user]);
+    let cancelled = false;
 
-  const userPosts = useMemo(() => {
-    if (!user) return [];
-    return mockPosts.filter((p) => p.author.id === user.id);
-  }, [user]);
+    async function fetchData() {
+      try {
+        const [profileRes, postsRes] = await Promise.all([
+          userApi.getProfile(),
+          userApi.getUsersPosts(user!.id, { page: 1, size: 10 }),
+        ]);
+        if (!cancelled) {
+          setProfileData(profileRes.data.data);
+          const postsData = postsRes.data.data;
+          setUserPosts(Array.isArray(postsData) ? postsData : (postsData as { list: PostListItem[] }).list ?? []);
+        }
+      } catch {
+        // Fall back to mock data if API fails
+        if (!cancelled) {
+          const { getUserProfile } = await import('@/mock/data');
+          const mockProfile = getUserProfile(user!.id);
+          if (mockProfile) {
+            setProfileData({
+              user: {
+                id: mockProfile.id,
+                username: mockProfile.username,
+                nickname: mockProfile.nickname,
+                avatarUrl: mockProfile.avatarUrl,
+                email: mockProfile.email,
+                level: mockProfile.level,
+                experience: mockProfile.experience,
+                status: mockProfile.status,
+              },
+              profile: {
+                bio: mockProfile.bio,
+                location: mockProfile.location,
+                personalWebsite: mockProfile.personalWebsite ?? '',
+                socialLinks: mockProfile.socialLinks ?? {},
+                skillsTags: mockProfile.skillsTags,
+                education: mockProfile.education ?? '',
+                occupation: mockProfile.occupation,
+                isVerified: mockProfile.isVerified,
+                followerCount: mockProfile.followerCount,
+                followingCount: mockProfile.followingCount,
+              },
+              levelInfo: {
+                currentLv: mockProfile.level,
+                currentLvName: USER_LEVEL_NAMES[mockProfile.level as UserLevel] ?? '',
+                currentLvExp: USER_LEVEL_EXP[mockProfile.level as UserLevel] ?? 0,
+                nextLvExp: (USER_LEVEL_EXP[(mockProfile.level + 1) as UserLevel]) ?? 0,
+                progress: 0,
+                nextLvName: USER_LEVEL_NAMES[(mockProfile.level + 1) as UserLevel] ?? '',
+                todayAiCallsRemaining: 10,
+                todayAiCallsTotal: 10,
+              },
+            });
+          }
+          const posts = mockPosts.filter((p) => p.author.id === user!.id);
+          setUserPosts(posts);
+        }
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    if (profileData || !isAuthenticated) {
+      const timer = setTimeout(() => setLoading(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [profileData, isAuthenticated]);
 
   const totalLikes = useMemo(
     () => userPosts.reduce((sum, p) => sum + p.likeCount, 0),
@@ -186,7 +271,10 @@ export function ProfilePage() {
     );
   }
 
-  if (!profile) return null;
+  if (!profileData) return null;
+
+  const { profile: profileDetail, levelInfo } = profileData;
+  const displayUser = profileData.user;
 
   return (
     <motion.div
@@ -212,15 +300,25 @@ export function ProfilePage() {
               {/* Avatar + name */}
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10">
                 <div className="relative shrink-0">
-                  <Avatar className="size-20 border-[3px] shadow-flat" style={{ borderColor: 'var(--card-bg)' }}>
-                    {profile.avatarUrl ? (
-                      <AvatarImage src={profile.avatarUrl} alt={profile.nickname} />
-                    ) : null}
-                    <AvatarFallback className="text-xl font-extrabold" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
-                      {profile.nickname.slice(0, 1)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {profile.isVerified && (
+                  <button
+                    type="button"
+                    className="group relative block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    onClick={() => setAvatarOpen(true)}
+                    title={t('settings.changeAvatar')}
+                  >
+                    <Avatar className="size-20 border-[3px] shadow-flat" style={{ borderColor: 'var(--card-bg)' }}>
+                      {displayUser.avatarUrl ? (
+                        <AvatarImage src={displayUser.avatarUrl} alt={displayUser.nickname} />
+                      ) : null}
+                      <AvatarFallback className="text-xl font-extrabold" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
+                        {displayUser.nickname.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Icon icon="mdi:camera-plus-outline" width={22} height={22} className="text-white" />
+                    </div>
+                  </button>
+                  {profileDetail?.isVerified && (
                     <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center size-6 rounded-full text-[10px]"
                       style={{ backgroundColor: 'var(--card-bg)', border: '2px solid var(--border-color)' }}>
                       <Icon icon="mdi:check-decagram" width={14} height={14} style={{ color: '#3B82F6' }} />
@@ -231,11 +329,11 @@ export function ProfilePage() {
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between w-full gap-3">
                   <div className="flex flex-col gap-0.5">
                     <h2 className="text-xl font-extrabold leading-tight flex items-center gap-1.5">
-                      {profile.nickname}
-                      <span className="text-sm">{USER_LEVEL_ICONS[profile.level as UserLevel]}</span>
+                      {displayUser.nickname}
+                      <span className="text-sm">{USER_LEVEL_ICONS[displayUser.level as UserLevel]}</span>
                     </h2>
                     <p className="text-xs font-semibold text-muted-foreground">
-                      @{profile.username}
+                      @{displayUser.username}
                     </p>
                   </div>
                   <Button
@@ -243,6 +341,7 @@ export function ProfilePage() {
                     size="sm"
                     className="self-start sm:self-auto font-bold shrink-0"
                     style={{ boxShadow: 'var(--shadow-flat)' }}
+                    onClick={() => navigate('/settings')}
                   >
                     <Icon icon="mdi:pencil-outline" width={14} height={14} className="mr-1.5" />
                     {t('profile.editProfile')}
@@ -251,34 +350,81 @@ export function ProfilePage() {
               </div>
 
               {/* Bio */}
-              <p className={cn('mt-4 text-sm leading-relaxed', profile.bio ? 'text-foreground' : 'text-muted-foreground italic')}>
-                {profile.bio || t('profile.noBioYet')}
+              <p className={cn('mt-4 text-sm leading-relaxed', profileDetail?.bio ? 'text-foreground' : 'text-muted-foreground italic')}>
+                {profileDetail?.bio || t('profile.noBioYet')}
               </p>
 
               {/* Meta info */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs font-semibold text-muted-foreground">
-                {profile.occupation && (
+                {profileDetail?.occupation && (
                   <span className="flex items-center gap-1">
                     <Icon icon="mdi:briefcase-outline" width={14} height={14} />
-                    {profile.occupation}
+                    {profileDetail.occupation}
                   </span>
                 )}
-                {profile.location && (
+                {profileDetail?.education && (
+                  <span className="flex items-center gap-1">
+                    <Icon icon="mdi:school-outline" width={14} height={14} />
+                    {profileDetail.education}
+                  </span>
+                )}
+                {profileDetail?.location && (
                   <span className="flex items-center gap-1">
                     <Icon icon="mdi:map-marker-outline" width={14} height={14} />
-                    {profile.location}
+                    {profileDetail.location}
                   </span>
+                )}
+                {profileDetail?.personalWebsite && (
+                  <a
+                    href={profileDetail.personalWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <Icon icon="mdi:web" width={14} height={14} />
+                    {t('profile.personalWebsite')}
+                  </a>
                 )}
                 <span className="flex items-center gap-1">
                   <Icon icon="mdi:calendar-outline" width={14} height={14} />
-                  {t('profile.joinedAt')}: 2024-01
+                  {t('profile.joinedAt')}: {displayUser.createdAt?.slice(0, 7) ?? '—'}
                 </span>
               </div>
+
+              {/* Social links */}
+              {profileDetail?.socialLinks && Object.keys(profileDetail.socialLinks).length > 0 && (
+                <div className="flex items-center gap-2 mt-3">
+                  {Object.entries(profileDetail.socialLinks).map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      title={platform}
+                    >
+                      <Icon icon={socialIconMap[platform.toLowerCase()] ?? 'mdi:link-variant'} width={16} height={16} />
+                    </a>
+                  ))}
+                </div>
+              )}
 
               <Separator className="my-4" />
 
               {/* Level progress */}
-              <LevelProgressBar experience={profile.experience} level={profile.level} />
+              {levelInfo && (
+                <LevelProgressBar experience={displayUser.experience} level={displayUser.level} />
+              )}
+
+              {/* AI calls remaining */}
+
+              
+              {levelInfo && (
+                <div className="flex items-center gap-1.5 mt-2 text-[10px] font-semibold text-muted-foreground">
+                  <Icon icon="mdi:robot-outline" width={13} height={13} />
+                  <span>{t('profile.aiCallsRemaining')}: {levelInfo.todayAiCallsRemaining}/{levelInfo.todayAiCallsTotal}</span>
+                </div>
+              )}
 
               <Separator className="my-4" />
 
@@ -287,8 +433,8 @@ export function ProfilePage() {
                 <StatBlock icon="mdi:file-document-outline" value={String(userPosts.length)} label={t('profile.postsCount')} />
                 <StatBlock icon="mdi:heart-outline" value={formatCount(totalLikes)} label={t('profile.likesReceived')} />
                 <StatBlock icon="mdi:bookmark-outline" value={formatCount(totalCollects)} label={t('profile.collectedCount')} />
-                <StatBlock icon="mdi:account-plus-outline" value={formatCount(profile.followerCount)} label={t('profile.followers')} />
-                <StatBlock icon="mdi:account-arrow-right-outline" value={formatCount(profile.followingCount)} label={t('profile.following')} />
+                <StatBlock icon="mdi:account-plus-outline" value={formatCount(profileDetail?.followerCount ?? 0)} label={t('profile.followers')} />
+                <StatBlock icon="mdi:account-arrow-right-outline" value={formatCount(profileDetail?.followingCount ?? 0)} label={t('profile.following')} />
               </div>
             </div>
           </Card>
@@ -300,9 +446,9 @@ export function ProfilePage() {
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
               {t('profile.skills')}
             </h3>
-            {profile.skillsTags.length > 0 ? (
+            {profileDetail?.skillsTags && profileDetail.skillsTags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {profile.skillsTags.map((tag) => (
+                {profileDetail.skillsTags.map((tag) => (
                   <SkillTag key={tag} name={tag} />
                 ))}
               </div>
@@ -340,6 +486,8 @@ export function ProfilePage() {
         </motion.div>
 
       </div>
+
+      <AvatarUpload open={avatarOpen} onOpenChange={setAvatarOpen} />
     </motion.div>
   );
 }

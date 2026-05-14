@@ -1,12 +1,6 @@
 import axios from "axios";
-import type {
-  ApiResponse,
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-} from "@linksee/shared";
+import { authApi } from "./auth";
+import { encryptPayload } from "./crypto";
 
 const apiClient = axios.create({
   baseURL: "/api",
@@ -16,14 +10,37 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor: attach JWT token
-apiClient.interceptors.request.use((config) => {
+// Request interceptor: attach JWT token + encrypt POST/PUT/PATCH bodies
+apiClient.interceptors.request.use(async (config) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const storage = (globalThis as any).localStorage;
   const token = storage?.getItem("access_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Let browser set the correct multipart boundary for FormData
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
+  const method = config.method?.toLowerCase();
+  if (
+    config.data &&
+    typeof config.data === "object" &&
+    !(config.data instanceof FormData) &&
+    (method === "post" || method === "put" || method === "patch") &&
+    config.url !== "/auth/public-key"
+  ) {
+    try {
+      const encrypted = await encryptPayload(config.data);
+      config.data = encrypted;
+      config.headers["X-Encrypted"] = "true";
+    } catch (err) {
+      console.warn("Request encryption failed, sending unencrypted:", err);
+    }
+  }
+
   return config;
 });
 
@@ -40,35 +57,8 @@ apiClient.interceptors.response.use(
   },
 );
 
-// === Auth API ===
-
-export const authApi = {
-  login: (data: LoginRequest) =>
-    apiClient.post<ApiResponse<LoginResponse>>("/auth/login", data),
-
-  register: (data: RegisterRequest) =>
-    apiClient.post<ApiResponse<{ userId: number; token: string }>>(
-      "/auth/register",
-      data,
-    ),
-
-  logout: () => apiClient.post("/auth/logout"),
-
-  refreshToken: (refreshToken: string) =>
-    apiClient.post<ApiResponse<LoginResponse>>("/auth/refresh-token", {
-      refreshToken,
-    }),
-
-  getCaptcha: () =>
-    apiClient.get<ApiResponse<{ captchaId: string; captchaImageBase64: string }>>(
-      "/auth/captcha",
-    ),
-
-  forgotPassword: (data: ForgotPasswordRequest) =>
-    apiClient.post<ApiResponse<null>>("/auth/forgot-password", data),
-
-  resetPassword: (data: ResetPasswordRequest) =>
-    apiClient.post<ApiResponse<null>>("/auth/reset-password", data),
-};
-
+// 导出API客户端实例，供其他模块使用
 export default apiClient;
+// 导出的API接口
+export { authApi };
+export { forumApi } from "./forum";

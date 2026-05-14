@@ -1093,12 +1093,12 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 
 ```
 POST   /api/auth/register              # 用户注册
-       Body: { username, password, email?, captcha }
-       Resp: { userId, token }
+       Body: { username, password, email?, emailCode?, captchaId, captchaValue }
+       Resp: { userId, token, refreshToken, expiresIn }
 
 POST   /api/auth/login                 # 登录
-       Body: { username, password }
-       Resp: { userId, token, userInfo }
+       Body: { username, password, captchaId?, captchaValue? }
+       Resp: { userId, token, refreshToken, userInfo }
 
 POST   /api/auth/logout                # 登出(失效Token黑名单)
        Header: Authorization: Bearer {token}
@@ -1106,8 +1106,19 @@ POST   /api/auth/logout                # 登出(失效Token黑名单)
 POST   /api/auth/refresh-token         # 刷新Token
        Body: { refreshToken }
 
+POST   /api/auth/send-email-code       # 发送邮箱验证码
+       Body: { email, type?: "register" | "reset-password" }
+       Resp: null
+
+POST   /api/auth/reset-password        # 重置密码（邮箱验证码方式）
+       Body: { email, code, newPassword, confirmPassword }
+       Resp: null
+
 GET    /api/auth/captcha               # 获取图形验证码
        Resp: { captchaId, captchaImageBase64 }
+
+GET    /api/auth/public-key            # 获取RSA公钥（请求体加密）
+       Resp: { publicKey }
 ```
 
 ### 11.2 论坛业务接口 (`/api/forum/**`)

@@ -14,6 +14,8 @@ import { ThemeSettingsPanel } from '../theme/ThemeSettingsPanel';
 import { DarkModeToggle } from '../theme/DarkModeToggle';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { NotificationPanel } from '../notification/NotificationPanel';
+import { CheckInPanel } from '../checkin/CheckInPanel';
+import { MobileMoreMenu } from './MobileMoreMenu';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const PAGE_TITLE_KEYS: Record<string, string> = {
@@ -23,7 +25,17 @@ const PAGE_TITLE_KEYS: Record<string, string> = {
   '/messages': 'nav.messages',
   '/profile': 'nav.profile',
   '/settings': 'nav.settings',
+  '/create': 'nav.createPost',
+  '/login': 'auth.signIn',
+  '/register': 'auth.register',
+  '/forgot-password': 'auth.forgotPassword',
+  '/reset-password': 'auth.resetPassword',
 };
+
+function resolveTitle(pathname: string): string {
+  if (PAGE_TITLE_KEYS[pathname]) return PAGE_TITLE_KEYS[pathname];
+  return 'common.appName';
+}
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -32,7 +44,7 @@ export function TopBar() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const title = PAGE_TITLE_KEYS[location.pathname] ?? 'common.noData';
+  const title = resolveTitle(location.pathname);
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -69,17 +81,17 @@ export function TopBar() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Notifications */}
-          <NotificationPanel />
+          {/* Mobile more menu (hidden on desktop) */}
+          <MobileMoreMenu />
 
-          {/* Theme settings */}
-          <ThemeSettingsPanel />
-
-          {/* Language switcher */}
-          <LanguageSwitcher />
-
-          {/* Dark mode toggle */}
-          <DarkModeToggle />
+          {/* Desktop-only action buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <CheckInPanel />
+            <NotificationPanel />
+            <ThemeSettingsPanel />
+            <LanguageSwitcher />
+            <DarkModeToggle />
+          </div>
 
           {/* User avatar / Login */}
           <Tooltip>
@@ -108,17 +120,17 @@ export function TopBar() {
             <TooltipContent side="bottom">
               {isAuthenticated
                 ? (
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="font-bold text-xs">{user?.nickname ?? 'User'}</span>
-                      <button
-                        className="text-xs font-medium hover:underline"
-                        style={{ color: 'var(--primary)' }}
-                        onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
-                      >
-                        {t('auth.signOut')}
-                      </button>
-                    </div>
-                  )
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="font-bold text-xs">{user?.nickname ?? 'User'}</span>
+                    <button
+                      className="text-xs font-medium hover:underline"
+                      style={{ color: 'var(--primary)' }}
+                      onClick={(e) => { e.stopPropagation(); logout(); navigate('/login'); }}
+                    >
+                      {t('auth.signOut')}
+                    </button>
+                  </div>
+                )
                 : t('auth.signIn')}
             </TooltipContent>
           </Tooltip>

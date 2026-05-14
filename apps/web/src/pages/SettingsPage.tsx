@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
@@ -10,6 +10,8 @@ import {
   Save,
   Check,
   ChevronRight,
+  Camera,
+  Loader2,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -19,7 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarUpload } from '@/components/avatar/AvatarUpload';
 import {
   Select,
   SelectContent,
@@ -29,6 +32,7 @@ import {
 } from '@/components/ui/select';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { userApi } from '@linksee/api-client/user';
 import { ColorPicker } from '@/components/theme/ColorPicker';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 import { toast } from 'sonner';
@@ -51,9 +55,28 @@ export function SettingsPage() {
       <h1 className="text-xl font-bold">{t('settings.title')}</h1>
 
       <div className="flex flex-col md:flex-row gap-5">
-        {/* Tab Navigation */}
+        {/* Tab Navigation — horizontal scroll on mobile, vertical sidebar on desktop */}
         <nav className="md:w-48 shrink-0">
-          <Card>
+          {/* Mobile: horizontal pills */}
+          <div className="flex md:hidden gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors',
+                  activeTab === tab.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {/* Desktop: vertical card */}
+          <Card className="hidden md:block">
             <CardContent className="p-2">
               {tabs.map((tab) => (
                 <button
@@ -103,13 +126,61 @@ function AccountSettings() {
 
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [education, setEducation] = useState('');
+  const [personalWebsite, setPersonalWebsite] = useState('');
+  const [skillsTags, setSkillsTags] = useState('');
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
-  const handleSave = () => {
-    updateUser({ nickname });
-    setSaved(true);
-    toast.success(t('settings.profileUpdated'));
-    setTimeout(() => setSaved(false), 2000);
+  // Load profile data on mount
+  const loadedRef = useRef(false);
+  useEffect(() => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    (async () => {
+      try {
+        const res = await userApi.getProfile();
+        const body = res.data.data as { user?: Record<string, unknown>; profile?: Record<string, unknown> };
+        const userData = body?.user;
+        const profileData = body?.profile;
+        if (userData?.nickname) setNickname(String(userData.nickname));
+        if (profileData?.bio) setBio(String(profileData.bio));
+        if (profileData?.location) setLocation(String(profileData.location));
+        if (profileData?.occupation) setOccupation(String(profileData.occupation));
+        if (profileData?.education) setEducation(String(profileData.education));
+        if (profileData?.personalWebsite) setPersonalWebsite(String(profileData.personalWebsite));
+        if (Array.isArray(profileData?.skillsTags)) setSkillsTags((profileData.skillsTags as string[]).join(', '));
+      } catch { /* use defaults */ }
+    })();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload: Record<string, unknown> = {
+        nickname: nickname || undefined,
+        bio: bio || undefined,
+        location: location || undefined,
+        occupation: occupation || undefined,
+        education: education || undefined,
+        personalWebsite: personalWebsite || undefined,
+        skillsTags: skillsTags
+          ? skillsTags.split(',').map((s) => s.trim()).filter(Boolean)
+          : undefined,
+      };
+      await userApi.updateProfile(payload);
+      updateUser({ nickname });
+      setSaved(true);
+      toast.success(t('settings.profileUpdated'));
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      toast.error(t('settings.profileUpdateFailed'));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -121,15 +192,33 @@ function AccountSettings() {
         <CardContent className="flex flex-col gap-5">
           {/* Avatar */}
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-                {(user?.nickname ?? 'U').slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
+            <button
+              type="button"
+              className="group relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              onClick={() => setAvatarOpen(true)}
+              title={t('settings.changeAvatar')}
+            >
+              <Avatar className="h-16 w-16">
+                {user?.avatarUrl ? (
+                  <AvatarImage src={user.avatarUrl} alt={user.nickname} />
+                ) : null}
+                <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
+                  {(user?.nickname ?? 'U').slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="h-5 w-5 text-white" />
+              </div>
+            </button>
             <div className="flex flex-col gap-1">
               <span className="text-sm font-medium">{user?.nickname ?? 'User'}</span>
-              <span className="text-xs text-muted-foreground">@{user?.nickname ?? 'user'}</span>
-              <Button variant="outline" size="sm" className="w-fit mt-1">
+              <span className="text-xs text-muted-foreground">@{user?.username ?? 'user'}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit mt-1"
+                onClick={() => setAvatarOpen(true)}
+              >
                 {t('settings.changeAvatar')}
               </Button>
             </div>
@@ -177,10 +266,76 @@ function AccountSettings() {
             />
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                {t('profile.location')}
+              </label>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder={t('profile.location')}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                {t('profile.occupation')}
+              </label>
+              <Input
+                value={occupation}
+                onChange={(e) => setOccupation(e.target.value)}
+                placeholder={t('profile.occupation')}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                {t('profile.education')}
+              </label>
+              <Input
+                value={education}
+                onChange={(e) => setEducation(e.target.value)}
+                placeholder={t('profile.education')}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                {t('profile.personalWebsite')}
+              </label>
+              <Input
+                value={personalWebsite}
+                onChange={(e) => setPersonalWebsite(e.target.value)}
+                placeholder="https://"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-muted-foreground">
+              {t('profile.skills')}
+            </label>
+            <Input
+              value={skillsTags}
+              onChange={(e) => setSkillsTags(e.target.value)}
+              placeholder="React, TypeScript, Node.js"
+            />
+            <span className="text-[10px] text-muted-foreground">
+              {t('settings.skillsHint')}
+            </span>
+          </div>
+
           <div className="flex items-center gap-2">
-            <Button size="sm" onClick={handleSave}>
-              {saved ? <Check className="h-3.5 w-3.5 mr-1" /> : <Save className="h-3.5 w-3.5 mr-1" />}
-              {t('settings.updateProfile')}
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              {saving ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+              ) : saved ? (
+                <Check className="h-3.5 w-3.5 mr-1" />
+              ) : (
+                <Save className="h-3.5 w-3.5 mr-1" />
+              )}
+              {saving ? t('settings.saving') : t('settings.updateProfile')}
             </Button>
           </div>
         </CardContent>
@@ -215,6 +370,8 @@ function AccountSettings() {
           <Button size="sm">{t('auth.signInToAccount')}</Button>
         </CardContent>
       </Card>
+
+      <AvatarUpload open={avatarOpen} onOpenChange={setAvatarOpen} />
     </div>
   );
 }
