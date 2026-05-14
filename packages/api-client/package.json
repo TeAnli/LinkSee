@@ -13,7 +13,9 @@
     "./forum": "./src/forum.ts",
     "./ai": "./src/ai.ts",
     "./user": "./src/user.ts",
-    "./message": "./src/message.ts"
+    "./message": "./src/message.ts",
+    "./notification": "./src/notification.ts",
+    "./admin": "./src/admin.ts"
   },
   "scripts": {
     "lint": "eslint .",

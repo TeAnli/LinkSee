@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PagePlaceholder } from '@/components/layout/PagePlaceholder';
 import { PageLoadingSkeleton } from '@/components/skeletons';
-import { mockPosts, formatRelativeTime, formatCount } from '@/mock/data';
+import { PostListItem } from '@linksee/shared';
+import { forumApi } from '@linksee/api-client/forum';
+import { formatRelativeTime, formatCount } from '@/lib/format';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -19,7 +21,7 @@ const fadeUp = {
   }),
 };
 
-function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number }) {
+function PostCard({ post, index }: { post: PostListItem; index: number }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -113,17 +115,28 @@ function PostCard({ post, index }: { post: (typeof mockPosts)[0]; index: number 
 export function HomePage() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<PostListItem[]>([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.listPosts({ page: 1, size: 10 });
+        if (!cancelled) {
+          const data = res.data.data;
+          setPosts(Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : []));
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setPosts([]);
+          setLoading(false);
+        }
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
   }, []);
-
-  const sortedPosts = [...mockPosts].sort((a, b) => {
-    if (a.isTop && !b.isTop) return -1;
-    if (!a.isTop && b.isTop) return 1;
-    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-  });
 
   if (loading) {
     return <PageLoadingSkeleton />;
@@ -132,11 +145,18 @@ export function HomePage() {
   return (
     <div className="flex flex-col gap-4">
       <PagePlaceholder label={t('nav.home')} icon="mdi:view-grid-outline" />
-      <div className="flex flex-col gap-3">
-        {sortedPosts.map((post, index) => (
-          <PostCard key={post.id} post={post} index={index} />
-        ))}
-      </div>
+      {posts.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          {posts.map((post, index) => (
+            <PostCard key={post.id} post={post} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Icon icon="mdi:file-document-outline" width={48} className="text-muted-foreground/40 mb-3" />
+          <p className="text-sm text-muted-foreground">{t('forum.noResults')}</p>
+        </div>
+      )}
     </div>
   );
 }

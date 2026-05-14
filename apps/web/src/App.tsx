@@ -1,46 +1,82 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Icon } from '@iconify/react';
 import { AppLayout } from './components/layout/AppLayout';
-import { HomePage } from './pages/HomePage';
-import { ForumPage } from './pages/ForumPage';
-import { AiChatPage } from './pages/AiChatPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { SettingsPage } from './pages/SettingsPage';
-import { PostDetailPage } from './pages/PostDetailPage';
-import { CreatePostPage } from './pages/CreatePostPage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
-import { ResetPasswordPage } from './pages/ResetPasswordPage';
-import { NotFoundPage } from './pages/NotFoundPage';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { AdminGuard } from './components/admin/AdminGuard';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Toaster } from './components/ui/sonner';
+
+const LazyHomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+const LazyForumPage = lazy(() => import('./pages/ForumPage').then(m => ({ default: m.ForumPage })));
+const LazyAiChatPage = lazy(() => import('./pages/AiChatPage').then(m => ({ default: m.AiChatPage })));
+const LazyProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const LazySettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const LazyPostDetailPage = lazy(() => import('./pages/PostDetailPage').then(m => ({ default: m.PostDetailPage })));
+const LazyCreatePostPage = lazy(() => import('./pages/CreatePostPage').then(m => ({ default: m.CreatePostPage })));
+const LazyLoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const LazyRegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const LazyForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const LazyResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const LazyNotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const LazyAdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const LazyAdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+const LazyAdminPostsPage = lazy(() => import('./pages/admin/AdminPostsPage').then(m => ({ default: m.AdminPostsPage })));
+const LazyAdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage').then(m => ({ default: m.AdminCategoriesPage })));
+const LazyAdminAiPage = lazy(() => import('./pages/admin/AdminAiPage').then(m => ({ default: m.AdminAiPage })));
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-3">
+        <Icon icon="mdi:loading" width={32} className="animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <Routes>
-          {/* Auth pages — no sidebar/topbar */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Routes>
+            <Route path="/login" element={<LazyLoginPage />} />
+            <Route path="/register" element={<LazyRegisterPage />} />
+            <Route path="/forgot-password" element={<LazyForgotPasswordPage />} />
+            <Route path="/reset-password" element={<LazyResetPasswordPage />} />
 
-          {/* Main app — with sidebar/topbar */}
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/forum" element={<ForumPage />} />
-            <Route path="/post/:id" element={<PostDetailPage />} />
-            <Route path="/create" element={<CreatePostPage />} />
-            <Route path="/ai" element={<AiChatPage />} />
-            <Route path="/messages" element={<ForumPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<LazyHomePage />} />
+              <Route path="/forum" element={<LazyForumPage />} />
+              <Route path="/post/:id" element={<LazyPostDetailPage />} />
+              <Route path="/create" element={<LazyCreatePostPage />} />
+              <Route path="/ai" element={<LazyAiChatPage />} />
+              <Route path="/messages" element={<LazyForumPage />} />
+              <Route path="/profile" element={<LazyProfilePage />} />
+              <Route path="/settings" element={<LazySettingsPage />} />
+            </Route>
 
-          {/* 404 catch-all */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            <Route
+              path="/admin"
+              element={
+                <AdminGuard>
+                  <AdminLayout />
+                </AdminGuard>
+              }
+            >
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<LazyAdminDashboardPage />} />
+              <Route path="users" element={<LazyAdminUsersPage />} />
+              <Route path="posts" element={<LazyAdminPostsPage />} />
+              <Route path="categories" element={<LazyAdminCategoriesPage />} />
+              <Route path="ai" element={<LazyAdminAiPage />} />
+            </Route>
+
+            <Route path="*" element={<LazyNotFoundPage />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
       <Toaster position="bottom-right" richColors closeButton />
     </ErrorBoundary>

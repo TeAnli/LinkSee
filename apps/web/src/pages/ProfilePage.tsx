@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ProfileSkeleton } from '@/components/skeletons';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { userApi } from '@linksee/api-client/user';
-import { mockPosts, formatCount, formatRelativeTime } from '@/mock/data';
+import { formatCount, formatRelativeTime } from '@/lib/format';
 import { USER_LEVEL_NAMES, USER_LEVEL_ICONS, USER_LEVEL_EXP } from '@linksee/shared';
 import { UserLevel } from '@linksee/shared';
 import type { UserProfileResponse, PostListItem } from '@linksee/shared';
@@ -173,48 +173,9 @@ export function ProfilePage() {
           setUserPosts(Array.isArray(postsData) ? postsData : (postsData as { list: PostListItem[] }).list ?? []);
         }
       } catch {
-        // Fall back to mock data if API fails
         if (!cancelled) {
-          const { getUserProfile } = await import('@/mock/data');
-          const mockProfile = getUserProfile(user!.id);
-          if (mockProfile) {
-            setProfileData({
-              user: {
-                id: mockProfile.id,
-                username: mockProfile.username,
-                nickname: mockProfile.nickname,
-                avatarUrl: mockProfile.avatarUrl,
-                email: mockProfile.email,
-                level: mockProfile.level,
-                experience: mockProfile.experience,
-                status: mockProfile.status,
-              },
-              profile: {
-                bio: mockProfile.bio,
-                location: mockProfile.location,
-                personalWebsite: mockProfile.personalWebsite ?? '',
-                socialLinks: mockProfile.socialLinks ?? {},
-                skillsTags: mockProfile.skillsTags,
-                education: mockProfile.education ?? '',
-                occupation: mockProfile.occupation,
-                isVerified: mockProfile.isVerified,
-                followerCount: mockProfile.followerCount,
-                followingCount: mockProfile.followingCount,
-              },
-              levelInfo: {
-                currentLv: mockProfile.level,
-                currentLvName: USER_LEVEL_NAMES[mockProfile.level as UserLevel] ?? '',
-                currentLvExp: USER_LEVEL_EXP[mockProfile.level as UserLevel] ?? 0,
-                nextLvExp: (USER_LEVEL_EXP[(mockProfile.level + 1) as UserLevel]) ?? 0,
-                progress: 0,
-                nextLvName: USER_LEVEL_NAMES[(mockProfile.level + 1) as UserLevel] ?? '',
-                todayAiCallsRemaining: 10,
-                todayAiCallsTotal: 10,
-              },
-            });
-          }
-          const posts = mockPosts.filter((p) => p.author.id === user!.id);
-          setUserPosts(posts);
+          setProfileData(null);
+          setUserPosts([]);
         }
       }
     }
@@ -418,7 +379,7 @@ export function ProfilePage() {
 
               {/* AI calls remaining */}
 
-              
+
               {levelInfo && (
                 <div className="flex items-center gap-1.5 mt-2 text-[10px] font-semibold text-muted-foreground">
                   <Icon icon="mdi:robot-outline" width={13} height={13} />

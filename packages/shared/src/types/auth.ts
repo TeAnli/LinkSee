@@ -9,6 +9,7 @@ export interface UserInfo {
   level: number;
   experience: number;
   status: number;
+  roles?: string[];
   createdAt?: string;
 }
 
@@ -43,4 +44,36 @@ export interface ResetPasswordRequest {
   code: string;
   newPassword: string;
   confirmPassword: string;
+}
+
+// === OAuth Types ===
+
+export type OAuthProvider = 'github' | 'google' | 'qq' | 'discord';
+
+export interface OAuthLoginRequest {
+  provider: OAuthProvider;
+  code: string;
+  state: string;
+}
+
+export interface OAuthProviderInfo {
+  provider: OAuthProvider;
+  name: string;
+  icon: string;
+  color: string;
+  enabled: boolean;
+}
+
+export interface OAuthBindItem {
+  provider: OAuthProvider;
+  name: string;
+  icon: string;
+  bound: boolean;
+  bindAt?: string;
+}
+
+export interface OAuthStateItem {
+  state: string;
+  provider: OAuthProvider;
+  createdAt: number;
 }

@@ -62,3 +62,6 @@ export default apiClient;
 // 导出的API接口
 export { authApi };
 export { forumApi } from "./forum";
+export { adminApi } from "./admin";
+export { notificationApi } from "./notification";
+export { userApi } from "./user";

@@ -4,12 +4,13 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-interface PaginationProps extends React.HTMLAttributes<HTMLElement> {
+interface PaginationProps {
   page: number
   total: number
   pageSize?: number
   onChange: (page: number) => void
   siblingCount?: number
+  className?: string
 }
 
 function generateRange(start: number, end: number): number[] {
