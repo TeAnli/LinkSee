@@ -1,5 +1,7 @@
 import { StrictMode } from 'react';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { SWRConfig } from 'swr';
+import { swrConfig } from '@/lib/fetcher';
 
 type ProvidersProps = { children: React.ReactNode };
 
@@ -7,7 +9,9 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <StrictMode>
       <ThemeProvider>
-        {children}
+        <SWRConfig value={swrConfig}>
+          {children}
+        </SWRConfig>
       </ThemeProvider>
     </StrictMode>
   );
