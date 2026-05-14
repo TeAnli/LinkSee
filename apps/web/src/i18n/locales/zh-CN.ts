@@ -413,5 +413,20 @@ export default {
     dayReward: '每日 +5 积分',
     streakTip: '连续签到 7 天额外 +10 积分',
   },
+
+  // ===== Admin =====
+  admin: {
+    nav: {
+      dashboard: '仪表盘',
+      users: '用户管理',
+      posts: '内容审核',
+      categories: '板块管理',
+      ai: 'AI 用量',
+    },
+    common: {
+      panel: '管理面板',
+      backToFront: '返回前台',
+    },
+  },
 } as const;
 

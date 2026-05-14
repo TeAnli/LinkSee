@@ -417,6 +417,20 @@ const en: DeepString<typeof zhCN> = {
     dayReward: '+5 pts daily',
     streakTip: '7-day streak bonus +10 pts',
   },
+
+  admin: {
+    nav: {
+      dashboard: 'Dashboard',
+      users: 'User Management',
+      posts: 'Post Moderation',
+      categories: 'Category Management',
+      ai: 'AI Usage',
+    },
+    common: {
+      panel: 'Admin Panel',
+      backToFront: 'Back to Front',
+    },
+  },
 };
 
 export default en;
