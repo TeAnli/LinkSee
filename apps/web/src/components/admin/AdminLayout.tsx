@@ -1,16 +1,17 @@
-import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AdminSidebar, ADMIN_SIDEBAR_WIDTH, ADMIN_SIDEBAR_COLLAPSED_WIDTH, ADMIN_TOPBAR_HEIGHT } from './AdminSidebar';
 import { AdminTopBar } from './AdminTopBar';
+import { useAdminStore } from '@/stores/useAdminStore';
 
 export function AdminLayout() {
-  const [collapsed, setCollapsed] = useState(false);
-  const sidebarWidth = collapsed ? ADMIN_SIDEBAR_COLLAPSED_WIDTH : ADMIN_SIDEBAR_WIDTH;
+  const sidebarCollapsed = useAdminStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useAdminStore((s) => s.toggleSidebar);
+  const sidebarWidth = sidebarCollapsed ? ADMIN_SIDEBAR_COLLAPSED_WIDTH : ADMIN_SIDEBAR_WIDTH;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
-      <AdminSidebar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
-      <AdminTopBar sidebarCollapsed={collapsed} />
+      <AdminSidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+      <AdminTopBar sidebarCollapsed={sidebarCollapsed} />
 
       <main
         className="min-h-screen pb-8 px-6"
