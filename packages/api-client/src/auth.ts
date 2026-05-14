@@ -5,6 +5,10 @@ import type {
     RegisterRequest,
     ResetPasswordRequest,
     SendEmailCodeRequest,
+    OAuthLoginRequest,
+    OAuthProvider,
+    OAuthProviderInfo,
+    OAuthBindItem,
 } from "@linksee/shared";
 
 import apiClient from ".";
@@ -36,4 +40,27 @@ export const authApi = {
 
     resetPassword: (data: ResetPasswordRequest) =>
         apiClient.post<ApiResponse<null>>("/auth/reset-password", data),
+
+    // === OAuth API ===
+    getOAuthProviders: () =>
+        apiClient.get<ApiResponse<OAuthProviderInfo[]>>("/auth/oauth/providers"),
+
+    getOAuthAuthorizeUrl: (provider: OAuthProvider, redirectUri?: string) =>
+        apiClient.get<ApiResponse<{ authorizeUrl: string; state: string }>>(
+            `/auth/oauth/authorize/${provider}`,
+            redirectUri ? { params: { redirectUri } } : undefined
+        ),
+
+    oauthLogin: (data: OAuthLoginRequest) =>
+        apiClient.post<ApiResponse<LoginResponse>>("/auth/oauth/login", data),
+
+    // === OAuth Bind API ===
+    getOAuthBindStatus: () =>
+        apiClient.get<ApiResponse<OAuthBindItem[]>>("/auth/oauth/bind-status"),
+
+    oauthBind: (provider: OAuthProvider, code: string, state: string) =>
+        apiClient.post<ApiResponse<null>>("/auth/oauth/bind", { provider, code, state }),
+
+    oauthUnbind: (provider: OAuthProvider) =>
+        apiClient.post<ApiResponse<null>>(`/auth/oauth/unbind/${provider}`),
 };
