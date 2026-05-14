@@ -11,3 +11,5 @@ uploads/
 .ruff_cache/
 .mypy_cache/
 uv.lock
+
+keys/
