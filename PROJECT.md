@@ -120,6 +120,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | 向量数据库 | **Milvus** | 向量语义检索、个性化推荐 | 关键词+语义双引擎 |
 | 消息队列 | **RabbitMQ** | 异步削峰、事件驱动解耦 | 不阻塞主流程、高并发平稳 |
 | AI大模型 | **智谱GLM-4 + 通义千问 + Kimi（月之暗面）** | AI创作、问答、审核、摘要 | 国产模型合规性好、响应快、成本可控 |
+| 实时通信 | **Socket.IO Client + Kotlin/Netty WebSocket** | 聊天室群聊、用户私聊、在线状态 | 全双工低延迟、自动重连、单机十万级并发、心跳保活 |
 | 前端技术栈 | **React 19 + TypeScript + Vite 6 + Tailwind CSS 4** | 前端应用开发 | 现代化生态、类型安全、极致开发体验、响应式设计 |
 
 ### 2.2 微服务整体架构
@@ -148,19 +149,15 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 │  auth-service │          │  user-service │          │ forum-service │
 │  认证权限服务 │          │  用户信息服务  │          │  论坛核心服务  │
 └───────────────┘          └───────────────┘          └───────────────┘
+        │                           │                           │
+        └───────────────────────────┼───────────────────────────┘
                                     │
-                                    ▼
-                        ┌───────────────────────┐
-                        │      ai-service        │
-                        │   AI智能赋能服务        │
-                        │  (创作+问答+审核)      │
-                        └───────────────────────┘
-                                    │
-                                    ▼
-                        ┌───────────────────────┐
-                        │    message-service     │
-                        │     消息通知服务        │
-                        └───────────────────────┘
+        ┌───────────────────────────┼───────────────────────────┐
+        ▼                           ▼                           ▼
+┌───────────────┐          ┌───────────────────────┐          ┌───────────────┐
+│   ai-service  │          │  ws-server (Netty)     │          │message-service│
+│ AI智能赋能服务│          │ Socket.IO + WebSocket实时聊天 │          │  消息通知服务  │
+└───────────────┘          └───────────────────────┘          └───────────────┘
                                     │
         ┌───────────┬───────────────┼───────────────┬───────────────┐
         ▼           ▼               ▼               ▼               ▼
@@ -185,6 +182,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | **论坛核心业务微服务** | `forum-service` | 帖子发布编辑、评论互动、分类标签管理、点赞收藏、板块管理 | PostgreSQL、Redis、RabbitMQ、Elasticsearch | ❌ 内部调用 |
 | **AI智能赋能微服务** | `ai-service` | AI创作辅助(8大功能)、AI内容审核、AI摘要生成、AI语义检索(RAG)、AI个性化推荐、多模型调度 | Elasticsearch、Milvus、RabbitMQ、大模型API | ❌ 内部调用 |
 | **消息通知微服务** | `message-service` | 站内信、点赞评论提醒、系统通知、AI推送消息统一下发、邮件/短信预留 | PostgreSQL、Redis、RabbitMQ | ❌ 内部调用 |
+| **实时聊天微服务** | `ws-server` | WebSocket 实时通信、聊天室群聊广播、用户私聊转发、在线状态追踪、心跳保活 | PostgreSQL、Redis | ❌ 内部调用 |
 
 ### 2.4 数据存储分层分工
 
@@ -206,6 +204,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | **构建工具** | Vite 6 + Tailwind CSS 4 | 极速热更新，零运行时 CSS，支持现代浏览器特性 |
 | **状态管理** | Zustand 5 | 轻量级、无模板代码的状态管理，支持持久化（Persist） |
 | **数据请求** | TanStack Query v5 + Axios | 强大的缓存机制、自动重试、SWR（Stale-While-Revalidate） |
+| **实时通信** | Socket.IO client + 自定义 Hook (`useSocketIO`) | 聊天室群聊、用户私聊、在线状态、自动重连 |
 | **组件库** | shadcn/ui + Radix UI | 基于可访问性标准（A11y）的无样式组件，高度可定制 |
 | **路由管理** | React Router 7 | 统一的路由定义，支持嵌套路由与 Layout 布局隔离 |
 | **表单校验** | React Hook Form + Zod | 强类型的表单定义与实时校验 |
@@ -696,6 +695,9 @@ LinkSee 社区
 │   └── /user/settings          # 账号安全设置
 ├── /u/:userId                  # 其他用户的主页(公开查看)
 ├── /message                    # 消息通知中心
+├── /chat                       # 实时聊天总入口
+│   ├── /chat/room/:roomId      # 聊天室群聊窗口
+│   └── /chat/dm/:userId        # 用户私聊窗口
 ├── /admin                      # 后台管理面板(需管理员权限)
 └── /auth                       # 认证相关
     ├── /auth/login             # 登录页
@@ -728,6 +730,13 @@ LinkSee 社区
 - **右侧辅助区**：热门问题列表、历史会话记录
 - **输入区**：文本框 + 附件按钮 + 语音输入预留 + 发送按钮
 
+#### 实时聊天页 (`/chat`)
+- **左侧列表**（w-80）：聊天室列表（管理员预设）+ 私聊联系人列表（最近对话排序）+ 搜索过滤
+- **右侧对话区**：顶部房间名/对方昵称 + 在线状态指示 + 消息列表（虚拟滚动，向上加载历史）+ 底部输入框（支持 Enter 发送、Shift+Enter 换行）
+- **消息气泡**：显示头像、昵称、时间戳，自己的消息靠右蓝色，他人消息靠左灰色
+- **实时特性**：Socket.IO 长连接、心跳保活、自动重连、离线消息队列、打字状态提示、新消息未读角标
+- **通信架构**：实时消息走 ws-server (Kotlin/Netty WebSocket)，历史消息走 FastAPI REST 接口
+
 ---
 
 ## 九、数据模型设计
@@ -758,6 +767,8 @@ LinkSee 社区
 | `ai_moderation_log` | AI审核日志 | 内容ID、审核结果、违规类型、置信度、处理动作 | ai-service | 否 |
 | `message_notice` | 消息通知表 | 类型(互动/系统/AI)、标题、内容、收件人ID、是否已读 | message-service | 否 |
 | `user_level_log` | 用户等级变动日志 | 用户ID、旧等级、新等级、变动原因 | user-service | 否 |
+| `chat_room` | 聊天室表 | 房间名称、图标、描述、排序权重、在线人数、状态 | ws-server | 否 |
+| `chat_message` | 聊天消息表 | room_id、sender_id、receiver_id、content、msg_type | ws-server | 否 |
 
 ### 9.3 扩展数据表设计详情
 
@@ -919,6 +930,41 @@ CREATE INDEX idx_ai_task_type ON ai_task_record(task_type, created_at DESC);
 CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 ```
 
+#### chat_room (聊天室表)
+```sql
+CREATE TABLE chat_room (
+    id              BIGSERIAL PRIMARY KEY,
+    name            VARCHAR(50)  NOT NULL,
+    icon            VARCHAR(50)  DEFAULT 'messages-square',
+    description     TEXT         DEFAULT '',
+    member_count    INT          NOT NULL DEFAULT 0,
+    sort_order      INT          NOT NULL DEFAULT 0,
+    status          SMALLINT     NOT NULL DEFAULT 1,      -- 1启用 0禁用
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+```
+- 聊天室由管理员在后台预设，普通用户只读列表
+- `member_count` 为在线人数缓存冗余，由 ws-server 定时同步
+
+#### chat_message (聊天消息表)
+```sql
+CREATE TABLE chat_message (
+    id              BIGSERIAL PRIMARY KEY,
+    room_id         BIGINT       DEFAULT NULL,            -- NULL=私聊, 非NULL=群聊
+    sender_id       BIGINT       NOT NULL,
+    receiver_id     BIGINT       DEFAULT NULL,            -- 私聊接收者(NULL=群聊)
+    content         TEXT         NOT NULL,
+    msg_type        SMALLINT     NOT NULL DEFAULT 1,      -- 1文本 2图片 3系统消息
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_chat_msg_room ON chat_message(room_id, created_at);
+CREATE INDEX idx_chat_msg_dm ON chat_message(sender_id, receiver_id, created_at);
+```
+- `room_id IS NULL` 区分私聊消息，通过 `sender_id + receiver_id` 组合查询
+- 历史消息采用游标分页：`WHERE created_at < :before ORDER BY created_at DESC LIMIT 50`
+
 ---
 
 ## 十、中间件设计规范
@@ -950,6 +996,9 @@ CREATE INDEX idx_ai_task_status ON ai_task_record(status, created_at DESC);
 | AI每日调用次数 | `forum:ai:daily:{userId}:{date}` | 当日已调用AI次数 | 到次日自然过期 | 每次调用INCR |
 | IP限流计数 | `forum:limit:{type}:{ip}` | 请求次数计数 | 1min/1h | 每次请求INCR |
 | 热搜关键词 | `forum:search:hot` | Top-20热搜关键词+热度 | 1h | 搜索时异步更新ZSET |
+| 聊天室在线用户 | `chat:room:online:{roomId}` | 当前在线用户ID集合(Set) | 实时 | 加入/离开房间时 SADD/SREM |
+| 用户在线状态 | `chat:user:online:{userId}` | 在线状态 + 连接的 ws-server 实例 | 实时 | 连接/断开时 SET/DEL |
+| 私聊联系人缓存 | `chat:dm:contacts:{userId}` | 最近私聊联系人列表(ZSET) | 24h | 发送/接收私聊时 ZADD |
 
 **缓存更新策略**：
 - **Cache-Aside（旁路缓存）**：读时先查缓存，未命中查DB再回写缓存
@@ -1302,6 +1351,75 @@ GET    /api/message/unread-count           # 各类型未读数量
        Resp: { total, interaction, system, ai }
 ```
 
+### 11.6 实时聊天接口 (`/api/chat/**`)
+
+```
+# === 聊天室 ===
+GET    /api/chat/rooms                 # 可用聊天室列表
+       Auth: ✅
+       Resp: [{ id, name, icon, description, memberCount }]
+
+GET    /api/chat/rooms/:id/messages    # 群聊历史消息（游标分页）
+       Auth: ✅
+       Query: ?before=&limit=50
+       Resp: { messages: [{ id, senderId, senderName, senderAvatar, content, msgType, createdAt }], hasMore }
+
+# === 私聊 ===
+GET    /api/chat/dm/contacts            # 最近私聊联系人
+       Auth: ✅
+       Resp: [{ userId, nickname, avatarUrl, lastMessage, lastTime, unreadCount }]
+
+GET    /api/chat/dm/:userId/messages    # 私聊历史消息
+       Auth: ✅
+       Query: ?before=&limit=50
+       Resp: { messages: [...], hasMore }
+
+# === 内部接口 (ws-server 回调) ===
+POST   /api/chat/messages               # 写入消息（内部接口，共享密钥认证）
+       Body: { roomId?, senderId, receiverId?, content, msgType }
+       Resp: { messageId }
+```
+
+#### 实时通信协议
+
+连接方式：前端 `socket.io-client`，仅启用 WebSocket 传输。
+
+```ts
+import { io, Socket } from "socket.io-client";
+
+const socket: Socket = io("ws://localhost:9000", {
+  transports: ["websocket"],   // 仅 WebSocket，关闭 HTTP 长轮询
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
+```
+
+连接地址：`ws://localhost:9000/ws`
+
+**客户端 → 服务端事件**：
+
+| 事件 | payload | 说明 |
+|------|---------|------|
+| `auth` | `{ token }` | JWT 认证 |
+| `join_room` | `{ roomId }` | 加入聊天室 |
+| `leave_room` | `{ roomId }` | 离开聊天室 |
+| `room_msg` | `{ roomId, content }` | 发送群聊消息 |
+| `dm_msg` | `{ toUserId, content }` | 发送私聊消息 |
+| `typing` | `{ roomId?, toUserId? }` | 输入状态 |
+| `ping` | `{}` | 心跳探测 |
+
+**服务端 → 客户端事件**：
+
+| 事件 | payload | 说明 |
+|------|---------|------|
+| `auth_ok` | `{ userId }` | 认证成功 |
+| `room_msg` | `{ msgId, roomId, senderId, senderName, senderAvatar, content, time }` | 群聊消息 |
+| `dm_msg` | `{ msgId, senderId, senderName, senderAvatar, content, time }` | 私聊消息 |
+| `user_online` | `{ userId, online }` | 用户上下线 |
+| `typing` | `{ roomId?, fromUserId, fromUserName }` | 输入状态 |
+| `error` | `{ message }` | 错误提示 |
+
 ---
 
 ## 十二、后端工程目录结构
@@ -1320,6 +1438,18 @@ linksee-parent/                          # 父POM工程(统一依赖版本管理
 │
 ├── linksee-common/                      # 公共模块(共享工具类/常量/枚举/异常)
 ├── linksee-feign-clients/               # Feign远程调用客户端定义
+│
+├── ws-server/                           # WebSocket 实时聊天服务 (Kotlin + Spring Boot WebFlux + Netty)
+│   ├── src/main/kotlin/com/linksee/ws/
+│   │   ├── WsServerApplication.kt       # Spring Boot 入口
+│   │   ├── config/WebSocketConfig.kt    # WebSocket 路由配置
+│   │   ├── handler/
+│   │   │   └── WebSocketHandler.kt      # 消息处理 + 心跳
+│   │   └── service/
+│   │       └── RoomService.kt           # 房间/客户端/在线管理
+│   └── src/main/resources/application.yml
+│
+├── backend-fastapi/                     # Python FastAPI 辅助后端
 │
 └── docs/                                # 项目文档
     ├── sql/                             # 数据库脚本
@@ -1448,6 +1578,7 @@ linksee-xxx-service/
 | 2.5 | 互动功能 | 点赞/取消点赞、收藏/取消收藏、计数器实时更新(Redis原子操作) | 互动功能即时反馈 |
 | 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab切换、帖子卡片列表、虚拟滚动 | 首页可流畅滚动浏览 |
 | 2.7 | 基础搜索 | ES索引同步(MQ异步)、关键词全文检索、搜索结果高亮 | 输入关键词可搜到帖子 |
+| 2.8 | 实时聊天 | ws-server (Kotlin/Netty WebSocket) 服务搭建、聊天室群聊、用户私聊、消息落库、在线状态、前端 Socket.IO ChatPage 页面 | 用户可实时群聊和私聊 |
 
 **本周产出**：一个功能完整的论坛系统（不含AI功能）
 
@@ -1513,7 +1644,7 @@ linksee-xxx-service/
 | 项目代号 | NulkFourm（内部Git仓库名） |
 | 包名前缀 | `com.linksee` |
 | 数据库Schema | `linksee` |
-| 缓存Key前缀 | `forum:` |
+| 缓存Key前缀 | `forum:` / `chat:` / `ai:` |
 | MQ Exchange前缀 | `forum.exchange.` / `ai.exchange.` |
 | Docker镜像前缀 | `linksee/` |
 
@@ -1549,6 +1680,10 @@ AI_MODEL_ZHIPU_API_SECRET=zhipu_secret_here
 AI_MODEL_QIWEN_API_KEY=qwen_api_key_here
 AI_MODEL_KIMI_API_KEY=kimi_api_key_here
 
+# WebSocket 实时聊天 (netty-socketio)
+WS_PORT=9000
+WS_HOST=0.0.0.0
+
 # JWT
 JWT_SECRET=your_jwt_secret_key_min_256bits
 JWT_EXPIRATION_MS=7200000          # 2小时
@@ -1565,7 +1700,8 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 | 搜索 | ES 8.x | Meilisearch / Sphinx | 中文分词生态成熟、分布式能力强、查询DSL强大 |
 | 向量库 | Milvus | Pinecone / Weaviate | 开源可自部署、性能优异、国内社区活跃 |
 | 消息队列 | RabbitMQ | Kafka / RocketMQ | 管理友好、协议灵活、适合中小规模场景 |
-| 前端 | Vue 3 + TS | React / Nuxt | 学习曲线平缓、国内生态丰富、适合快速迭代 |
+| 前端 | React 19 + TS | Vue 3 / Nuxt | Hooks 生态成熟、组件化灵活、Vercel 最佳实践支持 |
+| 实时通信 | Socket.IO Client + Kotlin/Netty WebSocket | 纯 WebSocket / ws 库 | Socket.IO 成熟生态、自动重连；Netty 异步非阻塞、单机十万级并发 |
 
 ### D. 参考资源与致谢
 
@@ -1582,7 +1718,7 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 
 ---
 
-> **文档版本**: v1.0
-> **最后更新**: 2026-05-04
+> **文档版本**: v1.1
+> **最后更新**: 2026-05-16
 > **维护者**: LinkSee Team
 > **状态**: ✅ 已批准，可作为开发实施依据
