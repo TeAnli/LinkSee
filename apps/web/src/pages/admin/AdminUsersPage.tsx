@@ -47,10 +47,12 @@ export function AdminUsersPage() {
       key: 'id',
       label: 'ID',
       className: 'w-16',
+      sortable: true,
     },
     {
       key: 'avatar',
       label: '头像',
+      className: 'w-16',
       render: (_: string, row: AdminUserItem) => (
         <Avatar className="h-8 w-8">
           <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
@@ -89,39 +91,43 @@ export function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <Icon icon="mdi:loading" width={32} className="animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <AdminDataTable
-          data={data}
-          columns={columns}
-          searchPlaceholder="搜索用户（昵称/邮箱）"
-          onSearch={(k) => { setKeyword(k); setPage(1); }}
-          onPageChange={setPage}
-          currentPage={page}
-          pageSize={PAGE_SIZE}
-          actions={(row) => (
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handleUpdateStatus(row.id, row.status === 1 ? 0 : 1)}
-                title={row.status === 1 ? '禁用' : '启用'}
-              >
-                <Icon
-                  icon={row.status === 1 ? 'mdi:block-helper' : 'mdi:check'}
-                  width={16}
-                  height={16}
-                  className={row.status === 1 ? 'text-orange-600' : 'text-green-600'}
-                />
-              </Button>
-            </div>
-          )}
-        />
-      )}
+      <div>
+        <h1 className="text-lg font-bold flex items-center gap-2">
+          <Icon icon="mdi:account-group" width={22} height={22} className="text-primary" />
+          用户管理
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">管理系统中的所有用户账号</p>
+      </div>
+
+      <AdminDataTable
+        data={data}
+        columns={columns}
+        searchPlaceholder="搜索用户（昵称/邮箱）"
+        onSearch={(k) => { setKeyword(k); setPage(1); }}
+        onPageChange={setPage}
+        currentPage={page}
+        pageSize={PAGE_SIZE}
+        loading={loading}
+        emptyMessage="未找到匹配的用户"
+        actions={(row) => (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => handleUpdateStatus(row.id, row.status === 1 ? 0 : 1)}
+              title={row.status === 1 ? '禁用' : '启用'}
+            >
+              <Icon
+                icon={row.status === 1 ? 'mdi:block-helper' : 'mdi:check'}
+                width={16}
+                height={16}
+                className={row.status === 1 ? 'text-orange-600' : 'text-green-600'}
+              />
+            </Button>
+          </div>
+        )}
+      />
     </div>
   );
 }

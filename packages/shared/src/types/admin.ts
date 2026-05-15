@@ -147,6 +147,11 @@ export interface AdminPostListParams {
   size?: number;
 }
 
+export interface AdminCategoryListParams {
+  page?: number;
+  size?: number;
+}
+
 export interface AiTaskLogParams {
   userId?: number;
   taskType?: string;

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authApi } from '@linksee/api-client';
 import type { LoginRequest } from '@linksee/shared';
@@ -26,6 +27,7 @@ export function LoginPage() {
 
   const [form, setForm] = useState<LoginRequest>({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -80,19 +82,18 @@ export function LoginPage() {
         >
           <div className="inline-flex items-center gap-2.5">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl border-[1.5px] shadow-flat"
+              className="flex h-10 w-10 items-center justify-center rounded-xl shadow-flat"
               style={{
                 backgroundColor: 'var(--primary)',
-                borderColor: 'var(--primary)',
               }}
             >
-              <Icon icon="mdi:forum" width={22} className="text-white" />
+              <Icon icon="mdi:forum" width={22} className="text-primary-foreground" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--fg)' }}>
+            <span className="text-xl font-extrabold tracking-tight text-foreground">
               LinkSee
             </span>
           </div>
-          <p className="mt-2 text-sm font-medium" style={{ color: 'var(--muted-fg)' }}>
+          <p className="mt-2 text-sm font-medium text-muted-foreground">
             {t('auth.signInToAccount')}
           </p>
         </motion.div>
@@ -105,18 +106,14 @@ export function LoginPage() {
           custom={1}
           onSubmit={handleSubmit}
         >
-          <Card className="!border-[1.5px]" style={{ borderColor: 'var(--border-color)' }}>
+          <Card>
             <CardContent className="flex flex-col gap-4 p-6">
               {/* Error banner */}
               {error && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium"
-                  style={{
-                    backgroundColor: 'var(--color-destructive, #FF6B6B)',
-                    color: '#fff',
-                  }}
+                  className="flex items-center gap-2 rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground"
                 >
                   <Icon icon="mdi:alert-circle-outline" width={16} />
                   {error}
@@ -125,19 +122,14 @@ export function LoginPage() {
 
               {/* Username */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="username"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
+                <label htmlFor="username" className="text-sm font-semibold">
                   {t('auth.username')}
                 </label>
                 <div className="relative">
                   <Icon
                     icon="mdi:account-outline"
                     width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   />
                   <Input
                     id="username"
@@ -152,19 +144,14 @@ export function LoginPage() {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--fg)' }}
-                >
+                <label htmlFor="password" className="text-sm font-semibold">
                   {t('auth.password')}
                 </label>
                 <div className="relative">
                   <Icon
                     icon="mdi:lock-outline"
                     width={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--muted-fg)' }}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   />
                   <Input
                     id="password"
@@ -178,29 +165,30 @@ export function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                    style={{ color: 'var(--muted-fg)' }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     tabIndex={-1}
                     aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                   >
-                    <Icon icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'} width={18} />
+                    <Icon
+                      icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'}
+                      width={18}
+                    />
                   </button>
                 </div>
               </div>
 
               {/* Remember me & forgot password row */}
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-1.5 cursor-pointer select-none" style={{ color: 'var(--muted-fg)' }}>
-                  <input
-                    type="checkbox"
-                    className="size-3.5 rounded accent-[var(--primary)]"
+                <label className="flex items-center gap-2 cursor-pointer select-none text-muted-foreground">
+                  <Checkbox
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(!!checked)}
                   />
                   {t('auth.rememberMe')}
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="font-semibold hover:underline"
-                  style={{ color: 'var(--primary)' }}
+                  className="font-semibold hover:underline text-primary"
                 >
                   {t('auth.forgotPassword')}
                 </Link>
@@ -231,15 +219,10 @@ export function LoginPage() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="mt-5 text-center text-sm font-medium"
-          style={{ color: 'var(--muted-fg)' }}
+          className="mt-5 text-center text-sm font-medium text-muted-foreground"
         >
           {t('auth.dontHaveAccount')}{' '}
-          <Link
-            to="/register"
-            className="font-bold hover:underline"
-            style={{ color: 'var(--primary)' }}
-          >
+          <Link to="/register" className="font-bold hover:underline text-primary">
             {t('auth.createOne')}
           </Link>
         </motion.p>
@@ -253,11 +236,11 @@ export function LoginPage() {
           className="mt-6"
         >
           <div className="relative flex items-center gap-3">
-            <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
-            <span className="text-xs font-semibold" style={{ color: 'var(--muted-fg)' }}>
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-semibold text-muted-foreground">
               {t('auth.orContinueWith')}
             </span>
-            <div className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} />
+            <div className="h-px flex-1 bg-border" />
           </div>
           <div className="mt-4 flex justify-center gap-3">
             {[

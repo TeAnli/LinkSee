@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import type { TrendItem } from '@linksee/shared';
 
 interface TrendChartProps {
@@ -9,42 +16,26 @@ interface TrendChartProps {
   height?: number;
 }
 
-export function TrendChart({ title, data, color = '#6366f1', height = 180 }: TrendChartProps) {
-  const chartData = useMemo(() => {
-    if (!data.length) return { points: [], max: 0 };
-    
-    const max = Math.max(...data.map((d) => d.count), 1);
-    const width = 100;
-    const padding = 20;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-    
-    const points = data.map((item, index) => ({
-      x: padding + (index / (data.length - 1)) * chartWidth,
-      y: padding + chartHeight - (item.count / max) * chartHeight,
-      value: item.count,
-      label: item.date,
-    }));
-    
-    return { points, max };
-  }, [data, height]);
+export function TrendChart({ title, data, color = '#6366f1', height = 200 }: TrendChartProps) {
+  const chartConfig: ChartConfig = useMemo(
+    () => ({
+      count: {
+        label: title,
+        color,
+      },
+    }),
+    [title, color],
+  );
 
-  const pathD = useMemo(() => {
-    if (chartData.points.length < 2) return '';
-    return chartData.points
-      .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
-      .join(' ');
-  }, [chartData.points]);
-
-  const areaD = useMemo(() => {
-    if (chartData.points.length < 2) return '';
-    const padding = 20;
-    const chartHeight = height - padding * 2;
-    const firstPoint = chartData.points[0]!;
-    const lastPoint = chartData.points[chartData.points.length - 1]!;
-    
-    return `${pathD} L ${lastPoint.x} ${padding + chartHeight} L ${firstPoint.x} ${padding + chartHeight} Z`;
-  }, [pathD, chartData.points, height]);
+  const chartData = useMemo(
+    () =>
+      data.map((item) => ({
+        date: item.date.slice(5),
+        fullDate: item.date,
+        count: item.count,
+      })),
+    [data],
+  );
 
   return (
     <Card>
@@ -52,71 +43,58 @@ export function TrendChart({ title, data, color = '#6366f1', height = 180 }: Tre
         <CardTitle className="text-sm font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <svg
-          viewBox={`0 0 100 ${height}`}
-          className="w-full"
-          style={{ height: `${height}px` }}
-          preserveAspectRatio="none"
-        >
-          {chartData.max > 0 && (
-            <>
+        {chartData.length > 0 ? (
+          <ChartContainer config={chartConfig} className="w-full" style={{ height }}>
+            <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
-                <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                <linearGradient id={`fill-${title}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={color} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              
-              <path
-                d={areaD}
-                fill="url(#chartGradient)"
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11 }}
+                tickMargin={4}
               />
-              
-              <path
-                d={pathD}
-                fill="none"
-                stroke={color}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11 }}
+                tickMargin={4}
+                allowDecimals={false}
+                width={32}
               />
-              
-              {chartData.points.map((point, i) => (
-                <g key={i}>
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r="2.5"
-                    fill="white"
-                    stroke={color}
-                    strokeWidth="2"
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelKey="fullDate"
+                    indicator="line"
                   />
-                  <text
-                    x={point.x}
-                    y={height - 6}
-                    textAnchor="middle"
-                    className="fill-muted-foreground"
-                    style={{ fontSize: '4px' }}
-                  >
-                    {point.label.slice(5)}
-                  </text>
-                </g>
-              ))}
-            </>
-          )}
-          
-          {chartData.points.length === 0 && (
-            <text
-              x="50"
-              y={height / 2}
-              textAnchor="middle"
-              className="fill-muted-foreground"
-              style={{ fontSize: '5px' }}
-            >
-              No data
-            </text>
-          )}
-        </svg>
+                }
+              />
+              <Area
+                dataKey="count"
+                type="monotone"
+                stroke={color}
+                strokeWidth={2}
+                fill={`url(#fill-${title})`}
+                dot={{ r: 3, fill: 'white', strokeWidth: 2 }}
+                activeDot={{ r: 4, strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ChartContainer>
+        ) : (
+          <div
+            className="flex items-center justify-center text-sm text-muted-foreground"
+            style={{ height }}
+          >
+            暂无数据
+          </div>
+        )}
       </CardContent>
     </Card>
   );

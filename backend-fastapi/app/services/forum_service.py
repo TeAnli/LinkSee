@@ -113,10 +113,12 @@ async def create_post(db: AsyncSession, user_id: int, req: PostCreateRequest) ->
 
 async def get_post_detail(db: AsyncSession, post_id: int, viewer_id: int | None = None) -> dict | None:
     post = await db.get(ForumPost, post_id)
-    if not post or post.deleted or post.status == 0:
+    if not post or post.deleted:
         raise AppException(ERR_POST_NOT_FOUND, "帖子不存在", 404)
 
     author = await db.get(SysUser, post.author_id)
+    if not author:
+        raise AppException(ERR_POST_NOT_FOUND, "帖子不存在", 404)
     profile = await db.execute(select(SysUserProfile).where(SysUserProfile.user_id == post.author_id))
     profile = profile.scalar()
 
@@ -229,7 +231,7 @@ async def list_posts(
 ) -> dict:
     conditions = [
         ForumPost.deleted == 0,
-        ForumPost.status == POST_STATUS_PUBLISHED,
+        ForumPost.status.in_([POST_STATUS_PUBLISHED, POST_STATUS_REVIEWING]),
     ]
     if category_id:
         conditions.append(ForumPost.category_id == category_id)

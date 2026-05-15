@@ -3,6 +3,7 @@ import type {
   DashboardData,
   AdminUserItem,
   AdminPostItem,
+  AdminCategoryItem,
   AiUsageStats,
   AiTaskLogItem,
   UserStatusRequest,
@@ -12,6 +13,7 @@ import type {
   CategoryManageRequest,
   AdminUserListParams,
   AdminPostListParams,
+  AdminCategoryListParams,
   AiTaskLogParams,
 } from "@linksee/shared";
 import type { ApiResponse, PaginatedResponse } from "@linksee/shared";
@@ -46,6 +48,12 @@ export const adminApi = {
 
   createCategory: (req: CategoryManageRequest) =>
     apiClient.post<ApiResponse<null>>("/admin/categories", req),
+
+  listCategories: (params?: AdminCategoryListParams) =>
+    apiClient.get<ApiResponse<PaginatedResponse<AdminCategoryItem>>>(
+      "/admin/categories",
+      { params },
+    ),
 
   updateCategory: (categoryId: number, req: CategoryManageRequest) =>
     apiClient.put<ApiResponse<null>>(`/admin/categories/${categoryId}`, req),

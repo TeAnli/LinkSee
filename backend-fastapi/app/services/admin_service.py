@@ -141,6 +141,34 @@ async def set_feature(db: AsyncSession, post_id: int, req: dict):
         await db.flush()
 
 
+async def list_categories_admin(db: AsyncSession, page: int = 1, size: int = 20) -> dict:
+    conditions = [ForumCategory.deleted == 0]
+    count_stmt = select(func.count(ForumCategory.id)).where(and_(*conditions))
+    total = (await db.execute(count_stmt)).scalar()
+
+    stmt = (
+        select(ForumCategory)
+        .where(and_(*conditions))
+        .order_by(ForumCategory.sort_order.asc(), ForumCategory.id.asc())
+        .offset((page - 1) * size)
+        .limit(size)
+    )
+    result = await db.execute(stmt)
+    cats = result.scalars().all()
+
+    items = []
+    for c in cats:
+        items.append({
+            "id": c.id, "name": c.name, "icon": c.icon,
+            "parentId": c.parent_id, "description": c.description or "",
+            "sortOrder": c.sort_order, "themeColor": c.theme_color,
+            "postTemplate": c.post_template, "aiPersona": c.ai_persona,
+            "status": c.status,
+        })
+
+    return {"total": total, "list": items}
+
+
 async def manage_category(db: AsyncSession, data: dict, category_id: int | None = None):
     if category_id:
         cat = await db.get(ForumCategory, category_id)

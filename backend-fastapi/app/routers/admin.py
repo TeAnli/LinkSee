@@ -98,6 +98,17 @@ async def set_feature(
     return ok(None, "特性设置已更新")
 
 
+@router.get("/categories")
+async def list_categories(
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    data = await admin_service.list_categories_admin(db, page, size)
+    return ok(data)
+
+
 @router.post("/categories")
 async def create_category(
     req: CategoryManageRequest,
