@@ -88,3 +88,4 @@ docker/data/
 *.tmp
 .cache/
 .temp/
+ws-test/
