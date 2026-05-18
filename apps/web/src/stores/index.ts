@@ -5,3 +5,4 @@ export * from './useUiStore';
 export * from './useAiChatStore';
 export * from './useAdminStore';
 export * from './useNotificationStore';
+export * from './useChatStore';
