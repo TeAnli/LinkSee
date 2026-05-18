@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,18 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PagePlaceholder } from '@/components/layout/PagePlaceholder';
 import { PageLoadingSkeleton } from '@/components/skeletons';
-import { PostListItem } from '@linksee/shared';
-import { forumApi } from '@linksee/api-client/forum';
+import type { PostListItem } from '@linksee/shared';
 import { formatRelativeTime, formatCount } from '@/lib/format';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-};
+import { fadeUp } from '@/lib/animation';
+import { useHomePosts } from '@/hooks/useHomePosts';
 
 function PostCard({ post, index }: { post: PostListItem; index: number }) {
   const { t } = useTranslation();
@@ -114,29 +105,7 @@ function PostCard({ post, index }: { post: PostListItem; index: number }) {
 
 export function HomePage() {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<PostListItem[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      try {
-        const res = await forumApi.listPosts({ page: 1, size: 10 });
-        if (!cancelled) {
-          const data = res.data.data;
-          setPosts(Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : []));
-          setLoading(false);
-        }
-      } catch {
-        if (!cancelled) {
-          setPosts([]);
-          setLoading(false);
-        }
-      }
-    };
-    fetchData();
-    return () => { cancelled = true; };
-  }, []);
+  const { posts, loading } = useHomePosts();
 
   if (loading) {
     return <PageLoadingSkeleton />;

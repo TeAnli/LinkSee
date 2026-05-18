@@ -40,19 +40,13 @@ import { cn } from '@/lib/utils';
 import type { Category } from '@linksee/shared';
 import { forumApi } from '@linksee/api-client/forum';
 import { toast } from 'sonner';
-import { useThemeStore } from '@/stores/useThemeStore';
+import { useUiStore } from '@/stores/useUiStore';
+import { sheetOverlay, sheetPanel } from '@/lib/animation';
 
 // === Constants ===
 
 const DRAFT_KEY = 'linksee-draft';
 const AUTO_SAVE_INTERVAL = 30_000;
-
-// === Animation ===
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const } },
-};
 
 const PROSE_CLASSES = 'prose prose-sm max-w-none prose-headings:font-extrabold prose-headings:text-foreground prose-p:text-foreground/85 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[var(--bg-secondary)] prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-table:text-sm prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-li:marker:text-primary not-prose:pre';
 
@@ -394,7 +388,7 @@ export function CreatePostPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
-  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
+  const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const flatCategories = useMemo(() => getFlatCategories(categories), [categories]);
@@ -528,14 +522,6 @@ export function CreatePostPage() {
   const lineCount = content.split(/\n+/).filter(Boolean).length;
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
   const readingTime = estimateReadingTime(content);
-
-  const sheetAnim = {
-    overlay: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
-    sheet: {
-      hidden: { y: '100%' },
-      visible: { y: 0, transition: { type: 'spring' as const, damping: 25, stiffness: 300 } },
-    },
-  };
 
   const settingsPanelProps = {
     categoryId, setCategoryId,
@@ -746,7 +732,7 @@ export function CreatePostPage() {
           {mobileSettingsOpen && (
             <>
               <motion.div
-                variants={sheetAnim.overlay}
+                variants={sheetOverlay}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -755,7 +741,7 @@ export function CreatePostPage() {
                 onClick={() => setMobileSettingsOpen(false)}
               />
               <motion.div
-                variants={sheetAnim.sheet}
+                variants={sheetPanel}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"

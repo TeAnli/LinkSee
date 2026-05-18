@@ -10,15 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authApi } from '@linksee/api-client';
 import type { LoginRequest } from '@linksee/shared';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-};
+import { fadeUpSlow as fadeUp } from '@/lib/animation';
 
 export function LoginPage() {
   const { t } = useTranslation();

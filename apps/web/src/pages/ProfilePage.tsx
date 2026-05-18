@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AvatarUpload } from '@/components/avatar/AvatarUpload';
@@ -17,18 +17,7 @@ import { USER_LEVEL_NAMES, USER_LEVEL_ICONS, USER_LEVEL_EXP } from '@linksee/sha
 import { UserLevel } from '@linksee/shared';
 import type { UserProfileResponse, PostListItem } from '@linksee/shared';
 import { cn } from '@/lib/utils';
-
-/* ── Animation Variants ── */
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-};
+import { fadeUp, staggerSlow as stagger } from '@/lib/animation';
 
 /* ── Social Icon Map ── */
 
@@ -241,7 +230,7 @@ export function ProfilePage() {
     <motion.div
       variants={stagger}
       initial="hidden"
-      animate="show"
+      animate="visible"
       className="flex justify-center"
     >
       <div className="w-full max-w-[720px] flex flex-col gap-5 pb-8">

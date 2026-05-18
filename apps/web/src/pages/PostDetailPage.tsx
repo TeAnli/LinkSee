@@ -11,16 +11,7 @@ import { cn } from '@/lib/utils';
 import { formatRelativeTime, formatCount } from '@/lib/format';
 import { TableOfContents, PostMarkdown } from '@/components/post';
 import { usePostDetail } from '@/hooks';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
-};
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
+import { fadeUp, stagger } from '@/lib/animation';
 
 export function PostDetailPage() {
   const { t } = useTranslation();
