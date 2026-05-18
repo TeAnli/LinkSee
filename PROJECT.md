@@ -120,7 +120,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | 向量数据库 | **Milvus** | 向量语义检索、个性化推荐 | 关键词+语义双引擎 |
 | 消息队列 | **RabbitMQ** | 异步削峰、事件驱动解耦 | 不阻塞主流程、高并发平稳 |
 | AI大模型 | **智谱GLM-4 + 通义千问 + Kimi（月之暗面）** | AI创作、问答、审核、摘要 | 国产模型合规性好、响应快、成本可控 |
-| 实时通信 | **Socket.IO Client + Kotlin/Netty WebSocket** | 聊天室群聊、用户私聊、在线状态 | 全双工低延迟、自动重连、单机十万级并发、心跳保活 |
+| 实时通信 | **纯 WebSocket (Spring WebFlux Reactive)** | 聊天室群聊、用户私聊、在线状态 | 全双工低延迟、单机十万级并发、心跳保活 |
 | 前端技术栈 | **React 19 + TypeScript + Vite 6 + Tailwind CSS 4** | 前端应用开发 | 现代化生态、类型安全、极致开发体验、响应式设计 |
 
 ### 2.2 微服务整体架构
@@ -155,8 +155,8 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
         ┌───────────────────────────┼───────────────────────────┐
         ▼                           ▼                           ▼
 ┌───────────────┐          ┌───────────────────────┐          ┌───────────────┐
-│   ai-service  │          │  ws-server (Netty)     │          │message-service│
-│ AI智能赋能服务│          │ Socket.IO + WebSocket实时聊天 │          │  消息通知服务  │
+│   ai-service  │          │  ws-server (WebFlux)  │          │message-service│
+│ AI智能赋能服务│          │   WebSocket 实时聊天   │          │  消息通知服务  │
 └───────────────┘          └───────────────────────┘          └───────────────┘
                                     │
         ┌───────────┬───────────────┼───────────────┬───────────────┐
@@ -204,7 +204,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | **构建工具** | Vite 6 + Tailwind CSS 4 | 极速热更新，零运行时 CSS，支持现代浏览器特性 |
 | **状态管理** | Zustand 5 | 轻量级、无模板代码的状态管理，支持持久化（Persist） |
 | **数据请求** | TanStack Query v5 + Axios | 强大的缓存机制、自动重试、SWR（Stale-While-Revalidate） |
-| **实时通信** | Socket.IO client + 自定义 Hook (`useSocketIO`) | 聊天室群聊、用户私聊、在线状态、自动重连 |
+| **实时通信** | 原生 WebSocket + 自定义 Hook (`useWebSocket`) | 聊天室群聊、用户私聊、在线状态、断线重连 |
 | **组件库** | shadcn/ui + Radix UI | 基于可访问性标准（A11y）的无样式组件，高度可定制 |
 | **路由管理** | React Router 7 | 统一的路由定义，支持嵌套路由与 Layout 布局隔离 |
 | **表单校验** | React Hook Form + Zod | 强类型的表单定义与实时校验 |
@@ -734,8 +734,8 @@ LinkSee 社区
 - **左侧列表**（w-80）：聊天室列表（管理员预设）+ 私聊联系人列表（最近对话排序）+ 搜索过滤
 - **右侧对话区**：顶部房间名/对方昵称 + 在线状态指示 + 消息列表（虚拟滚动，向上加载历史）+ 底部输入框（支持 Enter 发送、Shift+Enter 换行）
 - **消息气泡**：显示头像、昵称、时间戳，自己的消息靠右蓝色，他人消息靠左灰色
-- **实时特性**：Socket.IO 长连接、心跳保活、自动重连、离线消息队列、打字状态提示、新消息未读角标
-- **通信架构**：实时消息走 ws-server (Kotlin/Netty WebSocket)，历史消息走 FastAPI REST 接口
+- **实时特性**：WebSocket 长连接、心跳保活、断线重连、离线消息队列、打字状态提示、新消息未读角标
+- **通信架构**：实时消息走 ws-server (Kotlin/Spring WebFlux WebSocket)，历史消息走 REST 接口
 
 ---
 
@@ -1382,43 +1382,55 @@ POST   /api/chat/messages               # 写入消息（内部接口，共享�
 
 #### 实时通信协议
 
-连接方式：前端 `socket.io-client`，仅启用 WebSocket 传输。
+连接方式：前端使用浏览器原生 `WebSocket` API，JSON 文本帧通信。
 
 ```ts
-import { io, Socket } from "socket.io-client";
+const ws = new WebSocket("ws://localhost:9000/ws/chat");
 
-const socket: Socket = io("ws://localhost:9000", {
-  transports: ["websocket"],   // 仅 WebSocket，关闭 HTTP 长轮询
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-});
+ws.onopen = () => {
+  // 发送 AUTH 认证
+  ws.send(JSON.stringify({
+    type: "AUTH",
+    payload: { userId: 1001, friendIds: [1002, 1003] }
+  }));
+};
+
+ws.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+  // 根据 msg.type 分发处理
+};
+
+ws.onclose = () => {
+  // 断线重连逻辑
+};
 ```
 
-连接地址：`ws://localhost:9000/ws`
+连接地址：`ws://localhost:9000/ws/chat`
 
-**客户端 → 服务端事件**：
+**客户端 → 服务端消息**（JSON `type` 字段）：
 
-| 事件 | payload | 说明 |
+| type | payload | 说明 |
 |------|---------|------|
-| `auth` | `{ token }` | JWT 认证 |
-| `join_room` | `{ roomId }` | 加入聊天室 |
-| `leave_room` | `{ roomId }` | 离开聊天室 |
-| `room_msg` | `{ roomId, content }` | 发送群聊消息 |
-| `dm_msg` | `{ toUserId, content }` | 发送私聊消息 |
-| `typing` | `{ roomId?, toUserId? }` | 输入状态 |
-| `ping` | `{}` | 心跳探测 |
+| `AUTH` | `{ userId: Long, friendIds?: [Long] }` | 绑定用户身份，上报好友列表 |
+| `PING` | `null` | 心跳保活 |
+| `JOIN_CHANNEL` | `{ channelId: Long }` | 加入频道 |
+| `LEAVE_CHANNEL` | `{ channelId: Long }` | 离开频道 |
+| `CHAT_MESSAGE` | `{ channelId: Long, content: String }` | 发送频道消息 |
+| `DM_MESSAGE` | `{ targetUserId: Long, content: String }` | 发送私聊消息 |
 
-**服务端 → 客户端事件**：
+**服务端 → 客户端消息**（JSON `type` 字段）：
 
-| 事件 | payload | 说明 |
+| type | payload | 说明 |
 |------|---------|------|
-| `auth_ok` | `{ userId }` | 认证成功 |
-| `room_msg` | `{ msgId, roomId, senderId, senderName, senderAvatar, content, time }` | 群聊消息 |
-| `dm_msg` | `{ msgId, senderId, senderName, senderAvatar, content, time }` | 私聊消息 |
-| `user_online` | `{ userId, online }` | 用户上下线 |
-| `typing` | `{ roomId?, fromUserId, fromUserName }` | 输入状态 |
-| `error` | `{ message }` | 错误提示 |
+| `PONG` | ISO-8601 时间戳 | 心跳响应 |
+| `CHAT_MESSAGE` | `{ channelId, senderSessionId, content, timestamp }` | 频道消息广播 |
+| `DM_MESSAGE` | `{ senderSessionId, content, timestamp }` | 私聊消息 |
+| `USER_JOINED` | `{ sessionId, channelId, onlineCount }` | 用户加入频道通知 |
+| `USER_LEFT` | `{ sessionId, channelId, onlineCount }` | 用户离开频道通知 |
+| `FRIEND_ONLINE` | `{ userId, timestamp }` | 好友上线通知 |
+| `FRIEND_OFFLINE` | `{ userId, timestamp }` | 好友下线通知 |
+| `ONLINE_FRIENDS` | `{ onlineFriendIds: [Long] }` | AUTH 后返回当前在线好友 |
+| `ERROR` | 错误描述字符串 | 错误提示 |
 
 ---
 
@@ -1439,7 +1451,7 @@ linksee-parent/                          # 父POM工程(统一依赖版本管理
 ├── linksee-common/                      # 公共模块(共享工具类/常量/枚举/异常)
 ├── linksee-feign-clients/               # Feign远程调用客户端定义
 │
-├── ws-server/                           # WebSocket 实时聊天服务 (Kotlin + Spring Boot WebFlux + Netty)
+├── ws-server/                           # WebSocket 实时聊天服务 (Kotlin + Spring Boot WebFlux)
 │   ├── src/main/kotlin/com/linksee/ws/
 │   │   ├── WsServerApplication.kt       # Spring Boot 入口
 │   │   ├── config/WebSocketConfig.kt    # WebSocket 路由配置
@@ -1578,7 +1590,7 @@ linksee-xxx-service/
 | 2.5 | 互动功能 | 点赞/取消点赞、收藏/取消收藏、计数器实时更新(Redis原子操作) | 互动功能即时反馈 |
 | 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab切换、帖子卡片列表、虚拟滚动 | 首页可流畅滚动浏览 |
 | 2.7 | 基础搜索 | ES索引同步(MQ异步)、关键词全文检索、搜索结果高亮 | 输入关键词可搜到帖子 |
-| 2.8 | 实时聊天 | ws-server (Kotlin/Netty WebSocket) 服务搭建、聊天室群聊、用户私聊、消息落库、在线状态、前端 Socket.IO ChatPage 页面 | 用户可实时群聊和私聊 |
+| 2.8 | 实时聊天 | ws-server (Kotlin/Spring WebFlux WebSocket) 服务搭建、聊天室群聊、用户私聊、消息落库、在线状态、前端 WebSocket ChatPage 页面 | 用户可实时群聊和私聊 |
 
 **本周产出**：一个功能完整的论坛系统（不含AI功能）
 
@@ -1680,7 +1692,7 @@ AI_MODEL_ZHIPU_API_SECRET=zhipu_secret_here
 AI_MODEL_QIWEN_API_KEY=qwen_api_key_here
 AI_MODEL_KIMI_API_KEY=kimi_api_key_here
 
-# WebSocket 实时聊天 (netty-socketio)
+# WebSocket 实时聊天 (Spring WebFlux Reactive WebSocket)
 WS_PORT=9000
 WS_HOST=0.0.0.0
 
@@ -1701,7 +1713,7 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 | 向量库 | Milvus | Pinecone / Weaviate | 开源可自部署、性能优异、国内社区活跃 |
 | 消息队列 | RabbitMQ | Kafka / RocketMQ | 管理友好、协议灵活、适合中小规模场景 |
 | 前端 | React 19 + TS | Vue 3 / Nuxt | Hooks 生态成熟、组件化灵活、Vercel 最佳实践支持 |
-| 实时通信 | Socket.IO Client + Kotlin/Netty WebSocket | 纯 WebSocket / ws 库 | Socket.IO 成熟生态、自动重连；Netty 异步非阻塞、单机十万级并发 |
+| 实时通信 | 纯 WebSocket (Spring WebFlux Reactive) | Socket.IO / ws 库 | Spring 生态原生集成、Reactor 响应式模型、无额外协议开销 |
 
 ### D. 参考资源与致谢
 
