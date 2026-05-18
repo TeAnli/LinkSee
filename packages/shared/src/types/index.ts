@@ -6,3 +6,4 @@ export * from "./ai";
 export * from "./notification";
 export * from "./enums";
 export * from "./admin";
+export * from "./ws";
