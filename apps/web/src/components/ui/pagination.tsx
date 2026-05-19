@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { Icon } from "@iconify/react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -80,7 +80,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>(
           disabled={page <= 1}
           onClick={() => onChange(page - 1)}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <Icon icon="mdi:chevron-left" className="h-4 w-4" />
           <span className="sr-only">上一页</span>
         </Button>
 
@@ -91,7 +91,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>(
                 key={item}
                 className="flex h-8 w-8 items-center justify-center text-muted-foreground"
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
               </span>
             )
           }
@@ -117,7 +117,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>(
           disabled={page >= totalPages}
           onClick={() => onChange(page + 1)}
         >
-          <ChevronRight className="h-4 w-4" />
+          <Icon icon="mdi:chevron-right" className="h-4 w-4" />
           <span className="sr-only">下一页</span>
         </Button>
       </nav>

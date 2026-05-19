@@ -1,16 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Send,
-  Square,
-  Copy,
-  Check,
-  Bot,
-  User,
-  Sparkles,
-  Plus,
-} from 'lucide-react';
+import { Icon } from '@iconify/react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -171,7 +162,7 @@ export function AiChatPage() {
       <div className="flex items-center justify-between shrink-0 pb-3">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Bot className="h-4 w-4 text-primary" />
+            <Icon icon="mdi:robot-outline" className="h-4 w-4 text-primary" />
           </div>
           <div>
             <h2 className="text-sm font-bold">灵犀 AI</h2>
@@ -181,7 +172,7 @@ export function AiChatPage() {
           </div>
         </div>
         <Button variant="outline" size="sm" onClick={handleNewChat}>
-          <Plus className="h-3.5 w-3.5 mr-1" />
+          <Icon icon="mdi:plus" className="h-3.5 w-3.5 mr-1" />
           {t('ai.newChat')}
         </Button>
       </div>
@@ -234,9 +225,9 @@ export function AiChatPage() {
             onClick={isTyping ? undefined : handleSend}
           >
             {isTyping ? (
-              <Square className="h-3.5 w-3.5" />
+              <Icon icon="mdi:stop" className="h-3.5 w-3.5" />
             ) : (
-              <Send className="h-3.5 w-3.5" />
+              <Icon icon="mdi:send" className="h-3.5 w-3.5" />
             )}
           </Button>
         </div>
@@ -260,7 +251,7 @@ function WelcomeScreen({ onSuggestion }: { onSuggestion: (text: string) => void 
       className="flex flex-col items-center justify-center h-full text-center py-8"
     >
       <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
-        <Sparkles className="h-7 w-7 text-primary" />
+        <Icon icon="mdi:sparkles" className="h-7 w-7 text-primary" />
       </div>
       <h3 className="text-base font-bold">{t('ai.welcome')}</h3>
       <p className="text-xs text-muted-foreground mt-1 max-w-xs">{t('ai.welcomeDesc')}</p>
@@ -313,7 +304,7 @@ function ChatBubble({
             isUser ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary',
           )}
         >
-          {isUser ? <User className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
+          {isUser ? <Icon icon="mdi:account-outline" className="h-3 w-3" /> : <Icon icon="mdi:robot-outline" className="h-3 w-3" />}
         </AvatarFallback>
       </Avatar>
 
@@ -352,9 +343,9 @@ function ChatBubble({
               title="Copy"
             >
               {copiedId === message.id ? (
-                <Check className="h-3 w-3 text-green-500" />
+                <Icon icon="mdi:check" className="h-3 w-3 text-green-500" />
               ) : (
-                <Copy className="h-3 w-3 text-muted-foreground" />
+                <Icon icon="mdi:content-copy" className="h-3 w-3 text-muted-foreground" />
               )}
             </button>
           </div>
@@ -378,7 +369,7 @@ function TypingIndicator() {
     >
       <Avatar className="h-7 w-7 shrink-0 mt-1">
         <AvatarFallback className="text-[10px] font-semibold bg-primary/10 text-primary">
-          <Bot className="h-3 w-3" />
+          <Icon icon="mdi:robot-outline" className="h-3 w-3" />
         </AvatarFallback>
       </Avatar>
       <div className="bg-muted/80 rounded-2xl rounded-tl-md px-4 py-3">

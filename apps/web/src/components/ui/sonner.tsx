@@ -1,10 +1,4 @@
-import {
-  CircleCheck,
-  Info,
-  LoaderCircle,
-  OctagonX,
-  TriangleAlert,
-} from "lucide-react"
+import { Icon } from "@iconify/react"
 import { Toaster as Sonner } from "sonner"
 import { useThemeStore } from "@/stores/useThemeStore"
 
@@ -18,11 +12,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={mode}
       className="toaster group"
       icons={{
-        success: <CircleCheck className="size-4" />,
-        info: <Info className="size-4" />,
-        warning: <TriangleAlert className="size-4" />,
-        error: <OctagonX className="size-4" />,
-        loading: <LoaderCircle className="size-4 animate-spin" />,
+        success: <Icon icon="mdi:check-circle-outline" className="size-4" />,
+        info: <Icon icon="mdi:information-outline" className="size-4" />,
+        warning: <Icon icon="mdi:alert-outline" className="size-4" />,
+        error: <Icon icon="mdi:close-octagon-outline" className="size-4" />,
+        loading: <Icon icon="mdi:loading" className="size-4 animate-spin" />,
       }}
       toastOptions={{
         classNames: {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
-import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatCount } from '@/lib/format';
 import { Category } from '@linksee/shared';
@@ -72,7 +71,7 @@ export function ForumCategoryList({
     <div className="flex gap-2 pb-2">
       <ForumCategoryPill
         name={t('forum.allCategories')}
-        icon={<Sparkles className="h-3.5 w-3.5" />}
+        icon={<Icon icon="mdi:sparkles" className="h-3.5 w-3.5" />}
         color="#6366F1"
         active={activeCategory === null}
         count={totalPosts}

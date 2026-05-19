@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
 
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Pagination } from '@/components/ui/pagination';
@@ -73,7 +72,7 @@ export function ForumPage() {
             className="flex flex-col items-center justify-center py-16 text-center"
           >
             <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Search className="h-6 w-6 text-muted-foreground" />
+              <Icon icon="mdi:magnify" className="h-6 w-6 text-muted-foreground" />
             </div>
             <p className="text-sm font-medium text-foreground">
               {t('forum.noResults')}

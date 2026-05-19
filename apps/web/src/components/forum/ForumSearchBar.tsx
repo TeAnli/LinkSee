@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Search, Clock, TrendingUp, Sparkles } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -23,7 +23,7 @@ export function ForumSearchBar({
   return (
     <div className="flex items-center gap-3">
       <div className="relative flex-1 max-w-full sm:max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -34,15 +34,15 @@ export function ForumSearchBar({
       <Tabs value={sortType} onValueChange={onSortChange}>
         <TabsList className="h-9">
           <TabsTrigger value="latest" className="text-xs px-3">
-            <Clock className="h-3 w-3 mr-1" />
+            <Icon icon="mdi:clock-outline" className="h-3 w-3 mr-1" />
             {t('forum.latest')}
           </TabsTrigger>
           <TabsTrigger value="hottest" className="text-xs px-3">
-            <TrendingUp className="h-3 w-3 mr-1" />
+            <Icon icon="mdi:trending-up" className="h-3 w-3 mr-1" />
             {t('forum.hottest')}
           </TabsTrigger>
           <TabsTrigger value="essence" className="text-xs px-3">
-            <Sparkles className="h-3 w-3 mr-1" />
+            <Icon icon="mdi:sparkles" className="h-3 w-3 mr-1" />
             {t('forum.essence')}
           </TabsTrigger>
         </TabsList>

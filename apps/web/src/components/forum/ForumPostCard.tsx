@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Pin, Sparkles, Eye, Heart, MessageSquare, Bookmark } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -35,13 +35,13 @@ export function ForumPostCard({ post, index }: ForumPostCardProps) {
               <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                 {post.isTop && (
                   <Badge className="bg-rose-500/10 text-rose-600 border-rose-500/20 text-[10px] gap-0.5">
-                    <Pin className="h-2.5 w-2.5" />
+                    <Icon icon="mdi:pin" className="h-2.5 w-2.5" />
                     {t('post.pinned')}
                   </Badge>
                 )}
                 {post.isEssence && (
                   <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] gap-0.5">
-                    <Sparkles className="h-2.5 w-2.5" />
+                    <Icon icon="mdi:sparkles" className="h-2.5 w-2.5" />
                     {t('post.essence')}
                   </Badge>
                 )}
@@ -81,19 +81,19 @@ export function ForumPostCard({ post, index }: ForumPostCardProps) {
                 </div>
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                   <span className="flex items-center gap-1" title={t('post.views')}>
-                    <Eye className="h-3 w-3" />
+                    <Icon icon="mdi:eye-outline" className="h-3 w-3" />
                     {formatCount(post.viewCount)}
                   </span>
                   <span className="flex items-center gap-1" title={t('post.likes')}>
-                    <Heart className="h-3 w-3" />
+                    <Icon icon="mdi:heart-outline" className="h-3 w-3" />
                     {formatCount(post.likeCount)}
                   </span>
                   <span className="flex items-center gap-1" title={t('post.comments')}>
-                    <MessageSquare className="h-3 w-3" />
+                    <Icon icon="mdi:message-outline" className="h-3 w-3" />
                     {formatCount(post.commentCount)}
                   </span>
                   <span className="flex items-center gap-1" title={t('profile.collectedCount')}>
-                    <Bookmark className="h-3 w-3" />
+                    <Icon icon="mdi:bookmark-outline" className="h-3 w-3" />
                     {formatCount(post.collectCount)}
                   </span>
                 </div>

@@ -1,18 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import {
-  User,
-  Palette,
-  Bell,
-  Shield,
-  Info,
-  Save,
-  Check,
-  ChevronRight,
-  Camera,
-  Loader2,
-} from 'lucide-react';
+import { Icon } from '@iconify/react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -44,10 +33,10 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('account');
 
   const tabs: { key: SettingsTab; label: string; icon: React.ReactNode }[] = [
-    { key: 'account', label: t('settings.account'), icon: <User className="h-4 w-4" /> },
-    { key: 'appearance', label: t('settings.appearance'), icon: <Palette className="h-4 w-4" /> },
-    { key: 'notifications', label: t('settings.notifications'), icon: <Bell className="h-4 w-4" /> },
-    { key: 'about', label: t('settings.about'), icon: <Info className="h-4 w-4" /> },
+    { key: 'account', label: t('settings.account'), icon: <Icon icon="mdi:account-outline" className="h-4 w-4" /> },
+    { key: 'appearance', label: t('settings.appearance'), icon: <Icon icon="mdi:palette-outline" className="h-4 w-4" /> },
+    { key: 'notifications', label: t('settings.notifications'), icon: <Icon icon="mdi:bell-outline" className="h-4 w-4" /> },
+    { key: 'about', label: t('settings.about'), icon: <Icon icon="mdi:information-outline" className="h-4 w-4" /> },
   ];
 
   return (
@@ -91,7 +80,7 @@ export function SettingsPage() {
                 >
                   {tab.icon}
                   {tab.label}
-                  <ChevronRight className="h-3 w-3 ml-auto opacity-50" />
+                  <Icon icon="mdi:chevron-right" className="h-3 w-3 ml-auto opacity-50" />
                 </button>
               ))}
             </CardContent>
@@ -207,7 +196,7 @@ function AccountSettings() {
                 </AvatarFallback>
               </Avatar>
               <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="h-5 w-5 text-white" />
+                <Icon icon="mdi:camera-outline" className="h-5 w-5 text-white" />
               </div>
             </button>
             <div className="flex flex-col gap-1">
@@ -329,11 +318,11 @@ function AccountSettings() {
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving}>
               {saving ? (
-                <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                <Icon icon="mdi:loading" className="h-3.5 w-3.5 mr-1 animate-spin" />
               ) : saved ? (
-                <Check className="h-3.5 w-3.5 mr-1" />
+                <Icon icon="mdi:check" className="h-3.5 w-3.5 mr-1" />
               ) : (
-                <Save className="h-3.5 w-3.5 mr-1" />
+                <Icon icon="mdi:content-save-outline" className="h-3.5 w-3.5 mr-1" />
               )}
               {saving ? t('settings.saving') : t('settings.updateProfile')}
             </Button>
@@ -504,7 +493,7 @@ function AboutSection() {
 
           <div className="flex flex-col gap-2">
             <Button variant="outline" size="sm" className="w-fit">
-              <Info className="h-3.5 w-3.5 mr-1.5" />
+              <Icon icon="mdi:information-outline" className="h-3.5 w-3.5 mr-1.5" />
               {t('settings.openSource')}
             </Button>
             <Button variant="outline" size="sm" className="w-fit">
