@@ -142,6 +142,16 @@ const en: DeepString<typeof zhCN> = {
     postNotFound: 'Post not found',
     backToHome: 'Back to home',
     aiSummary: 'AI Summary',
+    writeComment: 'Write a comment...',
+    submitComment: 'Submit',
+    replyTo: 'Reply',
+    commentLoadMore: 'Load more comments',
+    noComments: 'No comments yet. Be the first!',
+    loginToComment: 'Please log in to comment.',
+    replyToSomeone: 'Reply to {{name}}',
+    cancelReply: 'Cancel',
+    collapseReplies: 'Collapse replies',
+    expandReplies: '{{count}} replies',
   },
 
   // ===== Create Post =====

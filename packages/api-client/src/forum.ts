@@ -42,7 +42,7 @@ export const forumApi = {
 
   createComment: (postId: number, data: CommentCreateRequest) =>
     apiClient.post<ApiResponse<CommentItem>>(
-      `/forum/post/${postId}/comments`,
+      `/forum/post/${postId}/comment`,
       data,
     ),
 

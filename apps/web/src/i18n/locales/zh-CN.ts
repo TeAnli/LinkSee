@@ -136,6 +136,16 @@ export default {
     postNotFound: '帖子不存在',
     backToHome: '返回首页',
     aiSummary: 'AI 摘要',
+    writeComment: '写下你的评论...',
+    submitComment: '发表评论',
+    replyTo: '回复',
+    commentLoadMore: '加载更多评论',
+    noComments: '暂无评论，来说两句吧',
+    loginToComment: '请登录后发表评论',
+    replyToSomeone: '回复 {{name}}',
+    cancelReply: '取消回复',
+    collapseReplies: '收起回复',
+    expandReplies: '查看 {{count}} 条回复',
   },
 
   // ===== Create Post =====
