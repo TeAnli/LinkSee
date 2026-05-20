@@ -197,6 +197,7 @@ function SettingsPanel({
   filteredTagSuggestions, onAddTag, onRemoveTag,
   coverImageUrl, setCoverImageUrl,
   summary, setSummary,
+  scheduledAt, setScheduledAt,
   canPublish, isPublishing,
   onPublish, onSaveDraft,
   compact,
@@ -209,6 +210,7 @@ function SettingsPanel({
   onAddTag: (tag: string) => void; onRemoveTag: (tag: string) => void;
   coverImageUrl: string; setCoverImageUrl: (v: string) => void;
   summary: string; setSummary: (v: string) => void;
+  scheduledAt: string; setScheduledAt: (v: string) => void;
   canPublish: boolean; isPublishing: boolean;
   onPublish: () => void; onSaveDraft: () => void;
   compact?: boolean;
@@ -356,6 +358,21 @@ function SettingsPanel({
         <span className="text-[10px] text-muted-foreground self-end">{summary.length}/200</span>
       </div>
 
+      {/* Scheduled Publish */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
+          {t('create.schedulePublish')}
+        </label>
+        <input
+          type="datetime-local"
+          value={scheduledAt}
+          onChange={(e) => setScheduledAt(e.target.value)}
+          min={new Date().toISOString().slice(0, 16)}
+          className="h-8 text-xs rounded-lg border border-border bg-background px-2.5 py-1 text-foreground outline-none transition-colors hover:border-primary/30 focus:border-primary focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        />
+        <span className="text-[10px] text-muted-foreground">{t('create.scheduleHint')}</span>
+      </div>
+
       {/* Publish Checklist */}
       <div className="rounded-lg border border-border p-3 flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 mb-1">
@@ -423,6 +440,7 @@ export function CreatePostPage() {
   // New customization state
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [summary, setSummary] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
@@ -501,8 +519,8 @@ export function CreatePostPage() {
   // === Auto-save draft ===
 
   const draftPayload = useMemo(() => ({
-    title, categoryId, tags, content, coverImageUrl, summary,
-  }), [title, categoryId, tags, content, coverImageUrl, summary]);
+    title, categoryId, tags, content, coverImageUrl, summary, scheduledAt,
+  }), [title, categoryId, tags, content, coverImageUrl, summary, scheduledAt]);
 
   useEffect(() => {
     const save = () => {
@@ -524,6 +542,7 @@ export function CreatePostPage() {
       if (draft.content) setContent(draft.content);
       if (draft.coverImageUrl) setCoverImageUrl(draft.coverImageUrl);
       if (draft.summary) setSummary(draft.summary);
+      if (draft.scheduledAt) setScheduledAt(draft.scheduledAt);
       toast.info(t('create.draftRestored'));
     } catch { /* corrupt JSON, ignore */ }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -555,6 +574,7 @@ export function CreatePostPage() {
         content: content.trim(),
         tagList: tags.length > 0 ? tags : undefined,
         coverImageUrl: coverImageUrl.trim() || undefined,
+        scheduledAt: scheduledAt || undefined,
       });
       clearDraft();
       toast.success(res.data.message || t('create.publishSuccess'));
@@ -587,6 +607,7 @@ export function CreatePostPage() {
     onRemoveTag: handleRemoveTag,
     coverImageUrl, setCoverImageUrl,
     summary, setSummary,
+    scheduledAt, setScheduledAt,
     canPublish, isPublishing,
     onPublish: handlePublish,
     onSaveDraft: handleSaveDraft,
