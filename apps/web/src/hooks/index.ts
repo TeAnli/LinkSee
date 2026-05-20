@@ -3,4 +3,5 @@ export * from './useLocalStorage';
 export * from './useForumData';
 export * from './usePostDetail';
 export * from './useHomePosts';
+export * from './useComments';
 export { useWebSocket, useWsMessage } from './useWebSocket';
