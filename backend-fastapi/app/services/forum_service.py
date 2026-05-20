@@ -10,6 +10,7 @@ from app.constants import (
     ERR_POST_NOT_FOUND,
     POST_STATUS_PUBLISHED,
     POST_STATUS_REVIEWING,
+    POST_STATUS_SCHEDULED,
 )
 from app.exceptions import AppException
 from app.models.ai_moderation import AiModerationLog
@@ -91,6 +92,16 @@ async def create_post(db: AsyncSession, user_id: int, req: PostCreateRequest) ->
     if not cat or cat.deleted:
         raise AppException(ERR_CATEGORY_NOT_FOUND, "板块不存在", 404)
 
+    now = datetime.datetime.now(datetime.timezone.utc)
+    scheduled_at = None
+    if req.scheduledAt:
+        try:
+            scheduled_at = datetime.datetime.fromisoformat(req.scheduledAt)
+        except ValueError:
+            scheduled_at = None
+
+    is_scheduled = scheduled_at is not None and scheduled_at > now
+
     post = ForumPost(
         author_id=user_id,
         category_id=req.categoryId,
@@ -98,8 +109,9 @@ async def create_post(db: AsyncSession, user_id: int, req: PostCreateRequest) ->
         content=req.content,
         tag_list=req.tagList or [],
         cover_image_url=req.coverImageUrl or "",
-        status=POST_STATUS_REVIEWING,
-        published_at=datetime.datetime.now(datetime.timezone.utc),
+        status=POST_STATUS_SCHEDULED if is_scheduled else POST_STATUS_REVIEWING,
+        published_at=None if is_scheduled else now,
+        scheduled_at=scheduled_at if is_scheduled else None,
     )
     db.add(post)
     await db.flush()
@@ -108,6 +120,8 @@ async def create_post(db: AsyncSession, user_id: int, req: PostCreateRequest) ->
     cat.post_count = (cat.post_count or 0) + 1
     await db.flush()
 
+    if is_scheduled:
+        return {"postId": post.id, "status": post.status, "message": "帖子已创建，将在指定时间自动发布"}
     return {"postId": post.id, "status": post.status, "message": "帖子已提交，正在审核中..."}
 
 
@@ -504,3 +518,28 @@ async def _posts_to_brief(db, stmt):
             "publishedAt": p.published_at.isoformat() if p.published_at else None,
         })
     return items
+
+
+async def publish_scheduled_posts(db: AsyncSession) -> int:
+    now = datetime.datetime.now(datetime.timezone.utc)
+    stmt = (
+        select(ForumPost)
+        .where(
+            ForumPost.deleted == 0,
+            ForumPost.status == POST_STATUS_SCHEDULED,
+            ForumPost.scheduled_at <= now,
+        )
+    )
+    result = await db.execute(stmt)
+    posts = result.scalars().all()
+
+    count = 0
+    for post in posts:
+        post.status = POST_STATUS_PUBLISHED
+        post.published_at = now
+        count += 1
+
+    if count > 0:
+        await db.flush()
+
+    return count
