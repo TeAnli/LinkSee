@@ -53,6 +53,7 @@ class PostCreateRequest(BaseModel):
     content: str = Field(min_length=1, max_length=50000)
     tagList: list[str] = Field(default=[], max_length=10)
     coverImageUrl: str | None = None
+    scheduledAt: str | None = None
 
 
 class PostCreateResponse(BaseModel):

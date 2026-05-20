@@ -28,6 +28,7 @@ class ForumPost(Base):
     is_essence: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_weight: Mapped[float] = mapped_column(Double, default=0, nullable=False)
     published_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(timezone=True))
+    scheduled_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     deleted: Mapped[int] = mapped_column(SmallInteger, default=0, nullable=False)
