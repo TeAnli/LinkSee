@@ -18,6 +18,7 @@ from app.middleware.error_handler import (
     integrity_error_handler,
     validation_exception_handler,
 )
+from app.scheduler import start_scheduler, stop_scheduler
 
 
 @asynccontextmanager
@@ -25,7 +26,9 @@ async def lifespan(app: FastAPI):
     Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
     if settings.encryption_enabled:
         generate_rsa_key_pair()
+    start_scheduler()
     yield
+    stop_scheduler()
 
 
 """ 
