@@ -11,6 +11,7 @@ export interface ChannelMessage {
 export interface DmMessage {
   id: string;
   senderSessionId: string;
+  partnerUserId: number;
   content: string;
   timestamp: string;
 }
@@ -18,8 +19,8 @@ export interface DmMessage {
 interface ChatState {
   // Channel messages: channelId → messages
   channelMessages: Map<number, ChannelMessage[]>;
-  // DM messages: sessionId → messages
-  dmMessages: Map<string, DmMessage[]>;
+  // DM messages: partnerUserId → messages
+  dmMessages: Map<number, DmMessage[]>;
   // Online friend IDs
   onlineFriendIds: Set<number>;
   // Connection state: track per-channel participant counts
@@ -52,8 +53,8 @@ export const useChatStore = create<ChatState>((set) => ({
   addDmMessage: (msg) =>
     set((s) => {
       const next = new Map(s.dmMessages);
-      const list = next.get(msg.senderSessionId) ?? [];
-      next.set(msg.senderSessionId, [...list, msg]);
+      const list = next.get(msg.partnerUserId) ?? [];
+      next.set(msg.partnerUserId, [...list, msg]);
       return { dmMessages: next };
     }),
 

@@ -435,6 +435,17 @@ export default {
     sendMessage: '发消息',
   },
 
+  // ===== DM =====
+  dm: {
+    title: '私聊',
+    typeMessage: '输入消息...',
+    you: '我',
+    noMessages: '暂无消息',
+    startConversation: '发送第一条消息，开始对话吧',
+    online: '在线',
+    offline: '离线',
+  },
+
   // ===== Friends =====
   friends: {
     title: '好友',

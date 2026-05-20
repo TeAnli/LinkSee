@@ -198,6 +198,15 @@ export function UserProfilePage() {
                       variant="outline"
                       size="sm"
                       className="font-bold shrink-0"
+                      onClick={() => navigate(`/messages/dm/${userId}`)}
+                    >
+                      <Icon icon="mdi:message-outline" width={14} className="mr-1.5" />
+                      {t('user.sendMessage')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-bold shrink-0"
                       onClick={() => navigate(-1)}
                     >
                       <Icon icon="mdi:arrow-left" width={14} className="mr-1.5" />

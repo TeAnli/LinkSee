@@ -19,6 +19,7 @@ const PAGE_SIZE = 20;
 
 function UserListItem({ user }: { user: UserInfo }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <button
@@ -48,6 +49,14 @@ function UserListItem({ user }: { user: UserInfo }) {
       </div>
 
       <Icon icon="mdi:chevron-right" width={18} className="text-muted-foreground/30 shrink-0" />
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); navigate(`/messages/dm/${user.id}`); }}
+        className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors shrink-0"
+        title={t('user.sendMessage')}
+      >
+        <Icon icon="mdi:message-outline" width={16} />
+      </button>
     </button>
   );
 }

@@ -439,6 +439,17 @@ const en: DeepString<typeof zhCN> = {
     sendMessage: 'Send Message',
   },
 
+  // ===== DM =====
+  dm: {
+    title: 'Private Chat',
+    typeMessage: 'Type a message...',
+    you: 'You',
+    noMessages: 'No messages yet',
+    startConversation: 'Send the first message to start the conversation',
+    online: 'Online',
+    offline: 'Offline',
+  },
+
   // ===== Friends =====
   friends: {
     title: 'Friends',
