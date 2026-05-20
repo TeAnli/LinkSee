@@ -58,6 +58,7 @@ export interface PostCreateRequest {
   content: string;
   tagList?: string[];
   coverImageUrl?: string;
+  scheduledAt?: string;
 }
 
 export interface PostCreateResponse {
