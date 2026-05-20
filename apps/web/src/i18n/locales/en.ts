@@ -418,6 +418,19 @@ const en: DeepString<typeof zhCN> = {
     streakTip: '7-day streak bonus +10 pts',
   },
 
+  // ===== Channel =====
+  channel: {
+    title: 'Channels',
+    online: 'online',
+    noOneOnline: 'No one online',
+    selectChannel: 'Select a channel to start chatting',
+    selectChannelHint: 'Choose a channel from the left to join the conversation',
+    noMessages: 'No messages yet',
+    startConversation: 'Send the first message to start the conversation',
+    typeMessage: 'Type a message...',
+    you: 'You',
+  },
+
   admin: {
     nav: {
       dashboard: 'Dashboard',

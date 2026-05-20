@@ -16,7 +16,8 @@ export function AppLayout() {
   const location = useLocation();
   const isPostDetail = location.pathname.startsWith('/post/');
   const isCreatePost = location.pathname === '/create';
-  const hideRightPanel = isPostDetail || isCreatePost;
+  const isChannel = location.pathname === '/channels' || location.pathname === '/messages';
+  const hideRightPanel = isPostDetail || isCreatePost || isChannel;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
@@ -26,7 +27,7 @@ export function AppLayout() {
       <main
         className={cn(
           'min-h-screen lg:ml-[var(--sidebar-w)]',
-          isCreatePost
+          (isCreatePost || isChannel)
             ? 'pt-[60px] pb-0 px-0'
             : 'pt-[76px] pb-24 lg:pb-8 px-5 lg:px-8',
           !hideRightPanel && 'xl:mr-[var(--right-panel-w)]',

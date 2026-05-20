@@ -14,6 +14,7 @@ const LazyProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ de
 const LazySettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const LazyPostDetailPage = lazy(() => import('./pages/PostDetailPage').then(m => ({ default: m.PostDetailPage })));
 const LazyCreatePostPage = lazy(() => import('./pages/CreatePostPage').then(m => ({ default: m.CreatePostPage })));
+const LazyChannelPage = lazy(() => import('./pages/ChannelPage').then(m => ({ default: m.ChannelPage })));
 const LazyLoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const LazyRegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const LazyForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
@@ -53,7 +54,8 @@ export default function App() {
               <Route path="/post/:id" element={<LazyPostDetailPage />} />
               <Route path="/create" element={<LazyCreatePostPage />} />
               <Route path="/ai" element={<LazyAiChatPage />} />
-              <Route path="/messages" element={<LazyForumPage />} />
+              <Route path="/messages" element={<LazyChannelPage />} />
+              <Route path="/channels" element={<LazyChannelPage />} />
               <Route path="/profile" element={<LazyProfilePage />} />
               <Route path="/settings" element={<LazySettingsPage />} />
             </Route>

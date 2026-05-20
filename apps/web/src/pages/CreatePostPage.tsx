@@ -8,6 +8,9 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/atom-one-dark.css';
+import { usePostMarkdownComponents } from '@/components/post';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -48,7 +51,7 @@ import { sheetOverlay, sheetPanel } from '@/lib/animation';
 const DRAFT_KEY = 'linksee-draft';
 const AUTO_SAVE_INTERVAL = 30_000;
 
-const PROSE_CLASSES = 'prose prose-sm max-w-none prose-headings:font-extrabold prose-headings:text-foreground prose-p:text-foreground/85 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[var(--bg-secondary)] prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-table:text-sm prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-li:marker:text-primary not-prose:pre';
+const PROSE_CLASSES = 'prose prose-sm max-w-none prose-headings:font-extrabold prose-headings:text-foreground prose-p:text-foreground/85 prose-a:text-primary prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[var(--bg-secondary)] prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-table:text-sm prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-li:marker:text-primary';
 
 // === Helpers ===
 
@@ -96,28 +99,48 @@ const TOOLBAR_INSERTS: ToolbarItem[] = [
   { icon: 'mdi:function-variant', snippet: '$$', labelKey: 'create.mathFormula' },
 ];
 
-function ToolbarButton({ icon, snippet, label }: { icon: string; snippet: string; label: string }) {
-  const insertSnippet = useCallback(() => {
-    const textarea = document.getElementById('md-editor') as HTMLTextAreaElement | null;
+function ToolbarButton({
+  icon,
+  snippet,
+  label,
+  textareaRef,
+  onInsert,
+}: {
+  icon: string;
+  snippet: string;
+  label: string;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  onInsert: (newContent: string, cursorPos: number) => void;
+}) {
+  const handleClick = useCallback(() => {
+    const textarea = textareaRef.current;
     if (!textarea) return;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const newContent = textarea.value.slice(0, start) + snippet + textarea.value.slice(end);
-    textarea.value = newContent;
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    setTimeout(() => {
-      textarea.focus();
-      const pos = start + snippet.length;
-      textarea.setSelectionRange(pos, pos);
-    }, 0);
-  }, [snippet]);
+    const hasSelection = start !== end;
+    const isWrapSnippet = snippet.length <= 2 && !snippet.includes(' ') && !snippet.includes('\n');
+
+    let newContent: string;
+    let cursorPos: number;
+
+    if (hasSelection && isWrapSnippet) {
+      const selectedText = textarea.value.slice(start, end);
+      newContent = textarea.value.slice(0, start) + snippet + selectedText + snippet + textarea.value.slice(end);
+      cursorPos = start + snippet.length + selectedText.length;
+    } else {
+      newContent = textarea.value.slice(0, start) + snippet + textarea.value.slice(end);
+      cursorPos = start + snippet.length;
+    }
+
+    onInsert(newContent, cursorPos);
+  }, [snippet, textareaRef, onInsert]);
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          onClick={insertSnippet}
+          onClick={handleClick}
           className="flex items-center justify-center size-7 rounded-md hover:bg-muted/80 transition-colors cursor-pointer group"
         >
           <Icon icon={icon} width={16} className="text-muted-foreground group-hover:text-foreground" />
@@ -128,12 +151,32 @@ function ToolbarButton({ icon, snippet, label }: { icon: string; snippet: string
   );
 }
 
-const Divider = () => <Separator orientation="vertical" className="h-5 mx-1" />;
+function Divider() {
+  return <Separator orientation="vertical" className="h-5 mx-1" />;
+}
 
 // === Preview ===
 
+const REMARK_PLUGINS = [remarkGfm, remarkMath];
+const REHYPE_PLUGINS = [rehypeHighlight, rehypeKatex];
+
 function PreviewPane({ content, emptyText }: { content: string; emptyText: string }) {
-  if (!content.trim()) {
+  const components = usePostMarkdownComponents();
+
+  const rendered = useMemo(() => {
+    if (!content.trim()) return null;
+    return (
+      <Markdown
+        remarkPlugins={REMARK_PLUGINS}
+        rehypePlugins={REHYPE_PLUGINS}
+        components={components}
+      >
+        {content}
+      </Markdown>
+    );
+  }, [content, components]);
+
+  if (!rendered) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground/40 gap-3">
         <Icon icon="mdi:file-eye-outline" width={48} />
@@ -141,13 +184,8 @@ function PreviewPane({ content, emptyText }: { content: string; emptyText: strin
       </div>
     );
   }
-  return (
-    <div className={PROSE_CLASSES}>
-      <Markdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeHighlight, rehypeKatex]}>
-        {content}
-      </Markdown>
-    </div>
-  );
+
+  return <div className={PROSE_CLASSES}>{rendered}</div>;
 }
 
 // === Settings Panel Content (shared between desktop sidebar and mobile sheet) ===
@@ -388,6 +426,23 @@ export function CreatePostPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
+  const cursorPosRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (cursorPosRef.current === null) return;
+    const textarea = editorRef.current;
+    if (textarea) {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPosRef.current, cursorPosRef.current);
+    }
+    cursorPosRef.current = null;
+  }, [content]);
+
+  const handleInsert = useCallback((newContent: string, cursorPos: number) => {
+    cursorPosRef.current = cursorPos;
+    setContent(newContent);
+  }, []);
+
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -624,15 +679,15 @@ export function CreatePostPage() {
 
                 <Divider />
                 {TOOLBAR_ITEMS.map((item) => (
-                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} textareaRef={editorRef} onInsert={handleInsert} />
                 ))}
                 <Divider />
                 {TOOLBAR_HEADINGS.map((item) => (
-                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} textareaRef={editorRef} onInsert={handleInsert} />
                 ))}
                 <Divider />
                 {TOOLBAR_INSERTS.map((item) => (
-                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} />
+                  <ToolbarButton key={item.labelKey} icon={item.icon} snippet={item.snippet} label={t(item.labelKey)} textareaRef={editorRef} onInsert={handleInsert} />
                 ))}
 
                 {/* Mobile tab switch */}

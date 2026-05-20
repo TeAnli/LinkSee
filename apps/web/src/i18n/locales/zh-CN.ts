@@ -414,6 +414,19 @@ export default {
     streakTip: '连续签到 7 天额外 +10 积分',
   },
 
+  // ===== Channel =====
+  channel: {
+    title: '频道',
+    online: '人在线',
+    noOneOnline: '暂无人在线',
+    selectChannel: '选择一个频道开始聊天',
+    selectChannelHint: '从左侧列表中选择一个频道，加入实时讨论',
+    noMessages: '暂无消息',
+    startConversation: '发送第一条消息，开始对话吧',
+    typeMessage: '输入消息...',
+    you: '我',
+  },
+
   // ===== Admin =====
   admin: {
     nav: {
