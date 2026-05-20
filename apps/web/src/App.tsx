@@ -15,6 +15,8 @@ const LazySettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ 
 const LazyPostDetailPage = lazy(() => import('./pages/PostDetailPage').then(m => ({ default: m.PostDetailPage })));
 const LazyCreatePostPage = lazy(() => import('./pages/CreatePostPage').then(m => ({ default: m.CreatePostPage })));
 const LazyChannelPage = lazy(() => import('./pages/ChannelPage').then(m => ({ default: m.ChannelPage })));
+const LazyUserProfilePage = lazy(() => import('./pages/UserProfilePage').then(m => ({ default: m.UserProfilePage })));
+const LazyFriendsPage = lazy(() => import('./pages/FriendsPage').then(m => ({ default: m.FriendsPage })));
 const LazyLoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const LazyRegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const LazyForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
@@ -57,6 +59,8 @@ export default function App() {
               <Route path="/messages" element={<LazyChannelPage />} />
               <Route path="/channels" element={<LazyChannelPage />} />
               <Route path="/profile" element={<LazyProfilePage />} />
+              <Route path="/user/:userId" element={<LazyUserProfilePage />} />
+              <Route path="/friends" element={<LazyFriendsPage />} />
               <Route path="/settings" element={<LazySettingsPage />} />
             </Route>
 

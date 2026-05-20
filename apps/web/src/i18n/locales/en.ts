@@ -40,6 +40,7 @@ const en: DeepString<typeof zhCN> = {
     profile: 'Profile',
     settings: 'Settings',
     checkin: 'Check-in',
+    friends: 'Friends',
     createPost: 'Write Post',
     expandSidebar: 'Expand sidebar',
     collapseSidebar: 'Collapse sidebar',
@@ -429,6 +430,25 @@ const en: DeepString<typeof zhCN> = {
     startConversation: 'Send the first message to start the conversation',
     typeMessage: 'Type a message...',
     you: 'You',
+  },
+
+  // ===== User =====
+  user: {
+    notFound: 'User not found',
+    viewProfile: 'View Profile',
+    sendMessage: 'Send Message',
+  },
+
+  // ===== Friends =====
+  friends: {
+    title: 'Friends',
+    followers: 'Followers',
+    following: 'Following',
+    noFollowers: 'No followers yet',
+    noFollowersHint: 'Share your content to attract more followers',
+    noFollowing: 'Not following anyone yet',
+    noFollowingHint: 'Go discover more interesting people',
+    loadMore: 'Load More',
   },
 
   admin: {

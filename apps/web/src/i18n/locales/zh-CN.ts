@@ -34,6 +34,7 @@ export default {
     profile: '个人中心',
     settings: '设置',
     checkin: '签到',
+    friends: '好友',
     createPost: '写文章',
     expandSidebar: '展开侧边栏',
     collapseSidebar: '收起侧边栏',
@@ -425,6 +426,25 @@ export default {
     startConversation: '发送第一条消息，开始对话吧',
     typeMessage: '输入消息...',
     you: '我',
+  },
+
+  // ===== User =====
+  user: {
+    notFound: '用户不存在',
+    viewProfile: '查看资料',
+    sendMessage: '发消息',
+  },
+
+  // ===== Friends =====
+  friends: {
+    title: '好友',
+    followers: '关注者',
+    following: '关注中',
+    noFollowers: '暂无关注者',
+    noFollowersHint: '分享你的内容，吸引更多人关注你',
+    noFollowing: '还没有关注任何人',
+    noFollowingHint: '去发现更多有趣的人吧',
+    loadMore: '加载更多',
   },
 
   // ===== Admin =====

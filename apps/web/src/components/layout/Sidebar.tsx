@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { labelKey: 'nav.forum', icon: 'mdi:text-box-multiple', path: '/forum' },
   { labelKey: 'nav.ai', icon: 'mdi:robot-happy', path: '/ai' },
   { labelKey: 'nav.messages', icon: 'mdi:message-text-outline', path: '/channels' },
+  { labelKey: 'nav.friends', icon: 'mdi:account-group-outline', path: '/friends' },
   { labelKey: 'nav.profile', icon: 'mdi:account-circle-outline', path: '/profile' },
   { labelKey: 'nav.settings', icon: 'mdi:cog-outline', path: '/settings' },
 ];
