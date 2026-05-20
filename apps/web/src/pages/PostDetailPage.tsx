@@ -10,13 +10,17 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { formatRelativeTime, formatCount } from '@/lib/format';
 import { TableOfContents, PostMarkdown } from '@/components/post';
-import { usePostDetail } from '@/hooks';
+import { CommentInput, CommentList } from '@/components/comment';
+import { usePostDetail, useComments } from '@/hooks';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { fadeUp, stagger } from '@/lib/animation';
 
 export function PostDetailPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { loading, post, toc, activeId, liked, toggleLike } = usePostDetail();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { comments, loading: commentsLoading, hasMore, submitting, replyTo, setReplyTo, loadMore, addComment } = useComments(post?.id ?? 0);
 
   if (loading) {
     return <PostDetailSkeleton />;
@@ -139,6 +143,31 @@ export function PostDetailPage() {
                 </motion.div>
               </motion.div>
             )}
+
+            {/* Comments Section */}
+            <motion.div variants={fadeUp}>
+              <Separator className="my-6" />
+              <h3 className="text-sm font-extrabold mb-4 flex items-center gap-2">
+                <Icon icon="mdi:comment-text-multiple-outline" width={18} />
+                {t('post.comments')} ({comments.length > 0 ? comments.length : post.commentCount})
+              </h3>
+              <CommentInput
+                replyTo={replyTo}
+                onCancelReply={() => setReplyTo(null)}
+                onSubmit={addComment}
+                submitting={submitting}
+                disabled={!isAuthenticated}
+              />
+              <div className="mt-4">
+                <CommentList
+                  comments={comments}
+                  loading={commentsLoading}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                  onReply={(commentId, userId, nickname) => setReplyTo({ commentId, userId, nickname })}
+                />
+              </div>
+            </motion.div>
 
             <motion.div variants={fadeUp}>
               <Separator className="my-6" />
