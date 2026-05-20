@@ -28,6 +28,7 @@ export interface PostListItem {
   collectCount: number;
   isTop: boolean;
   isEssence: boolean;
+  isLiked?: boolean;
   publishedAt: string;
 }
 

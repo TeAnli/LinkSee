@@ -16,7 +16,7 @@ import { fadeUp, stagger } from '@/lib/animation';
 export function PostDetailPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { loading, post, toc, activeId } = usePostDetail();
+  const { loading, post, toc, activeId, liked, toggleLike } = usePostDetail();
 
   if (loading) {
     return <PostDetailSkeleton />;
@@ -83,7 +83,13 @@ export function PostDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Icon icon="mdi:thumb-up-outline" width={16} />{formatCount(post.likeCount)}</span>
+                <button
+                  onClick={toggleLike}
+                  className="flex items-center gap-1 cursor-pointer transition-colors hover:text-red-500"
+                >
+                  <Icon icon={liked ? 'mdi:thumb-up' : 'mdi:thumb-up-outline'} width={16} className={liked ? 'text-red-500' : ''} />
+                  {formatCount(post.likeCount)}
+                </button>
                 <span className="flex items-center gap-1"><Icon icon="mdi:comment-outline" width={16} />{formatCount(post.commentCount)}</span>
                 <span className="flex items-center gap-1"><Icon icon="mdi:bookmark-outline" width={16} />{formatCount(post.collectCount)}</span>
               </div>
@@ -137,24 +143,34 @@ export function PostDetailPage() {
             <motion.div variants={fadeUp}>
               <Separator className="my-6" />
               <div className="flex items-center justify-center gap-6">
-                {[
-                  { icon: 'mdi:thumb-up-outline', label: formatCount(post.likeCount), hoverColor: 'hover:text-red-500' },
-                  { icon: 'mdi:bookmark-outline', label: formatCount(post.collectCount), hoverColor: 'hover:text-amber-500' },
-                  { icon: 'mdi:share-variant-outline', label: t('post.share'), hoverColor: 'hover:text-primary' },
-                ].map((btn) => (
-                  <motion.button
-                    key={btn.icon}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={cn(
-                      'flex items-center gap-1.5 text-sm text-muted-foreground transition-colors cursor-pointer',
-                      btn.hoverColor,
-                    )}
-                  >
-                    <Icon icon={btn.icon} width={20} />
-                    <span>{btn.label}</span>
-                  </motion.button>
-                ))}
+                <motion.button
+                  onClick={toggleLike}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    'flex items-center gap-1.5 text-sm transition-colors cursor-pointer',
+                    liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500',
+                  )}
+                >
+                  <Icon icon={liked ? 'mdi:thumb-up' : 'mdi:thumb-up-outline'} width={20} />
+                  <span>{formatCount(post.likeCount)}</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors cursor-pointer hover:text-amber-500"
+                >
+                  <Icon icon="mdi:bookmark-outline" width={20} />
+                  <span>{formatCount(post.collectCount)}</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors cursor-pointer hover:text-primary"
+                >
+                  <Icon icon="mdi:share-variant-outline" width={20} />
+                  <span>{t('post.share')}</span>
+                </motion.button>
               </div>
             </motion.div>
           </CardContent>
