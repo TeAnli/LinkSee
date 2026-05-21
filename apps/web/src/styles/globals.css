@@ -237,6 +237,8 @@
 
 /* ===== Navigation Indicator ===== */
 .nav-indicator {
+  top: var(--indicator-y);
+  height: var(--indicator-h);
   transition:
     --indicator-y 280ms cubic-bezier(0.22, 1, 0.36, 1),
     --indicator-h 280ms cubic-bezier(0.22, 1, 0.36, 1);

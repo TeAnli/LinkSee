@@ -46,8 +46,9 @@ export function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onTo
     if (el && navRef.current) {
       const navRect = navRef.current.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
+      const viewport = navRef.current.parentElement;
       setIndicator({
-        y: elRect.top - navRect.top + navRef.current.scrollTop,
+        y: elRect.top - navRect.top + (viewport?.scrollTop ?? 0),
         h: elRect.height,
       });
     }
@@ -94,9 +95,9 @@ export function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onTo
               <div
                 className="nav-indicator absolute left-0 w-1 rounded-r-full bg-primary pointer-events-none"
                 style={{
-                  transform: `translateY(${indicator.y}px)`,
-                  height: `${indicator.h}px`,
-                }}
+                  '--indicator-y': `${indicator.y}px`,
+                  '--indicator-h': `${indicator.h}px`,
+                } as React.CSSProperties}
               />
             )}
 
