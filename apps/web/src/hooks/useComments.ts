@@ -25,7 +25,7 @@ export function useComments(postId: number) {
   const fetchComments = useCallback(async (page = 1) => {
     setLoading(page === 1);
     try {
-      const res = await forumApi.getComments(postId, { sortBy: 'latest', page, size: 10, rootOnly: true });
+      const res = await forumApi.getComments(postId, { sortBy: 'latest', page, size: 10 });
       const data: any = res.data.data;
       if (page === 1) {
         setComments((data?.list as CommentItem[]) ?? []);
@@ -48,7 +48,7 @@ export function useComments(postId: number) {
   const loadMore = useCallback(async () => {
     const nextPage = Math.floor(flattenComments(comments).length / 10) + 1;
     try {
-      const res = await forumApi.getComments(postId, { sortBy: 'latest', page: nextPage, size: 10, rootOnly: true });
+      const res = await forumApi.getComments(postId, { sortBy: 'latest', page: nextPage, size: 10 });
       const data: any = res.data.data;
       setComments((prev) => [...prev, ...((data?.list as CommentItem[]) ?? [])]);
       setHasMore(data?.hasMore ?? false);
@@ -86,7 +86,7 @@ export function useComments(postId: number) {
 
     try {
       await forumApi.createComment(postId, { content, parentId, replyUserId });
-      // Refetch to get real data
+      // Refetch to get real data with proper CommentItem format (includes author)
       await fetchComments();
     } catch {
       // Rollback

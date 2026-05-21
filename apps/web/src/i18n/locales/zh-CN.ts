@@ -146,6 +146,7 @@ export default {
     cancelReply: '取消回复',
     collapseReplies: '收起回复',
     expandReplies: '查看 {{count}} 条回复',
+    anonymous: '匿名用户',
   },
 
   // ===== Create Post =====

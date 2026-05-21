@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { formatRelativeTime, formatCount } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import type { CommentItem as CommentItemType } from '@linksee/shared';
 
 interface CommentItemProps {
@@ -14,52 +15,78 @@ interface CommentItemProps {
   postAuthorId?: number;
 }
 
+const DEPTH_BORDER = [
+  '',                                          // depth 0: no left border
+  'border-l-[3px] border-primary/40',          // depth 1: primary tint
+  'border-l-[3px] border-border',              // depth 2+: muted
+];
+
 export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: CommentItemProps) {
   const { t } = useTranslation();
   const [showChildren, setShowChildren] = useState(depth < 2);
-  const authorName = comment.author?.nickname ?? '?';
+  const authorName = comment.author?.nickname || t('post.anonymous');
   const authorInitial = authorName.slice(0, 1);
   const isPostAuthor = postAuthorId != null && comment.author?.id === postAuthorId;
+  const borderClass = DEPTH_BORDER[Math.min(depth, 2)];
 
   return (
-    <div className="flex flex-col">
-      <div className="flex gap-2.5 py-3">
-        <Avatar className="size-7 shrink-0">
-          <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-bold">
+    <div className={cn('flex flex-col', depth === 0 && 'group')}>
+      {/* Comment body */}
+      <div
+        className={cn(
+          'flex gap-2.5 py-3 px-3 rounded-lg transition-colors',
+          depth === 0 && 'hover:bg-muted/20',
+          depth > 0 && borderClass,
+          depth === 0 && 'bg-card/40',
+        )}
+      >
+        <Avatar className="size-8 shrink-0 ring-2 ring-border/50">
+          <AvatarFallback className="text-[11px] bg-primary/10 text-primary font-bold">
             {authorInitial}
           </AvatarFallback>
         </Avatar>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-xs font-bold text-foreground">{authorName}</span>
+          {/* Header: name + badges + time */}
+          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+            <span className="text-[13px] font-extrabold text-foreground">{authorName}</span>
             {isPostAuthor && (
-              <Badge variant="default" className="text-[9px] px-1 py-0 rounded-sm leading-none">
+              <Badge
+                variant="default"
+                className="text-[10px] px-1.5 py-0 rounded-sm font-bold leading-tight"
+              >
                 {t('forum.author')}
               </Badge>
             )}
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground/70 ml-auto">
               {formatRelativeTime(comment.createdAt ?? '')}
             </span>
           </div>
+
+          {/* Reply-to indicator */}
           {comment.replyTo && (
-            <div className="text-[11px] text-muted-foreground mb-1">
-              <Icon icon="mdi:reply" width={12} className="inline mr-0.5" />
-              {t('post.replyToSomeone', { name: comment.replyTo.nickname })}
+            <div className="inline-flex items-center gap-1 text-[11px] text-primary bg-primary/5 border border-primary/10 rounded-md px-2 py-0.5 mb-1.5">
+              <Icon icon="mdi:reply" width={12} />
+              <span>{t('post.replyToSomeone', { name: comment.replyTo.nickname })}</span>
             </div>
           )}
+
+          {/* Content */}
           <p className="text-sm text-foreground/85 leading-relaxed whitespace-pre-wrap break-words">
             {comment.content}
           </p>
-          <div className="flex items-center gap-3 mt-1.5">
+
+          {/* Actions */}
+          <div className="flex items-center gap-4 mt-2">
             <button
               onClick={() => onReply(comment.id, comment.author?.id ?? 0, authorName)}
-              className="flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-primary transition-colors cursor-pointer font-medium"
             >
               <Icon icon="mdi:reply-outline" width={14} />
               <span>{t('post.replyTo')}</span>
             </button>
             {comment.likeCount > 0 && (
-              <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
                 <Icon icon="mdi:thumb-up-outline" width={12} />
                 {formatCount(comment.likeCount)}
               </span>
@@ -70,18 +97,24 @@ export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: Comme
 
       {/* Nested children */}
       {comment.children && comment.children.length > 0 && (
-        <div className="ml-6 border-l-2 border-border pl-4">
+        <div className={cn('ml-4', depth === 0 && 'ml-6')}>
+          {/* Collapse toggle for deep nesting */}
           {depth >= 2 && (
             <button
               onClick={() => setShowChildren(!showChildren)}
-              className="text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer py-1"
+              className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer py-1.5 font-medium"
             >
-              <Icon icon={showChildren ? 'mdi:chevron-up' : 'mdi:chevron-down'} width={14} className="inline mr-0.5" />
+              <Icon
+                icon={showChildren ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                width={14}
+                className="inline"
+              />
               {showChildren
                 ? t('post.collapseReplies')
                 : t('post.expandReplies', { count: comment.childCount })}
             </button>
           )}
+
           <AnimatePresence>
             {showChildren &&
               comment.children.map((child) => (
@@ -92,7 +125,12 @@ export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: Comme
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <CommentItem comment={child} onReply={onReply} depth={depth + 1} postAuthorId={postAuthorId} />
+                  <CommentItem
+                    comment={child}
+                    onReply={onReply}
+                    depth={depth + 1}
+                    postAuthorId={postAuthorId}
+                  />
                 </motion.div>
               ))}
           </AnimatePresence>

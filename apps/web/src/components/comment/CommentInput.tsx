@@ -44,12 +44,12 @@ export function CommentInput({ replyTo, onCancelReply, onSubmit, submitting, dis
   return (
     <div className="flex flex-col gap-2">
       {replyTo && (
-        <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 rounded-md px-3 py-1.5">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center justify-between text-xs font-medium text-primary bg-primary/5 border border-primary/15 rounded-lg px-3 py-2">
+          <span className="flex items-center gap-1.5">
             <Icon icon="mdi:reply" width={14} />
             {t('post.replyToSomeone', { name: replyTo.nickname })}
           </span>
-          <button onClick={onCancelReply} className="hover:text-foreground transition-colors cursor-pointer">
+          <button onClick={onCancelReply} className="hover:text-red-500 transition-colors cursor-pointer" aria-label={t('post.cancelReply')}>
             <Icon icon="mdi:close" width={14} />
           </button>
         </div>

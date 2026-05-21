@@ -152,6 +152,7 @@ const en: DeepString<typeof zhCN> = {
     cancelReply: 'Cancel',
     collapseReplies: 'Collapse replies',
     expandReplies: '{{count}} replies',
+    anonymous: 'Anonymous',
   },
 
   // ===== Create Post =====
