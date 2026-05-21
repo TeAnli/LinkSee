@@ -165,6 +165,7 @@ export function PostDetailPage() {
                   hasMore={hasMore}
                   onLoadMore={loadMore}
                   onReply={(commentId, userId, nickname) => setReplyTo({ commentId, userId, nickname })}
+                  postAuthorId={post.author.id}
                 />
               </div>
             </motion.div>

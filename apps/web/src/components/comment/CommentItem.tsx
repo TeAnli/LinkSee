@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { formatRelativeTime, formatCount } from '@/lib/format';
 import type { CommentItem as CommentItemType } from '@linksee/shared';
 
@@ -10,13 +11,15 @@ interface CommentItemProps {
   comment: CommentItemType;
   onReply: (commentId: number, userId: number, nickname: string) => void;
   depth?: number;
+  postAuthorId?: number;
 }
 
-export function CommentItem({ comment, onReply, depth = 0 }: CommentItemProps) {
+export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: CommentItemProps) {
   const { t } = useTranslation();
   const [showChildren, setShowChildren] = useState(depth < 2);
   const authorName = comment.author?.nickname ?? '?';
   const authorInitial = authorName.slice(0, 1);
+  const isPostAuthor = postAuthorId != null && comment.author?.id === postAuthorId;
 
   return (
     <div className="flex flex-col">
@@ -29,6 +32,11 @@ export function CommentItem({ comment, onReply, depth = 0 }: CommentItemProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1">
             <span className="text-xs font-bold text-foreground">{authorName}</span>
+            {isPostAuthor && (
+              <Badge variant="default" className="text-[9px] px-1 py-0 rounded-sm leading-none">
+                {t('forum.author')}
+              </Badge>
+            )}
             <span className="text-[10px] text-muted-foreground">
               {formatRelativeTime(comment.createdAt ?? '')}
             </span>
@@ -84,7 +92,7 @@ export function CommentItem({ comment, onReply, depth = 0 }: CommentItemProps) {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <CommentItem comment={child} onReply={onReply} depth={depth + 1} />
+                  <CommentItem comment={child} onReply={onReply} depth={depth + 1} postAuthorId={postAuthorId} />
                 </motion.div>
               ))}
           </AnimatePresence>

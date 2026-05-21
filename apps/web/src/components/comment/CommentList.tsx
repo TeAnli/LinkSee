@@ -9,9 +9,10 @@ interface CommentListProps {
   hasMore: boolean;
   onLoadMore: () => void;
   onReply: (commentId: number, userId: number, nickname: string) => void;
+  postAuthorId?: number;
 }
 
-export function CommentList({ comments, loading, hasMore, onLoadMore, onReply }: CommentListProps) {
+export function CommentList({ comments, loading, hasMore, onLoadMore, onReply, postAuthorId }: CommentListProps) {
   const { t } = useTranslation();
 
   if (loading && comments.length === 0) {
@@ -34,7 +35,7 @@ export function CommentList({ comments, loading, hasMore, onLoadMore, onReply }:
   return (
     <div className="flex flex-col">
       {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} onReply={onReply} />
+        <CommentItem key={comment.id} comment={comment} onReply={onReply} postAuthorId={postAuthorId} />
       ))}
       {hasMore && (
         <button

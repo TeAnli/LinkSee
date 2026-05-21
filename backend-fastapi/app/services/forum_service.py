@@ -345,7 +345,7 @@ async def list_comments(
         item["childCount"] = child_count.scalar()
 
         # Get up to 3 children
-        if not root_only and item["childCount"] > 0:
+        if item["childCount"] > 0:
             child_stmt = (
                 select(ForumComment).where(ForumComment.parent_id == c.id, ForumComment.deleted == 0, ForumComment.status == 1)
                 .order_by(ForumComment.created_at.asc()).limit(3)
