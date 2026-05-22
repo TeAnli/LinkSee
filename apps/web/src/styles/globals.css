@@ -380,20 +380,23 @@
   animation: blob-float 14s ease-in-out 2s infinite;
 }
 
-/* ===== Focus Visible Ring (Accessibility) ===== */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+/* ===== Focus Visible Ring (Accessibility) =====
+ * Placed in @layer base so component-level focus-visible:outline-none
+ * and ring utilities can override these defaults.
+ */
+@layer base {
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+  }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  button:focus-visible:not([data-focus-managed]),
+  a:focus-visible,
+  select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+    border-radius: 4px;
+  }
 }
 
 /* ===== Mobile Scrollbar (thinner) ===== */
