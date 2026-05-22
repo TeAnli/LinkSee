@@ -117,8 +117,8 @@ export function NotificationPanel() {
       try {
         const res = await notificationApi.list();
         if (!cancelled) {
-          const raw = res.data.data;
-          const data = Array.isArray(raw) ? raw : [];
+          const raw = res.data.data as { list?: Notification[] } | Notification[];
+          const data = Array.isArray(raw) ? raw : (raw as { list?: Notification[] })?.list ?? [];
           setNotifications(data);
           setReadIds(new Set(data.filter((n: Notification) => n.isRead).map((n: Notification) => n.id)));
           setLoading(false);
