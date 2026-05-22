@@ -2,11 +2,13 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAiChatStore } from '@/stores/useAiChatStore';
+import { aiApi } from '@linksee/api-client/ai';
 
 interface Message {
   id: string;
@@ -15,71 +17,11 @@ interface Message {
   timestamp: string;
 }
 
-const MOCK_RESPONSES = [
-  `## 技术方案
-
-### 1. 数据库优化
-- 使用复合索引覆盖常用查询条件
-- 考虑使用游标分页替代 OFFSET 分页
-- 对于热点数据可以使用 Redis 缓存
-
-### 2. 接口设计
-\`\`\`java
-@GetMapping("/posts")
-public PageResult<PostVO> listPosts(
-    @RequestParam(required = false) Long categoryId,
-    @RequestParam(defaultValue = "1") Integer page,
-    @RequestParam(defaultValue = "20") Integer size
-) {
-    // 实现逻辑...
-}
-\`\`\`
-
-### 3. 性能考量
-- 响应时间目标：< 200ms (P99)
-- 并发量预估：支持 1000 QPS
-- 使用 CDN 缓存静态资源`,
-
-  `\`\`\`tsx
-function useForm<T extends Record<string, unknown>>(initialValues: T) {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const register = (name: keyof T) => ({
-    value: values[name],
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      setValues(prev => ({ ...prev, [name]: e.target.value })),
-  });
-
-  const handleSubmit = async (onSubmit: (values: T) => Promise<void>) => {
-    setIsSubmitting(true);
-    try { await onSubmit(values); }
-    finally { setIsSubmitting(false); }
-  };
-
-  return { values, errors, register, handleSubmit };
-}
-\`\`\`
-这个 Hook 支持类型安全的表单管理，包含错误状态和提交状态。`,
-
-  `| 特性 | PostgreSQL | MySQL |
-|------|-----------|-------|
-| ACID 合规性 | 完全合规 | 部分场景有差异 |
-| JSON 支持 | JSONB（二进制存储，支持索引） | JSON（文本存储） |
-| 扩展性 | 丰富的扩展生态 | 相对较少 |
-| 全文搜索 | 内置支持 | 需要 MyISAM 或外部引擎 |
-| 并发控制 | MVCC（更精细） | MVCC（表级锁较多） |
-
-**推荐：PostgreSQL** 用于复杂查询；**MySQL** 用于高并发 OLTP。`,
-];
-
 export function AiChatPage() {
   const { t } = useTranslation();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const responseIndexRef = useRef(0);
 
   const conversations = useAiChatStore((s) => s.conversations);
   const activeId = useAiChatStore((s) => s.activeConversationId);
@@ -96,7 +38,6 @@ export function AiChatPage() {
     return conv?.messages ?? [];
   }, [conversations, activeId]);
 
-  // Ensure active conversation exists
   useEffect(() => {
     if (!activeId) {
       newConversation();
@@ -109,13 +50,14 @@ export function AiChatPage() {
     }
   }, [messages, isTyping]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputText.trim() || isTyping) return;
 
+    const question = inputText.trim();
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user' as const,
-      content: inputText.trim(),
+      content: question,
       timestamp: new Date().toISOString(),
     };
 
@@ -123,17 +65,23 @@ export function AiChatPage() {
     setInputText('');
     setIsTyping(true);
 
-    setTimeout(() => {
+    try {
+      const res = await aiApi.chatSend({ question });
+      const data = res.data.data;
+      const answer = (data as { answer: string })?.answer ?? '抱歉，暂时无法回答这个问题，请稍后再试。';
+
       const aiMsg = {
         id: `ai-${Date.now()}`,
         role: 'assistant' as const,
-        content: MOCK_RESPONSES[responseIndexRef.current % MOCK_RESPONSES.length],
+        content: answer,
         timestamp: new Date().toISOString(),
       };
-      responseIndexRef.current++;
       addMessage(aiMsg);
+    } catch {
+      toast.error('AI 请求失败，请稍后重试');
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

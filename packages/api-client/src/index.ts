@@ -65,3 +65,4 @@ export { forumApi } from "./forum";
 export { adminApi } from "./admin";
 export { notificationApi } from "./notification";
 export { userApi } from "./user";
+export { aiApi } from "./ai";
