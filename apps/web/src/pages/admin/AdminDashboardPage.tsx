@@ -90,10 +90,10 @@ export function AdminDashboardPage() {
           iconBgColor="#f59e0b"
         />
         <StatCard
-          icon="mdi:brain"
-          label="今日 AI 调用"
-          value={data?.overview.aiCallsToday || 0}
-          iconBgColor="#8b5cf6"
+          icon="mdi:shield-alert"
+          label="待审核"
+          value={data?.overview.pendingReviewPosts || 0}
+          iconBgColor="#ef4444"
         />
       </div>
 

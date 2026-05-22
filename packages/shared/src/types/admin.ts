@@ -7,6 +7,7 @@ export interface DashboardOverview {
   newCommentsToday: number;
   activeUsers7d: number;
   aiCallsToday: number;
+  pendingReviewPosts: number;
 }
 
 export interface TrendItem {

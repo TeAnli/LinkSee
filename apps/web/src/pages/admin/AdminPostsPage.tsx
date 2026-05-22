@@ -18,9 +18,10 @@ const PAGE_SIZE = 20;
 
 const STATUS_LABELS: Record<number, { label: string; className: string }> = {
   0: { label: '草稿', className: 'bg-gray-100 text-gray-700' },
-  1: { label: '已发布', className: '' },
+  1: { label: '已发布', className: 'bg-green-100 text-green-700' },
   2: { label: '审核中', className: 'bg-yellow-100 text-yellow-700' },
   3: { label: '违规', className: 'bg-red-100 text-red-700' },
+  4: { label: '定时发布', className: 'bg-blue-100 text-blue-700' },
 };
 
 export function AdminPostsPage() {
@@ -149,6 +150,7 @@ export function AdminPostsPage() {
             <SelectItem value="1">已发布</SelectItem>
             <SelectItem value="3">违规</SelectItem>
             <SelectItem value="0">草稿</SelectItem>
+            <SelectItem value="4">定时发布</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -172,7 +174,7 @@ export function AdminPostsPage() {
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => handleModerate(row.id, 'approve')}
-                  title="通过"
+                  title="通过审核"
                 >
                   <Icon icon="mdi:check-circle" width={17} height={17} className="text-green-600" />
                 </Button>
@@ -181,11 +183,22 @@ export function AdminPostsPage() {
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => handleModerate(row.id, 'reject')}
-                  title="拒绝"
+                  title="标记违规"
                 >
                   <Icon icon="mdi:close-circle" width={17} height={17} className="text-red-600" />
                 </Button>
               </>
+            )}
+            {row.status === 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleModerate(row.id, 'violate')}
+                title="设为违规"
+              >
+                <Icon icon="mdi:alert-circle" width={17} height={17} className="text-amber-600" />
+              </Button>
             )}
             <Button
               variant="ghost"

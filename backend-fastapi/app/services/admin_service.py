@@ -33,12 +33,19 @@ async def get_dashboard(db: AsyncSession) -> dict:
         trend_posts.append({"date": d.isoformat(), "count": pc})
         trend_users.append({"date": d.isoformat(), "count": uc})
 
+    pending_review = (await db.execute(
+        select(func.count(ForumPost.id)).where(
+            ForumPost.deleted == 0, ForumPost.status == POST_STATUS_REVIEWING
+        )
+    )).scalar()
+
     return {
         "overview": {
             "totalUsers": total_users, "newUsersToday": new_users_today,
             "totalPosts": total_posts, "newPostsToday": new_posts_today,
             "totalComments": total_comments, "newCommentsToday": new_comments_today,
             "activeUsers7d": 0, "aiCallsToday": 0,
+            "pendingReviewPosts": pending_review or 0,
         },
         "trendPosts": trend_posts,
         "trendUsers": trend_users,
@@ -120,15 +127,88 @@ async def list_posts_admin(db: AsyncSession, status: int | None = None, category
 
 
 async def moderate_post(db: AsyncSession, post_id: int, action: str, reason: str = ""):
-    post = await db.get(ForumPost, post_id)
-    if post:
-        if action == "approve":
-            post.status = 1
-        elif action == "reject":
-            post.status = 0
-        elif action == "violate":
-            post.status = POST_STATUS_VIOLATION
-        await db.flush()
+    """管理员审核帖子"""
+    from app.services.moderation_service import manual_approve, manual_reject
+
+    if action == "approve":
+        await manual_approve(db, post_id, 0)
+    elif action in ("reject", "violate"):
+        await manual_reject(db, post_id, 0, reason)
+
+
+async def list_reviewing_posts(db: AsyncSession, page: int = 1, size: int = 20) -> dict:
+    """获取待审核帖子列表"""
+    from app.models.ai_moderation import AiModerationLog
+
+    conditions = [
+        ForumPost.deleted == 0,
+        ForumPost.status == POST_STATUS_REVIEWING,
+    ]
+
+    count_stmt = select(func.count(ForumPost.id)).where(and_(*conditions))
+    total = (await db.execute(count_stmt)).scalar()
+
+    stmt = (
+        select(ForumPost)
+        .where(and_(*conditions))
+        .order_by(ForumPost.created_at.desc())
+        .offset((page - 1) * size)
+        .limit(size)
+    )
+    result = await db.execute(stmt)
+    posts = result.scalars().all()
+
+    items = []
+    for p in posts:
+        author = await db.get(SysUser, p.author_id)
+        # 获取最近的审核日志
+        mod_log = await db.execute(
+            select(AiModerationLog)
+            .where(AiModerationLog.content_id == p.id, AiModerationLog.content_type == "post")
+            .order_by(AiModerationLog.created_at.desc())
+            .limit(1)
+        )
+        mod_log = mod_log.scalar()
+
+        items.append({
+            "id": p.id,
+            "title": p.title,
+            "content": p.content[:200] if p.content else "",
+            "authorId": p.author_id,
+            "authorNickname": author.nickname if author else "",
+            "categoryId": p.category_id,
+            "status": p.status,
+            "createdAt": p.created_at.isoformat() if p.created_at else None,
+            "moderationLog": {
+                "confidence": mod_log.confidence if mod_log else None,
+                "violationType": mod_log.violation_type if mod_log else "",
+                "action": mod_log.action if mod_log else "",
+            } if mod_log else None,
+        })
+
+    return {"total": total, "list": items}
+
+
+async def get_moderation_logs(db: AsyncSession, post_id: int) -> list[dict]:
+    """获取帖子的审核日志"""
+    from app.models.ai_moderation import AiModerationLog
+
+    stmt = (
+        select(AiModerationLog)
+        .where(AiModerationLog.content_id == post_id, AiModerationLog.content_type == "post")
+        .order_by(AiModerationLog.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    logs = result.scalars().all()
+
+    return [{
+        "id": l.id,
+        "result": l.result,
+        "violationType": l.violation_type,
+        "confidence": l.confidence,
+        "action": l.action,
+        "createdAt": l.created_at.isoformat() if l.created_at else None,
+    } for l in logs]
 
 
 async def set_feature(db: AsyncSession, post_id: int, req: dict):

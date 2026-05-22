@@ -76,6 +76,17 @@ async def list_posts_admin(
     return ok(data)
 
 
+@router.get("/posts/reviewing")
+async def list_reviewing_posts(
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    data = await admin_service.list_reviewing_posts(db, page, size)
+    return ok(data)
+
+
 @router.post("/posts/{post_id}/moderate")
 async def moderate_post(
     post_id: int,
@@ -85,6 +96,16 @@ async def moderate_post(
 ):
     await admin_service.moderate_post(db, post_id, req.action, req.reason)
     return ok(None, "审核操作已完成")
+
+
+@router.get("/posts/{post_id}/moderation-logs")
+async def get_moderation_logs(
+    post_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    data = await admin_service.get_moderation_logs(db, post_id)
+    return ok(data)
 
 
 @router.put("/posts/{post_id}/feature")

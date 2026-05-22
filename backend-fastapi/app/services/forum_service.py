@@ -120,9 +120,19 @@ async def create_post(db: AsyncSession, user_id: int, req: PostCreateRequest) ->
     cat.post_count = (cat.post_count or 0) + 1
     await db.flush()
 
-    if is_scheduled:
-        return {"postId": post.id, "status": post.status, "message": "帖子已创建，将在指定时间自动发布"}
-    return {"postId": post.id, "status": post.status, "message": "帖子已提交，正在审核中..."}
+    if not is_scheduled:
+        # 自动审核
+        from app.services.moderation_service import moderate_post
+        result = await moderate_post(db, post.id)
+        if result["action"] == "pass":
+            msg = "帖子已发布"
+        elif result["action"] == "reject":
+            msg = f"帖子发布失败：{result.get('reason', '内容违规')}"
+        else:
+            msg = "帖子已提交，正在审核中..."
+        return {"postId": post.id, "status": post.status, "message": msg, "moderation": result}
+
+    return {"postId": post.id, "status": post.status, "message": "帖子已创建，将在指定时间自动发布"}
 
 
 async def get_post_detail(db: AsyncSession, post_id: int, viewer_id: int | None = None) -> dict | None:

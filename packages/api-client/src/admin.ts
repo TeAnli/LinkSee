@@ -40,6 +40,17 @@ export const adminApi = {
       { params },
     ),
 
+  listReviewingPosts: (params?: { page?: number; size?: number }) =>
+    apiClient.get<ApiResponse<PaginatedResponse<AdminPostItem>>>(
+      "/admin/posts/reviewing",
+      { params },
+    ),
+
+  getModerationLogs: (postId: number) =>
+    apiClient.get<ApiResponse<{ id: number; result: number; violationType: string; confidence: number; action: string; createdAt: string }[]>>(
+      `/admin/posts/${postId}/moderation-logs`,
+    ),
+
   moderatePost: (postId: number, req: PostModerateRequest) =>
     apiClient.post<ApiResponse<null>>(`/admin/posts/${postId}/moderate`, req),
 
