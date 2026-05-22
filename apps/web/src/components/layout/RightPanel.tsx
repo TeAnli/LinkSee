@@ -11,7 +11,7 @@ import { TOPBAR_HEIGHT } from './Sidebar';
 import { formatCount } from '@/lib/format';
 import { userApi } from '@linksee/api-client/user';
 import { forumApi } from '@linksee/api-client/forum';
-import type { UserInfo, Category } from '@linksee/shared';
+import type { UserInfo, Category, PostListItem } from '@linksee/shared';
 
 const RIGHT_PANEL_WIDTH = 280;
 
@@ -98,7 +98,7 @@ function UserList() {
   );
 }
 
-function PlaceholderCard({
+function RightCard({
   title,
   icon,
   accent = false,
@@ -136,6 +136,48 @@ function PlaceholderCard({
   );
 }
 
+function HotPosts() {
+  const [posts, setPosts] = useState<Pick<PostListItem, 'id' | 'title'>[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+        const res = await forumApi.listPosts({ sort: 'hot', size: 5 });
+        if (!cancelled) {
+          const raw = res.data.data as { list?: Pick<PostListItem, 'id' | 'title'>[] };
+          setPosts(raw?.list ?? []);
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) {
+    return <div className="flex flex-col gap-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-5 w-full" />)}</div>;
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {posts.map((p, i) => (
+        <a
+          key={p.id}
+          href={`/post/${p.id}`}
+          className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors line-clamp-1 flex items-center gap-1.5"
+        >
+          <span className="text-[10px] font-bold text-primary/50 w-3 shrink-0">{i + 1}</span>
+          {p.title}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export function RightPanel() {
   const { t } = useTranslation();
 
@@ -150,15 +192,15 @@ export function RightPanel() {
     >
       <ScrollArea className="flex-1 p-5">
         <div className="flex flex-col gap-4">
-          <PlaceholderCard title={t('rightPanel.hotTopics')} icon="mdi:fire">
+          <RightCard title={t('rightPanel.hotTopics')} icon="mdi:fire">
             <TopicTags />
-          </PlaceholderCard>
-          <PlaceholderCard title={t('rightPanel.activeUsers')} icon="mdi:account-group-outline">
+          </RightCard>
+          <RightCard title={t('rightPanel.activeUsers')} icon="mdi:account-group-outline">
             <UserList />
-          </PlaceholderCard>
-          <PlaceholderCard title={t('rightPanel.aiPicks')} icon="mdi:robot-happy" accent>
-            <Skeleton className="h-10 w-full rounded-lg" />
-          </PlaceholderCard>
+          </RightCard>
+          <RightCard title={t('rightPanel.aiPicks')} icon="mdi:trending-up" accent>
+            <HotPosts />
+          </RightCard>
         </div>
       </ScrollArea>
     </aside>
