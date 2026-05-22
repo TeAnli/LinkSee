@@ -9,6 +9,9 @@ from app.schemas.admin import (
     PostFeatureRequest,
     PostModerateRequest,
     RoleUpdateRequest,
+    SensitiveWordAddRequest,
+    SensitiveWordDeleteRequest,
+    SensitiveWordRawRequest,
     UserStatusRequest,
 )
 from app.services import admin_service
@@ -204,3 +207,57 @@ async def ai_task_logs(
 ):
     data = await admin_service.ai_task_logs(db, userId, taskType, status, page, size)
     return ok(data)
+
+
+# ---- 敏感词管理 ----
+
+
+@router.get("/sensitive-words")
+async def list_sensitive_words(
+    keyword: str | None = None,
+    page: int = Query(1, ge=1),
+    size: int = Query(200, ge=1, le=1000),
+    user: SysUser = _admin_dep,
+):
+    data = admin_service.list_sensitive_words(keyword, page, size)
+    return ok(data)
+
+
+@router.post("/sensitive-words")
+async def add_sensitive_words(
+    req: SensitiveWordAddRequest,
+    user: SysUser = _admin_dep,
+):
+    data = admin_service.add_sensitive_words(req.category, req.words)
+    return ok(data, f"已添加 {data['added']} 个敏感词")
+
+
+@router.delete("/sensitive-words")
+async def delete_sensitive_word(
+    req: SensitiveWordDeleteRequest,
+    user: SysUser = _admin_dep,
+):
+    ok_ = admin_service.delete_sensitive_word(req.category, req.word)
+    if not ok_:
+        return ok(None, "未找到该词")
+    return ok(None, "已删除")
+
+
+@router.get("/sensitive-words/raw")
+async def get_sensitive_words_raw(
+    user: SysUser = _admin_dep,
+):
+    data = admin_service.get_sensitive_words_raw()
+    return ok({"raw": data})
+
+
+@router.put("/sensitive-words/raw")
+async def save_sensitive_words_raw(
+    req: SensitiveWordRawRequest,
+    user: SysUser = _admin_dep,
+):
+    try:
+        admin_service.save_sensitive_words_raw(req.raw)
+    except (ValueError, TypeError) as e:
+        return ok(None, f"JSON 格式错误: {e}")
+    return ok(None, "词库已更新并生效")

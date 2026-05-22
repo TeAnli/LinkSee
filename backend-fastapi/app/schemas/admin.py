@@ -56,3 +56,17 @@ class AiUsageBreakdownItem(BaseModel):
     groupBy: str
     calls: int
     avgTokens: float = 0
+
+
+class SensitiveWordAddRequest(BaseModel):
+    category: str
+    words: list[str]
+
+
+class SensitiveWordDeleteRequest(BaseModel):
+    category: str
+    word: str
+
+
+class SensitiveWordRawRequest(BaseModel):
+    raw: str

@@ -326,3 +326,55 @@ async def ai_task_logs(db: AsyncSession, user_id: int | None = None, task_type: 
         })
 
     return {"total": total, "tasks": items}
+
+
+# ---- 敏感词管理 ----
+
+
+def list_sensitive_words(keyword: str | None = None, page: int = 1, size: int = 100) -> dict:
+    """分页获取敏感词列表"""
+    from app.services.sensitive_word import get_all_words
+
+    all_data = get_all_words()
+
+    # 展平为列表
+    flat: list[dict] = []
+    for cat, words in all_data.items():
+        for w in words:
+            if keyword and keyword not in w:
+                continue
+            flat.append({"category": cat, "word": w})
+
+    flat.sort(key=lambda x: (x["category"], x["word"]))
+    total = len(flat)
+    start = (page - 1) * size
+    return {"total": total, "list": flat[start:start + size]}
+
+
+def add_sensitive_words(category: str, words: list[str]) -> dict:
+    """批量添加敏感词"""
+    from app.services.sensitive_word import add_words
+
+    count = add_words(category, words)
+    return {"added": count, "category": category}
+
+
+def delete_sensitive_word(category: str, word: str) -> bool:
+    """删除单个敏感词"""
+    from app.services.sensitive_word import remove_word
+
+    return remove_word(category, word)
+
+
+def get_sensitive_words_raw() -> str:
+    """获取敏感词 JSON 原始文本"""
+    from app.services.sensitive_word import get_raw_json
+
+    return get_raw_json()
+
+
+def save_sensitive_words_raw(raw: str) -> None:
+    """保存敏感词 JSON 原始文本"""
+    from app.services.sensitive_word import save_raw_json
+
+    save_raw_json(raw)
