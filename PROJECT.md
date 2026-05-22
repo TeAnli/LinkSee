@@ -14,8 +14,8 @@
   - [1.3 目标用户画像](#13-目标用户画像)
 - [二、核心技术架构](#二核心技术架构)
   - [2.1 技术栈总览](#21-技术栈总览)
-  - [2.2 微服务整体架构](#22-微服务整体架构)
-  - [2.3 微服务拆分清单](#23-微服务拆分清单)
+  - [2.2 系统整体架构](#22-系统整体架构)
+  - [2.3 服务拆分清单](#23-服务拆分清单)
   - [2.4 数据存储分层分工](#24-数据存储分层分工)
 - [三、网关统一路由规范](#三网关统一路由规范)
   - [3.1 路由设计总则](#31-路由设计总则)
@@ -40,6 +40,11 @@
 - [八、前端页面结构](#八前端页面结构)
   - [8.1 页面路由规划](#81-页面路由规划)
   - [8.2 核心页面说明](#82-核心页面说明)
+  - [8.3 主题系统与外观定制](#83-主题系统与外观定制)
+  - [8.4 国际化 (i18n)](#84-国际化-i18n)
+  - [8.5 签到系统](#85-签到系统)
+  - [8.6 定时发布](#86-定时发布)
+  - [8.7 后台管理系统](#87-后台管理系统)
 - [九、数据模型设计](#九数据模型设计)
   - [9.1 设计原则](#91-设计原则)
   - [9.2 核心数据表清单](#92-核心数据表清单)
@@ -54,7 +59,11 @@
   - [11.3 AI能力接口](#113-ai能力接口)
   - [11.4 用户接口](#114-用户接口)
   - [11.5 消息通知接口](#115-消息通知接口)
-- [十二、后端工程目录结构](#十二后端工程目录结构)
+  - [11.6 实时聊天接口](#116-实时聊天接口)
+- [十二、工程目录结构](#十二工程目录结构)
+  - [12.1 项目根目录总览](#121-项目根目录总览)
+  - [12.2 V1 当前分层架构 (FastAPI)](#122-v1-当前分层架构-fastapi)
+  - [12.3 V2 目标微服务目录结构 (Kotlin/Spring Boot)](#123-v2-目标微服务目录结构-kotlinspring-boot)
 - [十三、安全与风控](#十三安全与风控)
 - [十四、分阶段迭代路线图](#十四分阶段迭代路线图)
 - [十五、商业化预留](#十五商业化预留)
@@ -66,7 +75,7 @@
 
 ### 1.1 项目愿景与定位
 
-LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微服务系统**。它不是传统的泛论坛平台，而是融合了 **AI创作助手** 和 **RAG智能知识库问答** 双引擎的新一代专业社区。
+LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛平台**（V1 采用 FastAPI 单体 + WebSocket 独立服务架构，预留微服务化演进空间）。它不是传统的泛论坛平台，而是融合了 **AI创作助手** 和 **RAG智能知识库问答** 双引擎的新一代专业社区。
 
 核心理念取自李商隐诗句「身无彩凤双飞翼，心有灵犀一点通」—— 寓意 **AI能够真正理解用户意图，精准连接人与知识**。
 
@@ -109,21 +118,62 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 
 ### 2.1 技术栈总览
 
+> **当前阶段说明**：V1 快速迭代阶段采用 **Python FastAPI** 作为主后端（开发效率优先），后续可渐进式迁移至 Kotlin/Spring Boot 微服务架构。WebSocket 实时通信已采用 Kotlin + Spring WebFlux 独立服务。
+
 | 技术层级 | 选定技术组件 | 核心用途 | 技术优势 |
 |----------|-------------|----------|----------|
-| 开发语言 | **Kotlin** | 后端唯一主力开发语言 | 空安全、函数式编程、杜绝NPE、代码量比Java减少30% |
-| 微服务框架 | **Spring Boot 4.0 + Spring Cloud** | 微服务工程搭建、服务治理 | 云原生适配、自动运维扩容、治理标准化 |
-| ORM框架 | **Jimmer** | PostgreSQL数据持久化 | 动态SQL、强类型实体、无需XML、开发效率翻倍 |
-| 核心数据库 | **PostgreSQL 16（主从）** | 全量核心业务结构化数据存储 | 事务强一致、JSONB扩展字段、复杂查询支持 |
-| 分布式缓存 | **Redis 7.0集群** | 热点缓存、会话、计数器、限流 | 毫秒级响应、冷热数据分离 |
-| 检索引擎 | **Elasticsearch 8.x集群** | 全站全文检索、关键词热搜 | 海量数据毫秒级返回 |
-| 向量数据库 | **Milvus** | 向量语义检索、个性化推荐 | 关键词+语义双引擎 |
-| 消息队列 | **RabbitMQ** | 异步削峰、事件驱动解耦 | 不阻塞主流程、高并发平稳 |
-| AI大模型 | **智谱GLM-4 + 通义千问 + Kimi（月之暗面）** | AI创作、问答、审核、摘要 | 国产模型合规性好、响应快、成本可控 |
+| 主后端语言 | **Python 3.12 + FastAPI** | 当前主力后端 API 服务 | 开发效率极高、异步原生支持、Pydantic 强类型校验、生态丰富 |
+| 主后端 ORM | **SQLAlchemy 2.0 (async)** + Alembic | PostgreSQL 数据持久化与迁移 | 异步 IO 支持、成熟稳定、迁移版本化管理 |
+| 实时通信后端 | **Kotlin + Spring Boot + WebFlux (ws-server)** | WebSocket 实时聊天独立服务 | 响应式非阻塞、单机十万级并发、心跳保活 |
+| 规划后端技术 | **Kotlin + Spring Boot 4.0 + Spring Cloud + Jimmer** | V2 微服务化演进方向 | 空安全、云原生适配、强类型 ORM、服务治理标准化 |
+| 核心数据库 | **PostgreSQL 16** | 全量核心业务结构化数据存储 | 事务强一致、JSONB 扩展字段、复杂查询支持 |
+| 分布式缓存 | **Redis 7.0** | 热点缓存、会话、计数器、限流 | 毫秒级响应、冷热数据分离 |
+| 检索引擎 | **Elasticsearch 8.x**（规划中） | 全站全文检索、关键词热搜 | 海量数据毫秒级返回 |
+| 向量数据库 | **Milvus**（规划中） | 向量语义检索、个性化推荐 | 关键词+语义双引擎 |
+| 消息队列 | **RabbitMQ**（规划中） | 异步削峰、事件驱动解耦 | 不阻塞主流程、高并发平稳 |
+| AI 大模型 | **智谱 GLM-4 + 通义千问 + Kimi（月之暗面）** | AI 创作、问答、审核、摘要 | 国产模型合规性好、响应快、成本可控 |
 | 实时通信 | **纯 WebSocket (Spring WebFlux Reactive)** | 聊天室群聊、用户私聊、在线状态 | 全双工低延迟、单机十万级并发、心跳保活 |
 | 前端技术栈 | **React 19 + TypeScript + Vite 6 + Tailwind CSS 4** | 前端应用开发 | 现代化生态、类型安全、极致开发体验、响应式设计 |
 
-### 2.2 微服务整体架构
+### 2.2 系统整体架构
+
+#### V1 当前架构（快速迭代阶段）
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          客户端层                                    │
+│                    Web (React 19 + TypeScript)                       │
+│            pnpm Monorepo: apps/web + packages/ui/shared/api-client   │
+└─────────────────────────────────────────────────────────────────────┘
+           │                                      │
+           │ HTTP REST (JSON)                     │ WebSocket (JSON)
+           ▼                                      ▼
+┌──────────────────────────┐        ┌──────────────────────────────┐
+│   backend-fastapi        │        │   ws-server (Kotlin/WebFlux) │
+│   Python FastAPI 主后端   │        │   实时聊天独立服务             │
+│                          │        │                              │
+│   · 认证/用户管理        │        │   · 聊天室群聊广播            │
+│   · 论坛帖子/评论/互动   │        │   · 用户私聊转发              │
+│   · AI 创作助手/RAG 问答 │        │   · 在线状态追踪              │
+│   · 全站搜索             │        │   · 心跳保活/断线重连         │
+│   · 消息通知             │        │   · 好友上下线通知            │
+│   · 后台管理             │        │                              │
+│   · 定时任务调度         │        │   Port: 9000                 │
+│                          │        │                              │
+│   Port: 8000             │        └──────────────┬───────────────┘
+└────────────┬─────────────┘                       │
+             │                                     │
+             └─────────────┬───────────────────────┘
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+        ┌───────────┐            ┌───────────┐
+        │ PostgreSQL │            │   Redis   │
+        │   16       │            │   7.0     │
+        └───────────┘            └───────────┘
+```
+
+#### V2 目标架构（微服务化演进方向）
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -168,11 +218,21 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 ```
 
 **设计原则**：
+- V1 阶段：FastAPI 单体 + ws-server 快速验证产品，开发效率优先
+- V2 阶段：拆分为 Kotlin 微服务，提升可扩展性和团队协作效率
 - 每层只做单一职责，互不越权，扩容互不影响
-- 所有外部请求必须经过网关，禁止直连微服务
 - 中间件层支撑异步解耦和高性能查询
 
-### 2.3 微服务拆分清单
+### 2.3 服务拆分清单
+
+#### V1 当前服务（已实现）
+
+| 服务名称 | 技术栈 | 核心负责业务边界 | 端口 | 依赖中间件 |
+|----------|--------|------------------|:----:|-----------|
+| **backend-fastapi** | Python 3.12 + FastAPI + SQLAlchemy async | 认证注册、用户管理、论坛帖子CRUD、评论互动、点赞收藏关注、板块管理、AI创作助手(8功能)、AI智能问答(RAG)、全站搜索、消息通知、后台管理、定时任务调度 | 8000 | PostgreSQL、Redis |
+| **ws-server** | Kotlin + Spring Boot + WebFlux Reactive | WebSocket 实时通信、聊天室群聊广播、用户私聊转发、在线状态追踪、心跳保活、断线重连 | 9000 | PostgreSQL、Redis |
+
+#### V2 目标微服务（规划演进）
 
 | 微服务名称 | 服务标识名 | 核心负责业务边界 | 依赖中间件 | 是否对外暴露 |
 |------------|-----------|------------------|-----------|:----------:|
@@ -182,17 +242,25 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛分布式微�
 | **论坛核心业务微服务** | `forum-service` | 帖子发布编辑、评论互动、分类标签管理、点赞收藏、板块管理 | PostgreSQL、Redis、RabbitMQ、Elasticsearch | ❌ 内部调用 |
 | **AI智能赋能微服务** | `ai-service` | AI创作辅助(8大功能)、AI内容审核、AI摘要生成、AI语义检索(RAG)、AI个性化推荐、多模型调度 | Elasticsearch、Milvus、RabbitMQ、大模型API | ❌ 内部调用 |
 | **消息通知微服务** | `message-service` | 站内信、点赞评论提醒、系统通知、AI推送消息统一下发、邮件/短信预留 | PostgreSQL、Redis、RabbitMQ | ❌ 内部调用 |
-| **实时聊天微服务** | `ws-server` | WebSocket 实时通信、聊天室群聊广播、用户私聊转发、在线状态追踪、心跳保活 | PostgreSQL、Redis | ❌ 内部调用 |
+| **实时聊天微服务** | `ws-server` | WebSocket 实时通信、聊天室群聊广播、用户私聊转发、在线状态追踪、心跳保活 | PostgreSQL、Redis | ✅ WebSocket直连 |
 
 ### 2.4 数据存储分层分工
 
+#### V1 当前数据存储
+
 | 存储组件 | 存储数据类型 | 写入操作归属 | 查询操作归属 | 设计原则 |
 |----------|-------------|-------------|-------------|----------|
-| **PostgreSQL主库** | 全量核心业务结构化数据（用户、帖子、评论、权限、日志） | Jimmer统一写入(CRUD) | 只做持久落地，不负责高频查询 | 主库保障事务安全可靠 |
-| **PostgreSQL从库** | 同主库全量数据，只读副本 | 无写入（主库自动同步） | Jimmer自动走读库，普通业务查询 | 读写分离减轻主库压力 |
-| **Redis集群** | 热点帖子列表、用户会话Token、权限缓存、点赞计数器、限流计数、临时数据 | 业务逻辑写入，同步更新缓存 | 高频访问优先读缓存，缓存未命中再查从库 | 冷热数据分离，毫秒级响应 |
-| **Elasticsearch集群** | 帖子标题、正文、标签、AI摘要、搜索索引数据 | 发帖/编辑后通过MQ异步同步写入索引 | 全站搜索、AI语义检索前置过滤专用 | 只做检索排序，不承载事务数据 |
-| **Milvus向量库** | 帖子内容向量Embedding、用户兴趣画像向量 | AI服务异步计算后写入 | AI相似度匹配、个性化推荐查询 | 只做AI语义计算匹配 |
+| **PostgreSQL 16** | 全量核心业务结构化数据（用户、帖子、评论、权限、日志、消息、签到） | SQLAlchemy async 统一写入 | 业务查询 + ILIKE 全文搜索 | 事务强一致，JSONB 扩展字段 |
+| **Redis 7.0** | 热点帖子列表、用户会话Token、权限缓存、点赞计数器、限流计数、签到状态、临时数据 | 业务逻辑写入，同步更新缓存 | 高频访问优先读缓存，缓存未命中再查DB | 冷热数据分离，毫秒级响应 |
+
+#### V2 扩展存储（规划中）
+
+| 存储组件 | 存储数据类型 | 写入操作归属 | 查询操作归属 | 设计原则 |
+|----------|-------------|-------------|-------------|----------|
+| **Elasticsearch 集群** | 帖子标题、正文、标签、AI摘要、搜索索引数据 | 发帖/编辑后通过MQ异步同步写入索引 | 全站搜索、AI语义检索前置过滤专用 | 只做检索排序，不承载事务数据 |
+| **Milvus 向量库** | 帖子内容向量Embedding、用户兴趣画像向量 | AI服务异步计算后写入 | AI相似度匹配、个性化推荐查询 | 只做AI语义计算匹配 |
+| **PostgreSQL 从库** | 同主库全量数据，只读副本 | 无写入（主库自动同步） | 读写分离，减轻主库压力 | 高可用 + 读写分离 |
+| **RabbitMQ** | 异步任务消息 | 业务服务生产消息 | 消费者异步处理(审核/索引/摘要) | 削峰填谷、事件驱动解耦 |
 
 ### 2.5 前端技术架构详细设计
 
@@ -679,63 +747,191 @@ LinkSee 社区
 
 ```
 /
-├── /                           # 首页 — 推荐流/热门帖子信息流
-├── /forum                      # 论坛总入口
-│   ├── /forum/:categoryId      # 板块详情页 — 该板块下帖子列表
-│   ├── /post/create            # 发帖编辑页 — 含AI创作工具栏
-│   ├── /post/:id               # 帖子详情页 — 正文+评论区+侧边栏
-│   └── /post/:id/edit          # 帖子编辑页
-├── /search                     # 搜索结果页 — 关键词检索结果
-├── /ai                         # AI对话专区 — 完整RAG问答界面
-├── /user                       # 个人中心
-│   ├── /user/profile           # 个人资料设置
-│   ├── /user/posts             # 我发布的帖子
-│   ├── /user/favorites         # 我的收藏夹
-│   ├── /user/follows           # 关注/粉丝列表
-│   └── /user/settings          # 账号安全设置
-├── /u/:userId                  # 其他用户的主页(公开查看)
-├── /message                    # 消息通知中心
-├── /chat                       # 实时聊天总入口
-│   ├── /chat/room/:roomId      # 聊天室群聊窗口
-│   └── /chat/dm/:userId        # 用户私聊窗口
-├── /admin                      # 后台管理面板(需管理员权限)
-└── /auth                       # 认证相关
-    ├── /auth/login             # 登录页
-    └── /auth/register          # 注册页
+├── /                               # 首页 — 推荐流/热门帖子信息流
+├── /forum                          # 论坛板块列表页
+├── /post/:id                       # 帖子详情页 — 正文+评论区+AI摘要
+├── /create                         # 发帖编辑页 — Markdown编辑器+AI创作工具栏
+├── /ai                             # AI对话专区 — 完整RAG问答界面
+├── /channels                       # 实时聊天频道列表/聊天室
+├── /messages                       # 消息通知/频道总入口
+├── /messages/dm/:userId            # 用户私聊窗口
+├── /profile                        # 个人中心/资料编辑
+├── /user/:userId                   # 其他用户主页(公开查看)
+├── /friends                        # 好友/关注管理列表
+├── /settings                       # 主题外观与账号设置
+├── /login                          # 登录页
+├── /register                       # 注册页
+├── /forgot-password                # 忘记密码
+├── /reset-password                 # 重置密码
+├── /admin                          # 后台管理面板(需管理员权限)
+│   ├── /admin/dashboard            # 数据看板
+│   ├── /admin/users                # 用户管理
+│   ├── /admin/posts                # 帖子管理
+│   ├── /admin/categories           # 板块管理
+│   └── /admin/ai                   # AI用量监控
+└── *                               # 404 页面未找到
 ```
 
 ### 8.2 核心页面说明
 
 #### 首页 (`/`)
-- **顶部导航栏**：Logo、搜索框（支持回车搜索/问AI）、板块快捷切换、消息铃铛、用户头像下拉菜单
-- **Tab栏**：推荐(默认) / 关注 / 热门 / 最新 / 精华
-- **信息流**：帖子卡片列表（虚拟滚动优化），每张卡片包含：作者头像+昵称+等级标签、板块标签、标题、AI摘要（如有）、底部操作栏（点赞/评论/收藏/分享数）
-- **右侧边栏**：热门话题榜、活跃用户榜、AI每日推荐
+- **顶部导航栏（TopBar）**：Logo、搜索框（支持回车搜索/跳转AI问答）、板块分类快捷切换、消息铃铛（含未读 Badge）、用户头像下拉菜单（个人中心/我的帖子/收藏/设置/退出）
+- **Tab 栏**：推荐(默认) / 关注 / 热门 / 最新 / 精华
+- **信息流**：帖子卡片列表（SWR 自动刷新），每张卡片包含：作者头像+昵称+等级标签、板块标签、标题、AI摘要（如有）、底部操作栏（点赞/评论/收藏/分享数）
+- **右侧边栏（RightPanel）**：签到面板（连续签到递增奖励）、热门话题榜、活跃用户榜
+- **移动端**：底部导航栏（BottomNav）+ 更多菜单（MobileMoreMenu）
 
-#### 发帖编辑页 (`/post/create`)
-- **左侧主区域**：富文本Markdown编辑器（支持代码高亮、图片粘贴上传、LaTeX公式）
-- **右侧AI工具栏**：常驻悬浮面板，包含8个AI功能的快捷入口
-- **顶部选项**：选择板块（必填）、添加标签（AI推荐）、设置可见范围
-- **底部操作栏**：草稿自动保存、预览、发布按钮、AI质量检测提示
+#### 板块列表页 (`/forum`)
+- **分类卡片网格**：5大一级板块 + 二级分类展示
+- **搜索栏**：支持关键词检索和按板块筛选
+- **热门帖子预览**：每个板块下最新/最热帖子预览
+
+#### 发帖编辑页 (`/create`)
+- **左侧主区域**：Markdown 编辑器（支持代码高亮、图片粘贴上传）
+- **右侧 AI 工具栏**：AI 创作助手 8 大功能快捷入口
+- **顶部表单**：标题输入 + 板块选择（必填）+ 标签添加
+- **设置面板**：可见范围、定时发布日期选择器
+- **底部操作栏**：保存草稿、预览、发布按钮
 
 #### 帖子详情页 (`/post/:id`)
 - **面包屑导航**：首页 > 板块名 > 帖子标题
-- **正文区**：标题 + 元信息（作者/时间/浏览量）+ 富文本渲染内容 + AI摘要卡片
-- **评论区**：支持二级嵌套回复，按热度/时间排序切换
-- **右侧边栏**：作者信息卡 + 关注按钮、文章目录（长文自动提取）、相关推荐、"AI总结此文"按钮、"继续提问"入口
+- **正文区**：标题 + 元信息（作者/时间/浏览量）+ Markdown 富文本渲染内容 + AI摘要卡片
+- **文章目录（PostToc）**：长文自动提取标题层级，侧边悬浮导航
+- **评论区（CommentList）**：支持二级嵌套回复，按热度/时间排序切换，评论作者标注（楼主/版主标签）
+- **互动操作**：点赞/取消点赞（乐观更新）、收藏/取消收藏、关注/取消关注
+- **右侧边栏**：作者信息卡 + 关注按钮、相关推荐
 
-#### AI问答页 (`/ai`)
-- **左侧对话区**：类似ChatGPT的消息流界面，支持Markdown渲染
-- **每条AI回答包含**：结构化回答内容 + 引用来源链接 + 推荐追问气泡
+#### AI 问答页 (`/ai`)
+- **左侧对话区**：消息流界面，支持 Markdown 渲染，对话历史持久化存储
+- **每条 AI 回答包含**：结构化回答内容 + 引用来源链接 + 推荐追问气泡
 - **右侧辅助区**：热门问题列表、历史会话记录
-- **输入区**：文本框 + 附件按钮 + 语音输入预留 + 发送按钮
+- **输入区**：文本框 + 发送按钮，支持 Enter 发送
 
-#### 实时聊天页 (`/chat`)
-- **左侧列表**（w-80）：聊天室列表（管理员预设）+ 私聊联系人列表（最近对话排序）+ 搜索过滤
-- **右侧对话区**：顶部房间名/对方昵称 + 在线状态指示 + 消息列表（虚拟滚动，向上加载历史）+ 底部输入框（支持 Enter 发送、Shift+Enter 换行）
+#### 实时聊天页 (`/channels`)
+- **频道列表**：可用的聊天室卡片列表，显示房间名、图标、在线人数
+- **聊天窗口**：顶部频道名 + 在线状态指示 + 消息列表（虚拟滚动）+ 底部输入框
 - **消息气泡**：显示头像、昵称、时间戳，自己的消息靠右蓝色，他人消息靠左灰色
-- **实时特性**：WebSocket 长连接、心跳保活、断线重连、离线消息队列、打字状态提示、新消息未读角标
-- **通信架构**：实时消息走 ws-server (Kotlin/Spring WebFlux WebSocket)，历史消息走 REST 接口
+- **实时特性**：WebSocket 长连接、心跳保活、断线重连、用户进出频道通知
+
+#### 私聊窗口 (`/messages/dm/:userId`)
+- **私聊对话区**：与指定用户的一对一实时聊天
+- **好友列表入口**：从 `/friends` 页面跳转或从聊天频道发起私聊
+
+#### 个人中心 (`/profile`)
+- **个人信息卡片**：头像上传（含裁剪工具）、昵称、简介、社交链接、技能标签
+- **统计数据**：发帖数、粉丝数、关注数、获赞数
+- **等级进度条**：当前等级 + 距下一级所需经验值进度
+
+#### 设置页面 (`/settings`)
+- **主题外观**：暗黑模式切换、主题色自定义（ColorPicker）
+- **语言切换**：中文 / English（i18n）
+- **账号安全**：密码修改、邮箱绑定
+
+#### 后台管理 (`/admin/**`)
+- **数据看板（Dashboard）**：核心指标卡片（用户总数、帖子总数、今日新增、AI调用量）、趋势图表（TrendChart）
+- **用户管理**：用户列表（DataTable）、角色分配、禁言/封号操作
+- **帖子管理**：帖子列表、置顶/精华/删除操作
+- **板块管理**：分类标签 CRUD、排序调整
+- **AI 用量监控**：调用统计、Token 消耗、模型分布
+
+### 8.3 主题系统与外观定制
+
+LinkSee 支持完整的暗黑模式与主题色自定义体系，通过 Zustand + CSS Variables 实现零运行时开销的主题切换。
+
+| 配置项 | 说明 | 实现方式 |
+|--------|------|----------|
+| **暗黑模式** | 支持 Light / Dark / System 三种模式 | `useThemeStore` + Tailwind `dark:` 前缀 + CSS 变量切换 |
+| **主题色** | 用户可自定义主色调 (Primary Color) | `ColorPicker` 组件 + HSL 色盘选择 + 实时预览 |
+| **CSS 变量同步** | 主题色变更后全局 CSS 变量自动更新 | `useSyncCSSVar` Hook 监听 store 变化 |
+| **持久化** | 主题偏好写入 localStorage | Zustand `persist` 中间件 |
+
+**系统架构**：
+```
+ThemeProvider (React Context)
+    ├── DarkModeToggle       # 三种模式切换按钮
+    ├── ColorPicker          # HSL 色盘选择器
+    └── ThemeSettingsPanel   # 完整设置面板(/settings 页面)
+            │
+            ▼
+    useThemeStore (Zustand + Persist)
+            │
+            ▼
+    useSyncCSSVar Hook → document.documentElement.style.setProperty()
+```
+
+### 8.4 国际化 (i18n)
+
+LinkSee 内置中英文双语支持，采用轻量级自研 i18n 方案。
+
+| 语言 | 覆盖范围 | 实现方式 |
+|------|----------|----------|
+| **简体中文 (zh-CN)** | 全站默认语言 | `i18n/locales/zh-CN.ts` |
+| **English (en)** | 完整英文翻译 | `i18n/locales/en.ts` |
+
+**技术实现**：
+- **翻译文件**：TypeScript 对象，按模块组织（auth、forum、ai、comment、common 等）
+- **切换方式**：`LanguageSwitcher` 组件 + `/settings` 页面的语言选择器
+- **使用方式**：`t('module.key')` 函数调用，支持插值变量 `{variable}`
+- **持久化**：语言偏好写入 localStorage，首次访问跟随浏览器语言
+
+### 8.5 签到系统
+
+签到是用户获取积分的日常入口，采用连续签到递增奖励机制。
+
+| 签到天数 | 积分奖励 | 说明 |
+|:--------:|:--------:|------|
+| 第 1 天 | +5 分 | 基础签到奖励 |
+| 第 2 天 | +6 分 | 连续+1 |
+| 第 3 天 | +7 分 | 连续+2 |
+| ... | ... | 以此类推，上限 +15 分/天 |
+| 中断后 | 重置为 +5 分 | 断签惩罚 |
+
+**实现细节**：
+- 签到状态记录在 Redis，Key: `forum:checkin:{userId}:{date}`
+- 连续天数通过检查前一日是否签到计算
+- 每日零点重置签到状态
+- 签到面板集成在首页右侧边栏 `CheckInPanel` 组件
+
+### 8.6 定时发布
+
+用户可设定帖子在未来某个时间点自动发布，由后端 APScheduler 定时扫描并发布到期帖子。
+
+**发布状态流转**：
+```
+创建帖子(选择定时) → 状态=SCHEDULED
+                         │
+    APScheduler 每 60s 扫描到期帖子
+                         │
+                         ▼
+                  状态=已发布(PUBLISHED)
+```
+
+**实现细节**：
+- 帖子表新增 `scheduled_at` 字段，`status` 新增 `SCHEDULED` 状态
+- 后端通过 `apscheduler` 库每 60 秒检查到期帖子
+- 前端发帖页设置面板包含日期时间选择器，可选择立即发布或定时发布
+- 定时发布前用户可取消或修改发布时间
+
+### 8.7 后台管理系统
+
+管理员可通过 `/admin` 路由访问完整后台管理面板，权限由 `AdminGuard` 组件校验。
+
+| 页面 | 路由 | 功能 |
+|------|------|------|
+| **数据看板** | `/admin/dashboard` | 核心指标卡片（用户总数、帖子总数、今日新增、AI 调用量）、趋势图表（新增用户/帖子趋势） |
+| **用户管理** | `/admin/users` | 用户列表（搜索/筛选/分页）、角色分配、启用/禁用账号 |
+| **帖子管理** | `/admin/posts` | 帖子列表、置顶/精华/删除操作、按状态筛选 |
+| **板块管理** | `/admin/categories` | 分类的增删改查、排序调整、启用/禁用 |
+| **AI 用量监控** | `/admin/ai` | AI 调用统计、Token 消耗量、按模型/用户/任务类型分组 |
+
+**管理组件体系**：
+- `AdminLayout`：左侧导航 + 内容区布局
+- `AdminSidebar`：可折叠侧边导航栏
+- `AdminTopBar`：面包屑 + 快捷操作
+- `AdminDataTable`：通用数据表格（排序/筛选/分页）
+- `StatCard`：统计指标卡片
+- `TrendChart`：趋势折线图/柱状图
+- `AdminGuard`：权限守卫组件（非管理员重定向）
 
 ---
 
@@ -809,6 +1005,9 @@ CREATE TABLE sys_user_profile (
     skills_tags     JSONB        DEFAULT '[]',            -- 技能标签数组
     education       VARCHAR(200) DEFAULT '',              -- 教育背景
     occupation      VARCHAR(100) DEFAULT '',              -- 职业
+    theme_preference VARCHAR(20)  DEFAULT 'system',        -- 主题偏好: light/dark/system
+    primary_color   VARCHAR(20)  DEFAULT '',              -- 自定义主题色(HSL)
+    locale          VARCHAR(10)  DEFAULT 'zh-CN',         -- 语言偏好: zh-CN/en
     is_verified     BOOLEAN      NOT NULL DEFAULT FALSE,  -- 是否认证用户
     verify_info     JSONB        DEFAULT '{}',            -- 认证详细信息
     follower_count  INT          NOT NULL DEFAULT 0,      -- 粉丝数(冗余)
@@ -816,6 +1015,22 @@ CREATE TABLE sys_user_profile (
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+```
+
+#### check_in_record (签到记录表)
+```sql
+CREATE TABLE check_in_record (
+    id              BIGSERIAL PRIMARY KEY,
+    user_id         BIGINT       NOT NULL REFERENCES sys_user(id),
+    check_in_date   DATE         NOT NULL DEFAULT CURRENT_DATE,  -- 签到日期
+    consecutive_days INT         NOT NULL DEFAULT 0,             -- 连续签到天数
+    points_earned   INT          NOT NULL DEFAULT 5,             -- 本次签到获得积分
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    
+    UNIQUE (user_id, check_in_date)  -- 每天只能签到一次
+);
+
+CREATE INDEX idx_check_in_user_date ON check_in_record(user_id, check_in_date DESC);
 ```
 
 #### forum_category (板块分类表)
@@ -859,12 +1074,13 @@ CREATE TABLE forum_post (
     collect_count   INT          NOT NULL DEFAULT 0,
     
     -- 状态字段
-    status          SMALLINT     NOT NULL DEFAULT 0,      -- 0草稿 1已发布 2审核中 3违规
+    status          SMALLINT     NOT NULL DEFAULT 0,      -- 0草稿 1已发布 2审核中 3违规 4定时发布(SCHEDULED)
     is_top          BOOLEAN      NOT NULL DEFAULT FALSE,   -- 是否置顶
     is_essence      BOOLEAN      NOT NULL DEFAULT FALSE,   -- 是否精华帖
     sort_weight     DOUBLE PRECISION NOT NULL DEFAULT 0,   -- 综合排序权重
     
     -- 时间戳
+    scheduled_at    TIMESTAMPTZ,                          -- 定时发布时间(NULL=立即发布)
     published_at    TIMESTAMPTZ,                          -- 发布时间(首次发布时设置)
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
@@ -876,6 +1092,7 @@ CREATE INDEX idx_forum_post_category ON forum_post(category_id) WHERE deleted = 
 CREATE INDEX idx_forum_post_status ON forum_post(status, created_at DESC) WHERE deleted = 0;
 CREATE INDEX idx_forum_post_hot ON forum_post(sort_weight DESC) WHERE deleted = 0 AND status = 1;
 CREATE INDEX idx_forum_post_published ON forum_post(published_at DESC) WHERE deleted = 0 AND status = 1;
+CREATE INDEX idx_forum_post_scheduled ON forum_post(scheduled_at) WHERE status = 4 AND deleted = 0;
 ```
 
 #### forum_comment (评论表)
@@ -999,6 +1216,9 @@ CREATE INDEX idx_chat_msg_dm ON chat_message(sender_id, receiver_id, created_at)
 | 聊天室在线用户 | `chat:room:online:{roomId}` | 当前在线用户ID集合(Set) | 实时 | 加入/离开房间时 SADD/SREM |
 | 用户在线状态 | `chat:user:online:{userId}` | 在线状态 + 连接的 ws-server 实例 | 实时 | 连接/断开时 SET/DEL |
 | 私聊联系人缓存 | `chat:dm:contacts:{userId}` | 最近私聊联系人列表(ZSET) | 24h | 发送/接收私聊时 ZADD |
+| 签到记录 | `forum:checkin:{userId}:{date}` | 用户当日签到状态及连续天数 | 48h | 签到时 SET |
+| 邮箱验证码 | `email:code:{email}` | 邮箱验证码 + 发送时间 | 邮件配置的过期时间 | 发送验证码时 SET |
+| 密码重置Token | `pwd:reset:{token}` | 密码重置令牌 + 用户ID | 令牌过期时间 | 重置请求时 SET |
 
 **缓存更新策略**：
 - **Cache-Aside（旁路缓存）**：读时先查缓存，未命中查DB再回写缓存
@@ -1185,7 +1405,8 @@ GET    /api/forum/category/:id         # 板块详情(含置顶/精华帖)
 # === 帖子 CRUD ===
 POST   /api/forum/post                 # 发布帖子
        Auth: ✅
-       Body: { categoryId, title, content, tagList[], coverImageUrl? }
+       Body: { categoryId, title, content, tagList[], coverImageUrl?, status?, scheduledAt? }
+       Note: status=4 + scheduledAt 可实现定时发布
        Resp: { postId }
 
 GET    /api/forum/post/:id             # 帖子详情
@@ -1193,7 +1414,7 @@ GET    /api/forum/post/:id             # 帖子详情
 
 PUT    /api/forum/post/:id             # 编辑帖子(仅作者/管理员)
        Auth: ✅
-       Body: { title?, content?, tagList?, categoryId? }
+       Body: { title?, content?, tagList?, categoryId?, scheduledAt? }
 
 DELETE /api/forum/post/:id             # 删除帖子(逻辑删除)
        Auth: ✅ (仅作者/管理员)
@@ -1314,7 +1535,7 @@ GET    /api/user/profile                 # 获取我的个人信息(含扩展)
 
 PUT    /api/user/profile                 # 更新个人资料
        Auth: ✅
-       Body: { nickname?, bio?, location?, avatarUrl?, socialLinks?, skillsTags? ... }
+       Body: { nickname?, bio?, location?, avatarUrl?, socialLinks?, skillsTags?, themePreference?, primaryColor?, locale? ... }
 
 GET    /api/user/:id/profile              # 查看他人公开资料
        Resp: { user: { id, nickname, avatarUrl, level, bio, ... }, isFollowed }
@@ -1330,6 +1551,14 @@ GET    /api/user/followings               # 我的关注列表
 
 GET    /api/user/rankings                 # 用户排行榜(经验值/发帖数/获赞数)
        Query: ?type=experience|posts|likes&period=week|month|all&limit=50
+
+POST   /api/user/check-in                # 每日签到
+       Auth: ✅
+       Resp: { consecutiveDays, pointsEarned, checkedIn }
+
+GET    /api/user/check-in/status          # 今日签到状态
+       Auth: ✅
+       Resp: { checkedIn, consecutiveDays }
 ```
 
 ### 11.5 消息通知接口 (`/api/message/**`)
@@ -1434,42 +1663,172 @@ ws.onclose = () => {
 
 ---
 
-## 十二、后端工程目录结构
+## 十二、工程目录结构
 
-所有微服务遵循统一的Kotlin + Spring Boot 4.0 + Jimmer工程目录规范：
+### 12.1 项目根目录总览
 
 ```
-linksee-parent/                          # 父POM工程(统一依赖版本管理)
+LinkSee/
 │
-├── linksee-api-gateway/                 # api-gateway 网关服务
-├── linksee-auth-service/                # auth-service 认证服务
-├── linksee-user-service/                # user-service 用户服务
-├── linksee-forum-service/               # forum-service 论坛核心服务
-├── linksee-ai-service/                  # ai-service AI智能服务
-├── linksee-message-service/             # message-service 消息通知服务
+├── apps/                                 # 应用层
+│   └── web/                              # 主 Web 应用 (React 19 + TypeScript + Vite)
+│       └── src/
+│           ├── components/               # 组件库
+│           │   ├── admin/                #   AdminLayout, AdminSidebar, AdminDataTable, StatCard, TrendChart
+│           │   ├── avatar/               #   AvatarUpload (头像裁剪上传)
+│           │   ├── checkin/              #   CheckInPanel (签到面板)
+│           │   ├── comment/              #   CommentInput, CommentItem, CommentList
+│           │   ├── forum/                #   ForumCategoryList, ForumPostCard, ForumSearchBar
+│           │   ├── i18n/                 #   LanguageSwitcher
+│           │   ├── layout/               #   AppLayout, TopBar, BottomNav, RightPanel, Sidebar, MobileMoreMenu
+│           │   ├── notification/         #   NotificationPanel
+│           │   ├── post/                 #   PostMarkdown (Markdown渲染), PostToc (目录导航)
+│           │   ├── theme/                #   ThemeProvider, DarkModeToggle, ColorPicker, ThemeSettingsPanel
+│           │   └── ui/                   #   shadcn/ui 组件库 (28+ 组件)
+│           ├── hooks/                    # 自定义 Hooks
+│           │   ├── useComments.ts        #   评论数据获取与操作
+│           │   ├── useDebounce.ts        #   防抖 Hook
+│           │   ├── useForumData.ts       #   论坛数据 SWR 封装
+│           │   ├── useHomePosts.ts       #   首页帖子流
+│           │   ├── useLocalStorage.ts    #   localStorage 读写
+│           │   ├── usePostDetail.ts      #   帖子详情数据
+│           │   ├── useSyncCSSVar.ts      #   CSS 变量主题同步
+│           │   └── useWebSocket.ts       #   WebSocket 客户端 Hook
+│           ├── i18n/                     # 国际化
+│           │   ├── index.ts              #   t() 翻译函数
+│           │   └── locales/              #   语言包 (zh-CN.ts, en.ts)
+│           ├── lib/                      # 工具库
+│           │   ├── animation.ts          #   共享动画变体 (Framer Motion)
+│           │   ├── fetcher.ts            #   Axios 请求封装
+│           │   ├── format.ts             #   日期/数字格式化
+│           │   ├── oauth.ts              #   OAuth 辅助
+│           │   ├── toc.ts                #   目录提取算法
+│           │   ├── utils.ts              #   cn() 类名合并等
+│           │   └── ws-client.ts          #   WebSocket 客户端封装
+│           ├── pages/                    # 页面组件
+│           │   ├── HomePage.tsx          #   首页信息流
+│           │   ├── ForumPage.tsx         #   板块列表页
+│           │   ├── PostDetailPage.tsx    #   帖子详情页
+│           │   ├── CreatePostPage.tsx    #   发帖编辑页
+│           │   ├── AiChatPage.tsx        #   AI 问答页
+│           │   ├── ChannelPage.tsx       #   聊天频道页
+│           │   ├── DmChatPage.tsx        #   私聊窗口
+│           │   ├── FriendsPage.tsx       #   好友列表
+│           │   ├── ProfilePage.tsx       #   个人中心
+│           │   ├── SettingsPage.tsx      #   主题与账号设置
+│           │   ├── UserProfilePage.tsx   #   他人主页
+│           │   ├── LoginPage.tsx         #   登录
+│           │   ├── RegisterPage.tsx      #   注册
+│           │   ├── ForgotPasswordPage.tsx #  忘记密码
+│           │   ├── ResetPasswordPage.tsx #  重置密码
+│           │   ├── NotFoundPage.tsx      #   404
+│           │   └── admin/               #   后台管理页面
+│           ├── stores/                   # Zustand 状态管理
+│           │   ├── useAuthStore.ts       #   认证状态 (用户/Token/登录登出)
+│           │   ├── useThemeStore.ts      #   主题状态 (dark/light + 主题色)
+│           │   ├── useForumStore.ts      #   论坛状态 (板块/帖子/分类)
+│           │   ├── useUiStore.ts         #   UI 状态 (侧边栏/移动端菜单)
+│           │   ├── useAiChatStore.ts     #   AI 对话状态 (持久化)
+│           │   ├── useChatStore.ts       #   实时聊天状态 (WebSocket)
+│           │   ├── useNotificationStore.ts # 通知状态
+│           │   └── useAdminStore.ts      #   管理后台状态
+│           ├── providers/                # React Context Provider
+│           ├── App.tsx                   # 路由定义 (React Router 7)
+│           └── main.tsx                  # 应用入口
 │
-├── linksee-common/                      # 公共模块(共享工具类/常量/枚举/异常)
-├── linksee-feign-clients/               # Feign远程调用客户端定义
+├── packages/                             # 共享包 (Monorepo)
+│   ├── api-client/                       # 后端 API 请求 SDK (Axios 封装)
+│   ├── shared/                           # 共享类型定义、常量、工具函数、WebSocket 协议
+│   ├── ui/                               # 核心共享 UI 组件库 (基于 shadcn/ui)
+│   └── eslint-config/                    # 共享 ESLint 配置
 │
-├── ws-server/                           # WebSocket 实时聊天服务 (Kotlin + Spring Boot WebFlux)
-│   ├── src/main/kotlin/com/linksee/ws/
-│   │   ├── WsServerApplication.kt       # Spring Boot 入口
-│   │   ├── config/WebSocketConfig.kt    # WebSocket 路由配置
-│   │   ├── handler/
-│   │   │   └── WebSocketHandler.kt      # 消息处理 + 心跳
-│   │   └── service/
-│   │       └── RoomService.kt           # 房间/客户端/在线管理
-│   └── src/main/resources/application.yml
+├── backend-fastapi/                      # Python FastAPI 主后端
+│   ├── app/
+│   │   ├── main.py                       #   FastAPI 应用入口 + 中间件注册
+│   │   ├── config.py                     #   Pydantic Settings 配置
+│   │   ├── database.py                   #   SQLAlchemy async 引擎 + Session
+│   │   ├── security.py                   #   JWT 签发/验证 + 密码哈希
+│   │   ├── crypto.py                     #   RSA 加解密
+│   │   ├── redis.py                      #   Redis 连接与操作封装
+│   │   ├── dependencies.py               #   FastAPI 依赖注入 (get_current_user)
+│   │   ├── exceptions.py                 #   自定义异常类
+│   │   ├── constants.py                  #   全局常量
+│   │   ├── utils.py                      #   工具函数
+│   │   ├── scheduler.py                  #   APScheduler 定时任务(定时发布)
+│   │   ├── models/                       #   SQLAlchemy ORM 模型 (15 个模型)
+│   │   ├── schemas/                      #   Pydantic 请求/响应 Schema
+│   │   ├── routers/                      #   API 路由 (auth, user, forum, ai, search, message, admin)
+│   │   ├── services/                     #   业务逻辑层
+│   │   └── middleware/                   #   解密中间件 + 错误处理中间件
+│   ├── alembic/                          # 数据库迁移
+│   │   ├── env.py
+│   │   └── versions/                     # 迁移版本文件
+│   └── tests/                            # 测试用例
 │
-├── backend-fastapi/                     # Python FastAPI 辅助后端
+├── ws-server/                            # WebSocket 实时聊天服务 (Kotlin + Spring WebFlux)
+│   └── src/main/kotlin/com/linksee/ws/
+│       ├── WsServerApplication.kt        #   Spring Boot 入口
+│       ├── config/
+│       │   └── WebSocketConfig.kt        #   WebSocket 路由与 CORS 配置
+│       ├── handler/
+│       │   └── ChatWebSocketHandler.kt   #   消息分发、认证、心跳、断线处理
+│       ├── model/
+│       │   ├── Message.kt                #   消息实体 (聊天/私聊)
+│       │   └── MessageProtocol.kt        #   客户端↔服务端 JSON 协议定义
+│       └── service/
+│           ├── SessionManager.kt         #   会话管理 (用户→WebSocketSession 映射)
+│           ├── ChannelService.kt         #   频道管理 (创建/加入/离开/广播)
+│           ├── ChatService.kt            #   聊天业务 (消息落库/历史查询)
+│           ├── MessageRouter.kt          #   消息路由 (群聊广播/私聊转发)
+│           ├── MessageSender.kt          #   消息发送 (单播/广播)
+│           └── HeartbeatManager.kt       #   心跳管理 (Ping/Pong + 超时断开)
 │
-└── docs/                                # 项目文档
-    ├── sql/                             # 数据库脚本
-    ├── deployment/                      # 部署脚本
-    └── api/                             # API文档
+├── docker/                               # Docker 编排
+│   ├── docker-compose.yml                #   PostgreSQL + Redis 容器定义
+│   └── init.sql                          #   数据库初始化 DDL 脚本
+│
+├── docs/                                 # 项目文档
+│   ├── API.md                            #   API 文档
+│   └── superpowers/                      #   技能配置
+│
+├── package.json                          # pnpm workspace 根配置
+├── pnpm-workspace.yaml                   # workspace 包声明
+├── pnpm-lock.yaml                        # 依赖锁定
+└── PROJECT.md                            # 本项目文档
 ```
 
-**单个微服务内部标准目录结构**：
+### 12.2 V1 当前分层架构 (FastAPI)
+
+```
+backend-fastapi/app/
+│
+├── routers/          # 路由层 — 接收 HTTP 请求、参数校验、调用 service
+│   └── router ──→ service ──→ models (SQLAlchemy)
+│
+├── services/         # 业务逻辑层 — 核心业务规则、事务管理
+│   └── service ──→ database (async session)
+│              ──→ redis (缓存/限流)
+│              ──→ scheduler (定时任务)
+│
+├── models/           # 数据模型层 — SQLAlchemy ORM 实体定义
+│
+├── schemas/          # Schema 层 — Pydantic 请求/响应校验
+│
+├── middleware/        # 中间件层 — 请求解密、错误处理
+│   ├── DecryptionMiddleware    # X-Encrypted 请求体解密
+│   └── ErrorHandler           # 全局异常捕获与响应格式化
+│
+└── infrastructure/   # 基础设施
+    ├── config.py      # 配置管理
+    ├── database.py    # 数据库连接
+    ├── redis.py       # Redis 连接
+    ├── security.py    # JWT + 密码
+    └── crypto.py      # RSA 加密
+```
+
+### 12.3 V2 目标微服务目录结构 (Kotlin/Spring Boot)
+
+V2 演进时每个微服务遵循统一的 DDD 分层规范：
 
 ```
 linksee-xxx-service/
@@ -1559,75 +1918,92 @@ linksee-xxx-service/
 ## 十四、分阶段迭代路线图
 
 > 总周期：**6周** 完成 V1.0 版本并可上线运营
+>
+> 状态说明：✅ 已完成 | 🔄 进行中 | ⬜ 待开始
 
-### Phase 1: 基础底座搭建（第1周）
+### Phase 1: 基础底座搭建（第1周）🟢 基本完成
 
-**目标**：微服务骨架可运行，全链路连通，基础设施到位
+**目标**：工程骨架可运行，前后端全链路连通，基础设施到位
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 1.1 | 工程初始化 | 创建父POM + 6个微服务Module + common公共模块，统一Spring Boot 4.0 + Kotlin + Jimmer版本 | `mvn clean compile` 通过 |
-| 1.2 | 数据库搭建 | PostgreSQL建库建表（执行全部DDL），Jimmer实体逆向生成或手写完成 | 可通过Jimmer查询任意表 |
-| 1.3 | Redis配置 | Redis连接池配置、缓存抽象基类封装、序列化策略(Kryo/String) | `SET/GET` 测试通过 |
-| 1.4 | 网关配置 | SpringCloudGateway路由规则配置、全局Filter(鉴权/限流/日志/CORS) | 请求可达各微服务且返回正确 |
-| 1.5 | 认证模块 | 用户注册(含密码加密)、JWT签发验签、登录登出完整流程 | 可注册新用户并登录获得Token |
-| 1.6 | MQ配置 | RabbitMQ连接、Exchange/Queue声明、生产者消费者模板 | 可发送消息并被消费 |
+| 序号 | 任务 | 详细内容 | 状态 |
+|:---:|------|---------|:----:|
+| 1.1 | 工程初始化 | pnpm Monorepo + FastAPI 工程 + Kotlin ws-server 工程搭建 | ✅ |
+| 1.2 | 数据库搭建 | PostgreSQL 建库建表（Docker Compose + init.sql + Alembic 迁移） | ✅ |
+| 1.3 | Redis 配置 | Redis 连接池、缓存抽象封装、会话/计数/限流 | ✅ |
+| 1.4 | 认证模块 | 用户注册(BCrypt)、JWT 签发验签、登录登出、RefreshToken、邮箱验证码 | ✅ |
+| 1.5 | 前端路由 | React Router 7 全站路由配置、Layout 布局组件 (AppLayout + AdminLayout) | ✅ |
+| 1.6 | Docker 环境 | docker-compose.yml (PostgreSQL + Redis)、init.sql 初始化脚本 | ✅ |
 
-**本周产出**：一个可以注册、登录、通过网关访问的系统骨架
+> **实际达成**：FastAPI 单体架构替代了原规划的 Kotlin 微服务骨架，开发效率更高，但架构演进空间保留。
 
 ---
 
-### Phase 2: 论坛核心业务（第2-3周）
+### Phase 2: 论坛核心业务（第2-3周）🟢 基本完成
 
 **目标**：论坛基础功能完整可用，用户可以正常发帖评论互动
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 2.1 | 用户中心 | 个人资料CRUD、头像上传(OSS/MinIO)、关注/取关、个人主页展示 | 完整用户体系可用 |
-| 2.2 | 板块管理 | 一二级分类CRUD、板块列表/详情API、板块首页数据聚合 | 5大板块体系可浏览 |
-| 2.3 | 发帖功能 | Markdown编辑器集成、帖子发布(含板块选择/标签)、帖子编辑/删除 | 可发布一篇完整帖子 |
-| 2.4 | 评论系统 | 一级/二级嵌套评论、评论列表(分页/排序)、评论删除 | 帖子下可正常评论互动 |
-| 2.5 | 互动功能 | 点赞/取消点赞、收藏/取消收藏、计数器实时更新(Redis原子操作) | 互动功能即时反馈 |
-| 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab切换、帖子卡片列表、虚拟滚动 | 首页可流畅滚动浏览 |
-| 2.7 | 基础搜索 | ES索引同步(MQ异步)、关键词全文检索、搜索结果高亮 | 输入关键词可搜到帖子 |
-| 2.8 | 实时聊天 | ws-server (Kotlin/Spring WebFlux WebSocket) 服务搭建、聊天室群聊、用户私聊、消息落库、在线状态、前端 WebSocket ChatPage 页面 | 用户可实时群聊和私聊 |
+| 序号 | 任务 | 详细内容 | 状态 |
+|:---:|------|---------|:----:|
+| 2.1 | 用户中心 | 个人资料 CRUD、头像上传(本地存储)、关注/取关、个人主页、用户排行榜 | ✅ |
+| 2.2 | 板块管理 | 一二级分类 CRUD、板块列表/详情 API、板块首页数据聚合 | ✅ |
+| 2.3 | 发帖功能 | Markdown 编辑器集成、帖子发布(板块选择/标签)、编辑/删除、定时发布 | ✅ |
+| 2.4 | 评论系统 | 一级/二级嵌套评论、评论列表(分页/排序)、评论删除、作者标注(楼主/版主) | ✅ |
+| 2.5 | 互动功能 | 点赞/取消点赞(乐观更新)、收藏/取消收藏、计数器实时更新(Redis) | ✅ |
+| 2.6 | 首页信息流 | 推荐/热门/最新/精华 Tab 切换、帖子卡片列表、SWR 数据获取、签到面板 | ✅ |
+| 2.7 | 基础搜索 | 关键词全文检索(PostgreSQL ILIKE + 板块筛选)、搜索结果高亮 | ✅ |
+| 2.8 | 实时聊天 | ws-server (Kotlin/Spring WebFlux WebSocket)、聊天室群聊、用户私聊、在线状态、心跳保活 | ✅ |
+| 2.9 | 主题系统 | 暗黑/明亮/系统三种模式、主题色 HSL 自定义、CSS 变量实时同步 | ✅ |
+| 2.10 | 国际化 | 中英文双语支持、语言切换器、翻译文件按模块组织 | ✅ |
 
-**本周产出**：一个功能完整的论坛系统（不含AI功能）
-
----
-
-### Phase 3: AI双引擎接入（第4-5周）
-
-**目标**：AI能力上线，形成核心差异化竞争力
-
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 3.1 | 大模型接入 | 智谱GLM-4 SDK + 通义千问 SDK + Kimi SDK 接入，Model Router实现 | 可调用任一模型并获得回复 |
-| 3.2 | 创作助手F01-F04 | 标题生成、大纲辅助、润色优化、续写扩写 4个核心功能 | 发帖编辑器内可使用AI辅助 |
-| 3.3 | 创作助手F05-F08 | 翻译、摘要提炼、标签推荐、灵感激发 4个辅助功能 | AI工具栏8个功能全部可用 |
-| 3.4 | RAG检索管线 | ES关键词检索 + Milvus向量检索 + PostgreSQL结构化查询并行执行 + 融合排序 | 混合检索可返回高质量结果 |
-| 3.5 | AI问答界面 | 对话式UI(SSE流式输出)、引用来源展示、追问建议、会话管理 | 可与AI进行多轮问答 |
-| 3.6 | MQ异步任务 | AI审核消费者、ES同步消费者、AI摘要生成、向量入库 | 发帖后异步流程全部跑通 |
-| 3.7 | 用量控制 | 用户等级与每日配额校验、调用计数(Redis原子INCR)、超额提示 | 不同等级用户配额限制生效 |
-
-**本周产出**：具备AI创作助手和AI智能问答两大核心能力的论坛
+> **实际达成**：论坛核心功能全部就绪，额外完成了主题系统、国际化、签到、定时发布等体验功能。
 
 ---
 
-### Phase 4: 运营优化与上线准备（第6周）
+### Phase 3: AI 双引擎接入（第4-5周）🔄 部分完成
+
+**目标**：AI 能力上线，形成核心差异化竞争力
+
+| 序号 | 任务 | 详细内容 | 状态 |
+|:---:|------|---------|:----:|
+| 3.1 | 大模型接入 | 智谱 GLM-4 / 通义千问 / Kimi SDK 接入、多模型调度 | 🔄 基础完成 |
+| 3.2 | 创作助手 F01-F04 | 标题生成、大纲辅助、润色优化、续写扩写 (AI Mock + 真实 API) | 🔄 API 就绪 |
+| 3.3 | 创作助手 F05-F08 | 翻译、摘要提炼、标签推荐、灵感激发 | 🔄 API 就绪 |
+| 3.4 | AI 问答界面 | 对话式 UI、会话持久化 (Zustand Persist)、AI Mock 模式 | ✅ 前端完成 |
+| 3.5 | AI 问答后端 | RAG 检索管线 (意图识别 + 混合检索 + LLM生成) | 🔄 基础 API 就绪 |
+| 3.6 | AI 用量控制 | 用户每日配额校验、调用计数(Redis INCR) | 🔄 后端就绪 |
+| 3.7 | 内容审核 | AI 内容审核异步流程 | ⬜ 待开始 |
+| 3.8 | MQ 异步任务 | ES 索引同步、AI 摘要生成、向量入库 | ⬜ 待开始 (需 RabbitMQ) |
+
+---
+
+### Phase 4: 运营优化与上线准备（第6周）🔄 进行中
 
 **目标**：生产环境可部署，正式对外发布运营
 
-| 序号 | 任务 | 详细内容 | 验收标准 |
-|:---:|------|---------|---------|
-| 4.1 | 内容审核 | DFA敏感词库 + AI违规检测 + 人工审核后台 | 违规内容可有效拦截 |
-| 4.2 | 消息通知完善 | 站内信(点赞/评论/关注/系统/AI)、未读计数Badge | 消息及时准确送达 |
-| 4.3 | 运营后台 | 用户管理(禁言/封号/角色)、帖子管理(置顶/精华/删除)、板块配置、数据看板 | 管理员可通过后台管控 |
-| 4.4 | 性能优化 | 接口压测(JMeter/Gatling)、慢查询优化(EXPLAIN)、缓存命中率调优、SQL索引优化 | 核心接口P99 < 500ms |
-| 4.5 | 安全加固 | XSS/CSRF防护、限流策略细化、接口权限全面审查、渗透测试基础检查 | 安全扫描无明显漏洞 |
-| 4.6 | 文档与部署 | Swagger/OpenAPI文档完整、部署手册(Docker Compose/K8s)、运维脚本、监控告警(Prometheus+Grafana) | 其他人可按文档独立部署 |
+| 序号 | 任务 | 详细内容 | 状态 |
+|:---:|------|---------|:----:|
+| 4.1 | 消息通知完善 | 站内信(点赞/评论/关注/系统/AI)、未读计数 Badge、通知面板 | ✅ 基本完成 |
+| 4.2 | 运营后台 | 用户管理、帖子管理、板块配置、数据看板、AI 用量监控 | ✅ 基本完成 |
+| 4.3 | 定时任务 | APScheduler 定时发布到期帖子 | ✅ 完成 |
+| 4.4 | 内容审核 | DFA 敏感词库 + AI 违规检测 + 人工审核后台 | ⬜ 待完成 |
+| 4.5 | 性能优化 | 接口压测、慢查询优化(EXPLAIN)、缓存命中率调优、SQL 索引优化 | ⬜ 待开始 |
+| 4.6 | 安全加固 | XSS/CSRF 防护增强、限流策略细化、接口权限全面审查 | 🔄 基础完成 |
+| 4.7 | 文档与部署 | 完善部署手册、监控告警配置、CI/CD 流水线 | 🔄 API.md 已有 |
 
-**本周产出**：可正式上线的生产级系统
+---
+
+### Phase 5: 后续规划（V1.1+）
+
+| 序号 | 任务 | 说明 | 优先级 |
+|:---:|------|------|:----:|
+| 5.1 | ES 搜索引擎接入 | 替换 PostgreSQL ILIKE，支持分词/拼音/同义词检索 | ⭐⭐⭐ |
+| 5.2 | AI 编辑器工具栏 | 前端富文本编辑器内嵌 AI 创作 8 大功能入口 | ⭐⭐⭐ |
+| 5.3 | SSE 流式输出 | AI 问答 SSE 流式响应替代轮询 | ⭐⭐⭐ |
+| 5.4 | 内容审核上线 | DFA + AI 双层审核 + 人工复审流程 | ⭐⭐⭐ |
+| 5.5 | 邮件通知服务 | 邮件验证码优化 + 邮件通知模板 | ⭐⭐ |
+| 5.6 | Milvus 向量检索 | 语义相似度搜索 + 个性化推荐 | ⭐⭐ |
+| 5.7 | RabbitMQ 异步 | 发帖后异步审核/索引/摘要 Pipeline | ⭐⭐ |
+| 5.8 | 微服务化演进 | FastAPI → Kotlin/Spring Boot 微服务渐进迁移 | ⭐ |
 
 ---
 
@@ -1662,17 +2038,60 @@ linksee-xxx-service/
 
 ### B. 环境变量参考
 
+#### FastAPI 后端 (.env)
 ```bash
 # 数据库
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/linksee
-SPRING_DATASOURCE_USERNAME=linksee
-SPRING_DATASOURCE_PASSWORD=your_password
+DATABASE_URL=postgresql+asyncpg://postgres:123456@localhost:5432/linksee
 
 # Redis
-SPRING_DATA_REDIS_HOST=localhost
-SPRING_DATA_REDIS_PORT=6379
-SPRING_DATA_REDIS_PASSWORD=your_redis_password
+REDIS_URL=redis://localhost:6379/0
 
+# JWT
+JWT_SECRET=change-me-in-production-min-256-bits-length
+JWT_EXPIRATION_SECONDS=7200           # 2小时
+JWT_REFRESH_EXPIRATION_SECONDS=604800  # 7天
+
+# 前端地址 (CORS)
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# 上传配置
+UPLOAD_DIR=./uploads
+MAX_UPLOAD_SIZE=5242880               # 5MB
+
+# AI Mock 模式 (开发阶段)
+AI_MOCK_ENABLED=true
+
+# 邮件服务 (QQ邮箱)
+SMTP_HOST=smtp.qq.com
+SMTP_PORT=587
+SMTP_USERNAME=
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=
+SMTP_USE_TLS=true
+
+# RSA 加密
+ENCRYPTION_ENABLED=true
+RSA_KEY_DIR=./keys
+```
+
+#### WebSocket 服务 (ws-server application.yml)
+```yaml
+server:
+  port: 9000
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+websocket:
+  heartbeat-timeout: 30000    # 心跳超时(ms)
+  max-sessions: 10000         # 最大连接数
+```
+
+#### V2 微服务 (规划)
+```bash
 # Elasticsearch
 ELASTICSEARCH_HOSTS=http://localhost:9200
 
@@ -1691,27 +2110,20 @@ AI_MODEL_ZHIPU_API_KEY=zhipu_api_key_here
 AI_MODEL_ZHIPU_API_SECRET=zhipu_secret_here
 AI_MODEL_QIWEN_API_KEY=qwen_api_key_here
 AI_MODEL_KIMI_API_KEY=kimi_api_key_here
-
-# WebSocket 实时聊天 (Spring WebFlux Reactive WebSocket)
-WS_PORT=9000
-WS_HOST=0.0.0.0
-
-# JWT
-JWT_SECRET=your_jwt_secret_key_min_256bits
-JWT_EXPIRATION_MS=7200000          # 2小时
-JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 ```
 
 ### C. 技术选型决策记录 (ADR)
 
 | 决策项 | 选择 | 备选方案 | 决策理由 |
 |--------|------|---------|----------|
-| 语言 | Kotlin | Java | 空安全、表达式简洁、与Java 100%互操作、代码量少30% |
-| ORM | Jimmer | MyBatis-Plus / JPA | 无XML、强类型、动态SQL、PostgreSQL原生支持优秀 |
+| V1 后端语言 | Python FastAPI | Kotlin/Spring Boot | 快速迭代验证产品、开发效率优先、Python AI 生态集成便捷 |
+| V1 ORM | SQLAlchemy 2.0 async | Jimmer | Python 生态标准、异步支持成熟、Alembic 迁移版本化 |
+| V2 后端语言 | Kotlin (规划) | Java | 空安全、表达式简洁、与Java 100%互操作、代码量少30% |
+| V2 ORM | Jimmer (规划) | MyBatis-Plus / JPA | 无XML、强类型、动态SQL、PostgreSQL原生支持优秀 |
 | 缓存 | Redis 7.0 | Memcached | 数据类型丰富、持久化、集群成熟、生态好 |
-| 搜索 | ES 8.x | Meilisearch / Sphinx | 中文分词生态成熟、分布式能力强、查询DSL强大 |
-| 向量库 | Milvus | Pinecone / Weaviate | 开源可自部署、性能优异、国内社区活跃 |
-| 消息队列 | RabbitMQ | Kafka / RocketMQ | 管理友好、协议灵活、适合中小规模场景 |
+| 搜索 | ES 8.x (规划) | Meilisearch / Sphinx | 中文分词生态成熟、分布式能力强、查询DSL强大 |
+| 向量库 | Milvus (规划) | Pinecone / Weaviate | 开源可自部署、性能优异、国内社区活跃 |
+| 消息队列 | RabbitMQ (规划) | Kafka / RocketMQ | 管理友好、协议灵活、适合中小规模场景 |
 | 前端 | React 19 + TS | Vue 3 / Nuxt | Hooks 生态成熟、组件化灵活、Vercel 最佳实践支持 |
 | 实时通信 | 纯 WebSocket (Spring WebFlux Reactive) | Socket.IO / ws 库 | Spring 生态原生集成、Reactor 响应式模型、无额外协议开销 |
 
@@ -1730,7 +2142,7 @@ JWT_REFRESH_EXPIRATION_MS=604800000 # 7天
 
 ---
 
-> **文档版本**: v1.1
-> **最后更新**: 2026-05-16
+> **文档版本**: v2.0
+> **最后更新**: 2026-05-22
 > **维护者**: LinkSee Team
-> **状态**: ✅ 已批准，可作为开发实施依据
+> **状态**: ✅ 已更新，反映 V1 实际实现状态，保留 V2 微服务化演进规划
