@@ -21,6 +21,7 @@ interface AdminNavItem {
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { labelKey: 'admin.nav.dashboard', icon: 'mdi:view-dashboard', path: '/admin/dashboard' },
+  { labelKey: 'admin.nav.review', icon: 'mdi:clipboard-check', path: '/admin/review' },
   { labelKey: 'admin.nav.users', icon: 'mdi:account-group', path: '/admin/users' },
   { labelKey: 'admin.nav.posts', icon: 'mdi:shield-check', path: '/admin/posts' },
   { labelKey: 'admin.nav.categories', icon: 'mdi:folder-cog', path: '/admin/categories' },

@@ -29,6 +29,7 @@ const LazyAdminPostsPage = lazy(() => import('./pages/admin/AdminPostsPage').the
 const LazyAdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage').then(m => ({ default: m.AdminCategoriesPage })));
 const LazyAdminAiPage = lazy(() => import('./pages/admin/AdminAiPage').then(m => ({ default: m.AdminAiPage })));
 const LazyAdminSensitiveWordsPage = lazy(() => import('./pages/admin/AdminSensitiveWordsPage').then(m => ({ default: m.AdminSensitiveWordsPage })));
+const LazyAdminReviewPage = lazy(() => import('./pages/admin/AdminReviewPage').then(m => ({ default: m.AdminReviewPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -81,6 +82,7 @@ export default function App() {
               <Route path="posts" element={<LazyAdminPostsPage />} />
               <Route path="categories" element={<LazyAdminCategoriesPage />} />
               <Route path="ai" element={<LazyAdminAiPage />} />
+              <Route path="review" element={<LazyAdminReviewPage />} />
               <Route path="sensitive-words" element={<LazyAdminSensitiveWordsPage />} />
             </Route>
 

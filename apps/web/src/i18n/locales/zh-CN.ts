@@ -476,6 +476,7 @@ export default {
   admin: {
     nav: {
       dashboard: '仪表盘',
+      review: '审核管理',
       users: '用户管理',
       posts: '内容审核',
       categories: '板块管理',

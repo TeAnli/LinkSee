@@ -479,6 +479,7 @@ const en: DeepString<typeof zhCN> = {
   admin: {
     nav: {
       dashboard: 'Dashboard',
+      review: 'Review Queue',
       users: 'User Management',
       posts: 'Post Moderation',
       categories: 'Category Management',
