@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +12,7 @@ import { useForumStore } from '@/stores';
 
 export function ForumPage() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { categories } = useForumCategories();
   const { posts, total, loading, pageSize } = useForumPosts();
   const {
@@ -22,6 +25,27 @@ export function ForumPage() {
     setKeyword,
     setPage,
   } = useForumStore();
+
+  // 从 URL 读取初始搜索关键词
+  const initRef = useRef(false);
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+    const q = searchParams.get('keyword');
+    if (q) setKeyword(q);
+  }, [searchParams, setKeyword]);
+
+  // 搜索词变化时同步到 URL
+  useEffect(() => {
+    if (!initRef.current) return;
+    const params = new URLSearchParams(searchParams);
+    if (keyword) {
+      params.set('keyword', keyword);
+    } else {
+      params.delete('keyword');
+    }
+    setSearchParams(params, { replace: true });
+  }, [keyword]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalPages = Math.ceil(total / pageSize);
 
