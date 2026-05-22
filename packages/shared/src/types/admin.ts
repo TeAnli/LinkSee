@@ -160,3 +160,28 @@ export interface AiTaskLogParams {
   page?: number;
   size?: number;
 }
+
+export interface SensitiveWordItem {
+  category: string;
+  word: string;
+}
+
+export interface SensitiveWordListParams {
+  keyword?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface SensitiveWordAddRequest {
+  category: string;
+  words: string[];
+}
+
+export interface SensitiveWordDeleteRequest {
+  category: string;
+  word: string;
+}
+
+export interface SensitiveWordRawRequest {
+  raw: string;
+}

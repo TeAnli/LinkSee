@@ -6,15 +6,20 @@ import type {
   AdminCategoryItem,
   AiUsageStats,
   AiTaskLogItem,
+  SensitiveWordItem,
   UserStatusRequest,
   RoleUpdateRequest,
   PostModerateRequest,
   PostFeatureRequest,
   CategoryManageRequest,
+  SensitiveWordAddRequest,
+  SensitiveWordDeleteRequest,
+  SensitiveWordRawRequest,
   AdminUserListParams,
   AdminPostListParams,
   AdminCategoryListParams,
   AiTaskLogParams,
+  SensitiveWordListParams,
 } from "@linksee/shared";
 import type { ApiResponse, PaginatedResponse } from "@linksee/shared";
 
@@ -80,4 +85,25 @@ export const adminApi = {
       "/admin/ai/tasks",
       { params },
     ),
+
+  listSensitiveWords: (params?: SensitiveWordListParams) =>
+    apiClient.get<ApiResponse<PaginatedResponse<SensitiveWordItem>>>(
+      "/admin/sensitive-words",
+      { params },
+    ),
+
+  addSensitiveWords: (req: SensitiveWordAddRequest) =>
+    apiClient.post<ApiResponse<{ added: number; category: string }>>(
+      "/admin/sensitive-words",
+      req,
+    ),
+
+  deleteSensitiveWord: (req: SensitiveWordDeleteRequest) =>
+    apiClient.delete<ApiResponse<null>>("/admin/sensitive-words", { data: req }),
+
+  getSensitiveWordsRaw: () =>
+    apiClient.get<ApiResponse<{ raw: string }>>("/admin/sensitive-words/raw"),
+
+  saveSensitiveWordsRaw: (req: SensitiveWordRawRequest) =>
+    apiClient.put<ApiResponse<null>>("/admin/sensitive-words/raw", req),
 };
