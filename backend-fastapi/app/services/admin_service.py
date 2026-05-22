@@ -11,8 +11,12 @@ from app.models.user import SysUser
 
 
 async def get_dashboard(db: AsyncSession) -> dict:
+    from app.models.ai_moderation import AiModerationLog
+    from app.models.ai_task import AiTaskRecord
+
     today = datetime.date.today()
     today_start = datetime.datetime.combine(today, datetime.time.min, tzinfo=datetime.timezone.utc)
+    seven_days_ago = today_start - datetime.timedelta(days=7)
 
     total_users = (await db.execute(select(func.count(SysUser.id)).where(SysUser.deleted == 0))).scalar()
     new_users_today = (await db.execute(select(func.count(SysUser.id)).where(SysUser.deleted == 0, SysUser.created_at >= today_start))).scalar()
@@ -20,6 +24,8 @@ async def get_dashboard(db: AsyncSession) -> dict:
     new_posts_today = (await db.execute(select(func.count(ForumPost.id)).where(ForumPost.deleted == 0, ForumPost.created_at >= today_start))).scalar()
     total_comments = (await db.execute(select(func.count(ForumComment.id)).where(ForumComment.deleted == 0))).scalar()
     new_comments_today = (await db.execute(select(func.count(ForumComment.id)).where(ForumComment.deleted == 0, ForumComment.created_at >= today_start))).scalar()
+    active_users_7d = (await db.execute(select(func.count(SysUser.id)).where(SysUser.deleted == 0, SysUser.last_login_at >= seven_days_ago))).scalar()
+    ai_calls_today = (await db.execute(select(func.count(AiTaskRecord.id)).where(AiTaskRecord.created_at >= today_start))).scalar()
 
     # Trend: last 7 days
     trend_posts = []
@@ -39,18 +45,56 @@ async def get_dashboard(db: AsyncSession) -> dict:
         )
     )).scalar()
 
+    # Hot posts: top 5 by view count (published only)
+    hot_posts_stmt = (
+        select(ForumPost)
+        .where(ForumPost.deleted == 0)
+        .order_by(ForumPost.view_count.desc())
+        .limit(5)
+    )
+    hot_posts_result = await db.execute(hot_posts_stmt)
+    hot_posts_list = []
+    for p in hot_posts_result.scalars().all():
+        author = await db.get(SysUser, p.author_id)
+        hot_posts_list.append({
+            "id": p.id,
+            "title": p.title,
+            "authorNickname": author.nickname if author else "",
+            "viewCount": p.view_count,
+        })
+
+    # Recent moderations: last 5
+    mod_stmt = (
+        select(AiModerationLog)
+        .order_by(AiModerationLog.created_at.desc())
+        .limit(5)
+    )
+    mod_result = await db.execute(mod_stmt)
+    recent_mods = []
+    for m in mod_result.scalars().all():
+        post = await db.get(ForumPost, m.content_id) if m.content_type == "post" else None
+        recent_mods.append({
+            "id": m.id,
+            "postId": m.content_id,
+            "postTitle": post.title if post else "",
+            "action": m.action,
+            "reason": m.violation_type or "",
+            "operatorName": "系统",
+            "createdAt": m.created_at.isoformat() if m.created_at else "",
+        })
+
     return {
         "overview": {
             "totalUsers": total_users, "newUsersToday": new_users_today,
             "totalPosts": total_posts, "newPostsToday": new_posts_today,
             "totalComments": total_comments, "newCommentsToday": new_comments_today,
-            "activeUsers7d": 0, "aiCallsToday": 0,
+            "activeUsers7d": active_users_7d or 0, "aiCallsToday": ai_calls_today or 0,
             "pendingReviewPosts": pending_review or 0,
         },
         "trendPosts": trend_posts,
         "trendUsers": trend_users,
-        "hotPosts": [],
-        "recentModerations": [],
+        "hotPosts": hot_posts_list,
+        "recentModerations": recent_mods,
     }
 
 
