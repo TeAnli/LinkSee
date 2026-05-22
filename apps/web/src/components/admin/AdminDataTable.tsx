@@ -44,6 +44,7 @@ interface AdminDataTableProps<T> {
   currentPage?: number;
   pageSize?: number;
   loading?: boolean;
+  dense?: boolean;
 }
 
 export function AdminDataTable<T extends object>({
@@ -59,6 +60,7 @@ export function AdminDataTable<T extends object>({
   currentPage = 1,
   pageSize = 20,
   loading = false,
+  dense = false,
 }: AdminDataTableProps<T>) {
   const [searchValue, setSearchValue] = useState('');
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -155,7 +157,7 @@ export function AdminDataTable<T extends object>({
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={String(column.key)} className={cn(column.className)}>
+                <TableHead key={String(column.key)} className={cn(dense && 'h-8 px-2 text-xs', column.className)}>
                   {column.sortable ? (
                     <button
                       className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
@@ -189,12 +191,12 @@ export function AdminDataTable<T extends object>({
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`sk-${i}`}>
                   {columns.map((col) => (
-                    <TableCell key={String(col.key)}>
+                    <TableCell key={String(col.key)} className={cn(dense && 'px-2 py-1')}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
                   ))}
                   {actions && (
-                    <TableCell>
+                    <TableCell className={cn(dense && 'px-2 py-1')}>
                       <Skeleton className="h-8 w-8 rounded-md" />
                     </TableCell>
                   )}
@@ -204,7 +206,7 @@ export function AdminDataTable<T extends object>({
               data.list.map((row, index) => (
                 <TableRow key={index}>
                   {columns.map((column) => (
-                    <TableCell key={String(column.key)} className={cn(column.className)}>
+                    <TableCell key={String(column.key)} className={cn(dense && 'px-2 py-1', column.className)}>
                       {column.render
                         ? column.render(column.key in row ? row[column.key as keyof T] : undefined, row)
                         : column.key in row
@@ -212,7 +214,7 @@ export function AdminDataTable<T extends object>({
                         : ''}
                     </TableCell>
                   ))}
-                  {actions && <TableCell className="text-right">{actions(row)}</TableCell>}
+                  {actions && <TableCell className={cn('text-right', dense && 'px-2 py-1')}>{actions(row)}</TableCell>}
                 </TableRow>
               ))
             ) : (

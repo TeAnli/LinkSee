@@ -25,6 +25,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { labelKey: 'admin.nav.posts', icon: 'mdi:shield-check', path: '/admin/posts' },
   { labelKey: 'admin.nav.categories', icon: 'mdi:folder-cog', path: '/admin/categories' },
   { labelKey: 'admin.nav.ai', icon: 'mdi:robot', path: '/admin/ai' },
+  { labelKey: 'admin.nav.sensitiveWords', icon: 'mdi:shield-alert', path: '/admin/sensitive-words' },
 ];
 
 const ADMIN_SIDEBAR_WIDTH = 240;

@@ -480,6 +480,7 @@ export default {
       posts: '内容审核',
       categories: '板块管理',
       ai: 'AI 用量',
+      sensitiveWords: '敏感词库',
     },
     common: {
       panel: '管理面板',

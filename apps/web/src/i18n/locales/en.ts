@@ -483,6 +483,7 @@ const en: DeepString<typeof zhCN> = {
       posts: 'Post Moderation',
       categories: 'Category Management',
       ai: 'AI Usage',
+      sensitiveWords: 'Sensitive Words',
     },
     common: {
       panel: 'Admin Panel',
