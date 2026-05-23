@@ -73,19 +73,23 @@ export function PostDetailPage() {
             </motion.h1>
 
             <motion.div variants={fadeUp} className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => navigate(`/user/${post.author.id}`)}
+                className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity rounded-lg"
+              >
                 <Avatar className="size-7">
                   <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-bold">
                     {post.author.nickname.slice(0, 1)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
+                <div className="flex flex-col text-left">
                   <span className="text-sm font-bold">{post.author.nickname}</span>
                   <span className="text-[11px] text-muted-foreground">
                     {formatRelativeTime(post.publishedAt)} · {t('post.reads')} {formatCount(post.viewCount)}
                   </span>
                 </div>
-              </div>
+              </button>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <button
                   onClick={toggleLike}
