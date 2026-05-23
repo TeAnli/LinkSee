@@ -56,7 +56,7 @@ export function DmChatPage() {
     setLoading(true);
 
     userApi.getUsersProfile(partnerUserId).then((res) => {
-      if (!cancelled) setPartner(res.data.data);
+      if (!cancelled) setPartner(res.data.data.user);
     }).catch(() => {
       if (!cancelled) setPartner(null);
     }).finally(() => {

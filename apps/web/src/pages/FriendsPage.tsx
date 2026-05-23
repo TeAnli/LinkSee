@@ -94,7 +94,7 @@ export function FriendsPage() {
       const api = tab === 'followers' ? userApi.getFollowers : userApi.getFollowing;
       const res = await api({ page: pageNum, size: PAGE_SIZE });
       const data = res.data.data;
-      const list = Array.isArray(data) ? data : [];
+      const list = data.list ?? [];
       const setter = tab === 'followers' ? setFollowers : setFollowing;
 
       if (pageNum === 1) {
@@ -102,7 +102,7 @@ export function FriendsPage() {
       } else {
         setter((prev) => [...prev, ...list]);
       }
-      setHasMore(list.length === PAGE_SIZE);
+      setHasMore(data.hasMore);
     } catch {
       if (pageNum === 1) {
         const setter = tab === 'followers' ? setFollowers : setFollowing;

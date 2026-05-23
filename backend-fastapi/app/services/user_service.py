@@ -158,7 +158,7 @@ async def get_followers(db: AsyncSession, user_id: int, page: int = 1, size: int
         back = await db.execute(select(ForumFollow).where(ForumFollow.follower_id == user_id, ForumFollow.following_id == f.follower_id))
         if follower:
             items.append({
-                "userId": follower.id, "nickname": follower.nickname or follower.username,
+                "id": follower.id, "username": follower.username, "nickname": follower.nickname or follower.username,
                 "avatarUrl": follower.avatar_url, "level": follower.level,
                 "bio": fp.bio if fp else "",
                 "isFollowed": back.scalar() is not None,
@@ -185,7 +185,7 @@ async def get_followings(db: AsyncSession, user_id: int, page: int = 1, size: in
         fp = fp.scalar()
         if following:
             items.append({
-                "userId": following.id, "nickname": following.nickname or following.username,
+                "id": following.id, "username": following.username, "nickname": following.nickname or following.username,
                 "avatarUrl": following.avatar_url, "level": following.level,
                 "bio": fp.bio if fp else "",
                 "isFollowed": True,

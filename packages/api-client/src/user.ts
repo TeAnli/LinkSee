@@ -1,4 +1,4 @@
-import type { ApiResponse, CheckInResponse, PaginatedRequest, PostListItem, UserInfo } from "@linksee/shared";
+import type { ApiResponse, CheckInResponse, PaginatedRequest, PaginatedResponse, PostListItem, UserInfo } from "@linksee/shared";
 import apiClient from ".";
 
 export const userApi = {
@@ -18,16 +18,16 @@ export const userApi = {
         apiClient.get<ApiResponse<CheckInResponse>>("/user/check-in"),
 
     getFollowers: (params: PaginatedRequest) =>
-        apiClient.get<ApiResponse<UserInfo[]>>("/user/followers", { params }),
+        apiClient.get<ApiResponse<PaginatedResponse<UserInfo>>>("/user/followers", { params }),
 
     getFollowing: (params: PaginatedRequest) =>
-        apiClient.get<ApiResponse<UserInfo[]>>("/user/following", { params }),
+        apiClient.get<ApiResponse<PaginatedResponse<UserInfo>>>("/user/followings", { params }),
 
     getRankings: () =>
         apiClient.get<ApiResponse<UserInfo[]>>("/user/rankings"),
 
     getUsersProfile: (userId: number) =>
-        apiClient.get<ApiResponse<UserInfo>>(`/user/profile/${userId}/profile`),
+        apiClient.get<ApiResponse<UserInfo>>(`/user/${userId}/profile`),
 
     getUsersPosts: (userId: number, params: PaginatedRequest) =>
         apiClient.get<ApiResponse<PostListItem[]>>(`/user/${userId}/posts`, { params }),
