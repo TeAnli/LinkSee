@@ -447,6 +447,9 @@ export default {
     notFound: '用户不存在',
     viewProfile: '查看资料',
     sendMessage: '发消息',
+    follow: '关注',
+    following: '已关注',
+    unfollow: '取消关注',
   },
 
   // ===== DM =====

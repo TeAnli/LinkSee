@@ -53,4 +53,9 @@ export const forumApi = {
     apiClient.post<ApiResponse<ToggleResponse>>(
       `/forum/post/${postId}/collect`,
     ),
+
+  toggleFollow: (userId: number) =>
+    apiClient.post<ApiResponse<ToggleResponse>>(
+      `/forum/user/${userId}/follow`,
+    ),
 };

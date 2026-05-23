@@ -451,6 +451,9 @@ const en: DeepString<typeof zhCN> = {
     notFound: 'User not found',
     viewProfile: 'View Profile',
     sendMessage: 'Send Message',
+    follow: 'Follow',
+    following: 'Following',
+    unfollow: 'Unfollow',
   },
 
   // ===== DM =====

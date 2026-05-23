@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { userApi } from '@linksee/api-client/user';
+import { forumApi } from '@linksee/api-client/forum';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { formatCount, formatRelativeTime } from '@/lib/format';
 import { USER_LEVEL_NAMES, USER_LEVEL_ICONS } from '@linksee/shared';
 import { UserLevel } from '@linksee/shared';
@@ -68,8 +70,13 @@ export function UserProfilePage() {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
 
+  const currentUser = useAuthStore((s) => s.user);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [userPosts, setUserPosts] = useState<PostListItem[]>([]);
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [followCount, setFollowCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [followLoading, setFollowLoading] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -85,7 +92,11 @@ export function UserProfilePage() {
           userApi.getUsersPosts(Number(userId), { page: 1, size: 10 }),
         ]);
         if (!cancelled) {
-          setUserInfo(profileRes.data.data);
+          const profileData = profileRes.data.data as { user: UserInfo & { followerCount?: number; followingCount?: number }; isFollowed: boolean };
+          setUserInfo(profileData.user);
+          setIsFollowed(profileData.isFollowed);
+          setFollowCount(profileData.user.followerCount ?? 0);
+          setFollowingCount(profileData.user.followingCount ?? 0);
           const postsData = postsRes.data.data;
           setUserPosts(Array.isArray(postsData) ? postsData : (postsData as { list: PostListItem[] }).list ?? []);
         }
@@ -104,6 +115,24 @@ export function UserProfilePage() {
   }, [userId]);
 
   const totalLikes = useMemo(() => userPosts.reduce((sum, p) => sum + p.likeCount, 0), [userPosts]);
+
+  const isOwnProfile = currentUser?.id === Number(userId);
+
+  const handleToggleFollow = async () => {
+    if (!userId || followLoading) return;
+    setFollowLoading(true);
+    try {
+      const res = await forumApi.toggleFollow(Number(userId));
+      const data = res.data.data;
+      const followed = data.followed ?? false;
+      setIsFollowed(followed);
+      setFollowCount((prev) => (followed ? prev + 1 : Math.max(0, prev - 1)));
+    } catch {
+      // ignore
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -194,15 +223,33 @@ export function UserProfilePage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="font-bold shrink-0"
-                      onClick={() => navigate(`/messages/dm/${userId}`)}
-                    >
-                      <Icon icon="mdi:message-outline" width={14} className="mr-1.5" />
-                      {t('user.sendMessage')}
-                    </Button>
+                    {!isOwnProfile && (
+                      <>
+                        <Button
+                          variant={isFollowed ? 'default' : 'outline'}
+                          size="sm"
+                          className="font-bold shrink-0"
+                          onClick={handleToggleFollow}
+                          disabled={followLoading}
+                        >
+                          <Icon
+                            icon={isFollowed ? 'mdi:account-check' : 'mdi:account-plus'}
+                            width={14}
+                            className="mr-1.5"
+                          />
+                          {isFollowed ? t('user.following') : t('user.follow')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="font-bold shrink-0"
+                          onClick={() => navigate(`/messages/dm/${userId}`)}
+                        >
+                          <Icon icon="mdi:message-outline" width={14} className="mr-1.5" />
+                          {t('user.sendMessage')}
+                        </Button>
+                      </>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -229,7 +276,7 @@ export function UserProfilePage() {
                 >
                   <div className="flex items-center gap-1">
                     <Icon icon="mdi:account-plus-outline" width={14} className="text-muted-foreground" />
-                    <span className="text-sm font-extrabold text-foreground truncate">—</span>
+                    <span className="text-sm font-extrabold text-foreground truncate">{formatCount(followCount)}</span>
                   </div>
                   <span className="text-[10px] font-semibold text-muted-foreground">{t('profile.followers')}</span>
                 </button>
@@ -240,7 +287,7 @@ export function UserProfilePage() {
                 >
                   <div className="flex items-center gap-1">
                     <Icon icon="mdi:account-arrow-right-outline" width={14} className="text-muted-foreground" />
-                    <span className="text-sm font-extrabold text-foreground truncate">—</span>
+                    <span className="text-sm font-extrabold text-foreground truncate">{formatCount(followingCount)}</span>
                   </div>
                   <span className="text-[10px] font-semibold text-muted-foreground">{t('profile.following')}</span>
                 </button>
