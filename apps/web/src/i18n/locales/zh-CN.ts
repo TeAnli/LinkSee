@@ -41,6 +41,18 @@ export default {
     more: '更多',
   },
 
+  // ===== Home =====
+  home: {
+    recommended: '推荐',
+    following: '关注',
+    hot: '热门',
+    latest: '最新',
+    featured: '精华',
+    followPromptTitle: '关注你感兴趣的人',
+    followPromptDesc: '关注其他用户后，这里将展示他们的最新动态',
+    exploreForum: '去论坛发现内容',
+  },
+
   // ===== Auth =====
   auth: {
     signIn: '登录',
@@ -147,6 +159,14 @@ export default {
     collapseReplies: '收起回复',
     expandReplies: '查看 {{count}} 条回复',
     anonymous: '匿名用户',
+    relatedPosts: '相关推荐',
+  },
+
+  // ===== Comment =====
+  comment: {
+    newest: '最新',
+    hottest: '最热',
+    oldest: '最早',
   },
 
   // ===== Create Post =====
@@ -223,6 +243,7 @@ export default {
     posts: '帖子',
     followers: '关注者',
     following: '关注中',
+    follow: '关注',
     activity: '动态',
     bio: '个人简介',
     occupation: '职业',

@@ -47,6 +47,18 @@ const en: DeepString<typeof zhCN> = {
     more: 'More',
   },
 
+  // ===== Home =====
+  home: {
+    recommended: 'Recommended',
+    following: 'Following',
+    hot: 'Hot',
+    latest: 'Latest',
+    featured: 'Featured',
+    followPromptTitle: 'Follow people you are interested in',
+    followPromptDesc: 'After following other users, their latest posts will appear here',
+    exploreForum: 'Explore the forum',
+  },
+
   // ===== Auth =====
   auth: {
     signIn: 'Sign In',
@@ -153,6 +165,14 @@ const en: DeepString<typeof zhCN> = {
     collapseReplies: 'Collapse replies',
     expandReplies: '{{count}} replies',
     anonymous: 'Anonymous',
+    relatedPosts: 'Related Posts',
+  },
+
+  // ===== Comment =====
+  comment: {
+    newest: 'Newest',
+    hottest: 'Hottest',
+    oldest: 'Oldest',
   },
 
   // ===== Create Post =====
@@ -229,6 +249,7 @@ const en: DeepString<typeof zhCN> = {
     posts: 'Posts',
     followers: 'Followers',
     following: 'Following',
+    follow: 'Follow',
     activity: 'Activity',
     bio: 'Bio',
     occupation: 'Occupation',
