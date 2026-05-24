@@ -40,7 +40,7 @@ export function useForumPosts() {
     const sortMap: Record<string, string> = {
       latest: 'latest',
       hottest: 'hot',
-      essence: 'essence',
+      essence: 'featured',
     };
     const fetchData = async () => {
       try {

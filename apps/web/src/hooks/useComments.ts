@@ -3,6 +3,8 @@ import type { CommentItem } from '@linksee/shared';
 import { forumApi } from '@linksee/api-client/forum';
 import { toast } from 'sonner';
 
+export type CommentSortBy = 'latest' | 'oldest' | 'popular';
+
 function flattenComments(comments: CommentItem[]): CommentItem[] {
   const result: CommentItem[] = [];
   for (const c of comments) {
@@ -19,13 +21,13 @@ export function useComments(postId: number) {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // replyTo: { commentId, userId, nickname } | null
+  const [sortBy, setSortBy] = useState<CommentSortBy>('latest');
   const [replyTo, setReplyTo] = useState<{ commentId: number; userId: number; nickname: string } | null>(null);
 
-  const fetchComments = useCallback(async (page = 1) => {
+  const fetchComments = useCallback(async (page = 1, sort: CommentSortBy = sortBy) => {
     setLoading(page === 1);
     try {
-      const res = await forumApi.getComments(postId, { sortBy: 'latest', page, size: 10 });
+      const res = await forumApi.getComments(postId, { sortBy: sort, page, size: 10 });
       const data: any = res.data.data;
       if (page === 1) {
         setComments((data?.list as CommentItem[]) ?? []);
@@ -38,30 +40,33 @@ export function useComments(postId: number) {
     } finally {
       setLoading(false);
     }
-  }, [postId]);
+  }, [postId, sortBy]);
 
   useEffect(() => {
     if (!postId) return;
-    fetchComments();
-  }, [postId, fetchComments]);
+    fetchComments(1, sortBy);
+  }, [postId, sortBy, fetchComments]);
+
+  const changeSortBy = useCallback((sort: CommentSortBy) => {
+    setSortBy(sort);
+  }, []);
 
   const loadMore = useCallback(async () => {
     const nextPage = Math.floor(flattenComments(comments).length / 10) + 1;
     try {
-      const res = await forumApi.getComments(postId, { sortBy: 'latest', page: nextPage, size: 10 });
+      const res = await forumApi.getComments(postId, { sortBy, page: nextPage, size: 10 });
       const data: any = res.data.data;
       setComments((prev) => [...prev, ...((data?.list as CommentItem[]) ?? [])]);
       setHasMore(data?.hasMore ?? false);
     } catch {
       // silent fail
     }
-  }, [postId, comments]);
+  }, [postId, comments, sortBy]);
 
   const addComment = useCallback(async (content: string) => {
     const parentId = replyTo?.commentId;
     const replyUserId = replyTo?.userId;
     setSubmitting(true);
-    // Build optimistic comment
     const optimistic: CommentItem = {
       id: -Date.now(),
       content,
@@ -75,7 +80,6 @@ export function useComments(postId: number) {
     };
 
     if (parentId) {
-      // Insert as child of parent comment
       setComments((prev) =>
         prev.map((c) => (c.id === parentId ? { ...c, children: [...c.children, optimistic], childCount: c.childCount + 1 } : c)),
       );
@@ -86,10 +90,8 @@ export function useComments(postId: number) {
 
     try {
       await forumApi.createComment(postId, { content, parentId, replyUserId });
-      // Refetch to get real data with proper CommentItem format (includes author)
-      await fetchComments();
+      await fetchComments(1, sortBy);
     } catch {
-      // Rollback
       if (parentId) {
         setComments((prev) =>
           prev.map((c) => (c.id === parentId ? { ...c, children: c.children.filter((ch) => ch.id !== optimistic.id), childCount: c.childCount - 1 } : c)),
@@ -101,7 +103,7 @@ export function useComments(postId: number) {
     } finally {
       setSubmitting(false);
     }
-  }, [postId, replyTo, fetchComments]);
+  }, [postId, replyTo, sortBy, fetchComments]);
 
-  return { comments, loading, hasMore, submitting, replyTo, setReplyTo, loadMore, addComment };
+  return { comments, loading, hasMore, submitting, sortBy, changeSortBy, replyTo, setReplyTo, loadMore, addComment };
 }

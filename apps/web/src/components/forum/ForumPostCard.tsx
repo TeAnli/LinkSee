@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -13,7 +14,7 @@ interface ForumPostCardProps {
   index: number;
 }
 
-export function ForumPostCard({ post, index }: ForumPostCardProps) {
+export const ForumPostCard = memo(function ForumPostCard({ post, index }: ForumPostCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -104,4 +105,4 @@ export function ForumPostCard({ post, index }: ForumPostCardProps) {
       </Link>
     </motion.div>
   );
-}
+});

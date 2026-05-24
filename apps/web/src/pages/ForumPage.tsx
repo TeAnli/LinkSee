@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@iconify/react';
@@ -49,6 +49,10 @@ export function ForumPage() {
 
   const totalPages = Math.ceil(total / pageSize);
 
+  const handleSortChange = useCallback((value: string) => {
+    setSortType(value as 'latest' | 'hottest' | 'essence');
+  }, [setSortType]);
+
   return (
     <div className="flex flex-col gap-5">
       <ScrollArea className="w-full whitespace-nowrap">
@@ -65,7 +69,7 @@ export function ForumPage() {
         searchQuery={keyword}
         onSearchChange={setKeyword}
         sortType={sortType}
-        onSortChange={setSortType}
+        onSortChange={handleSortChange}
         totalPosts={total}
       />
 
