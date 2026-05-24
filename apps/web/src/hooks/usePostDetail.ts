@@ -1,16 +1,48 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { PostDetail } from '@linksee/shared';
 import { forumApi } from '@linksee/api-client/forum';
 import { extractToc, TocItem } from '@/lib/toc';
 import { toast } from 'sonner';
 
+export interface PostDetailData {
+  id: number;
+  title: string;
+  content: string;
+  summary: string;
+  coverImageUrl: string;
+  tagList: string[];
+  categoryId: number;
+  categoryName: string;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  collectCount: number;
+  isTop: boolean;
+  isEssence: boolean;
+  isLiked: boolean;
+  publishedAt: string;
+  author: {
+    id: number;
+    nickname: string;
+    avatarUrl: string;
+    level: number;
+    bio: string;
+    postCount: number;
+    followerCount: number;
+    isFollowed: boolean;
+  };
+  aiSummary?: string;
+  aiKeywords?: string[];
+}
+
 export function usePostDetail() {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
-  const [post, setPost] = useState<PostDetail | null>(null);
+  const [post, setPost] = useState<PostDetailData | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
+  const [collected, setCollected] = useState(false);
+  const [followed, setFollowed] = useState(false);
   const toc: TocItem[] = post ? extractToc(post.content) : [];
 
   useEffect(() => {
@@ -43,12 +75,14 @@ export function usePostDetail() {
               isLiked: detailRes.isLiked ?? false,
               publishedAt: p.publishedAt ?? '',
               author: author
-                ? { id: author.id, nickname: author.nickname, avatarUrl: author.avatarUrl, level: author.level }
-                : { id: p.authorId, nickname: p.authorNickname, avatarUrl: p.authorAvatarUrl, level: p.authorLevel },
+                ? { ...author, isFollowed: author.isFollowed ?? false }
+                : { id: p.authorId, nickname: p.authorNickname, avatarUrl: p.authorAvatarUrl, level: p.authorLevel, bio: '', postCount: 0, followerCount: 0, isFollowed: false },
               aiSummary: detailRes.aiData?.aiSummary,
               aiKeywords: detailRes.aiData?.aiKeywords,
             });
             setLiked(detailRes.isLiked ?? false);
+            setCollected(detailRes.isCollected ?? false);
+            setFollowed(detailRes.author?.isFollowed ?? false);
           }
           setLoading(false);
         }
@@ -65,28 +99,59 @@ export function usePostDetail() {
 
   const toggleLike = useCallback(async () => {
     if (!id || !post) return;
-    const postId = Number(id);
     const wasLiked = liked;
-    // Optimistic update
     setLiked(!wasLiked);
-    setPost({
-      ...post,
-      likeCount: post.likeCount + (wasLiked ? -1 : 1),
-      isLiked: !wasLiked,
-    });
+    setPost({ ...post, likeCount: post.likeCount + (wasLiked ? -1 : 1), isLiked: !wasLiked });
     try {
-      await forumApi.toggleLike(postId);
+      await forumApi.toggleLike(Number(id));
     } catch {
-      // Rollback on error
       setLiked(wasLiked);
-      setPost({
-        ...post,
-        likeCount: post.likeCount,
-        isLiked: wasLiked,
-      });
+      setPost({ ...post, likeCount: post.likeCount, isLiked: wasLiked });
       toast.error('操作失败，请稍后重试');
     }
   }, [id, post, liked]);
+
+  const toggleCollect = useCallback(async () => {
+    if (!id || !post) return;
+    const wasCollected = collected;
+    setCollected(!wasCollected);
+    setPost({ ...post, collectCount: post.collectCount + (wasCollected ? -1 : 1) });
+    try {
+      await forumApi.toggleCollect(Number(id));
+    } catch {
+      setCollected(wasCollected);
+      setPost({ ...post, collectCount: post.collectCount });
+      toast.error('操作失败，请稍后重试');
+    }
+  }, [id, post, collected]);
+
+  const toggleFollow = useCallback(async () => {
+    if (!post?.author.id) return;
+    const wasFollowed = followed;
+    setFollowed(!wasFollowed);
+    setPost({
+      ...post,
+      author: { ...post.author, followerCount: post.author.followerCount + (wasFollowed ? -1 : 1), isFollowed: !wasFollowed },
+    });
+    try {
+      await forumApi.toggleFollow(post.author.id);
+    } catch {
+      setFollowed(wasFollowed);
+      setPost({
+        ...post,
+        author: { ...post.author, followerCount: post.author.followerCount, isFollowed: wasFollowed },
+      });
+      toast.error('操作失败，请稍后重试');
+    }
+  }, [post, followed]);
+
+  const handleShare = useCallback(() => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(
+      () => toast.success('链接已复制到剪贴板'),
+      () => toast.error('复制失败'),
+    );
+  }, []);
 
   useEffect(() => {
     if (toc.length === 0) return;
@@ -117,5 +182,5 @@ export function usePostDetail() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
-  return { loading, post, toc, activeId, liked, toggleLike };
+  return { loading, post, toc, activeId, liked, collected, followed, toggleLike, toggleCollect, toggleFollow, handleShare };
 }
