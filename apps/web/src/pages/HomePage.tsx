@@ -1,18 +1,29 @@
+import { useState, useCallback, useTransition, memo } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PagePlaceholder } from '@/components/layout/PagePlaceholder';
 import { PageLoadingSkeleton } from '@/components/skeletons';
 import type { PostListItem } from '@linksee/shared';
 import { formatRelativeTime, formatCount } from '@/lib/format';
 import { fadeUp } from '@/lib/animation';
-import { useHomePosts } from '@/hooks/useHomePosts';
+import { useHomePosts, type HomeTab } from '@/hooks/useHomePosts';
+import { useAuthStore } from '@/stores/useAuthStore';
 
-function PostCard({ post, index }: { post: PostListItem; index: number }) {
+const TABS: { value: HomeTab; labelKey: string; icon: string }[] = [
+  { value: 'recommended', labelKey: 'home.recommended', icon: 'mdi:compass-outline' },
+  { value: 'following', labelKey: 'home.following', icon: 'mdi:account-heart-outline' },
+  { value: 'hot', labelKey: 'home.hot', icon: 'mdi:fire' },
+  { value: 'latest', labelKey: 'home.latest', icon: 'mdi:clock-outline' },
+  { value: 'featured', labelKey: 'home.featured', icon: 'mdi:star-outline' },
+];
+
+const PostCard = memo(function PostCard({ post, index }: { post: PostListItem; index: number }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -101,31 +112,100 @@ function PostCard({ post, index }: { post: PostListItem; index: number }) {
       </Card>
     </motion.div>
   );
+});
+
+function FollowingPrompt() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+      <div className="h-16 w-16 rounded-full bg-primary/5 flex items-center justify-center mb-4">
+        <Icon icon="mdi:account-heart-outline" width={32} className="text-primary/40" />
+      </div>
+      <p className="text-sm font-bold text-foreground mb-1">{t('home.followPromptTitle')}</p>
+      <p className="text-xs text-muted-foreground mb-4 max-w-xs">{t('home.followPromptDesc')}</p>
+      <button
+        onClick={() => navigate('/forum')}
+        className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+      >
+        {t('home.exploreForum')}
+      </button>
+    </div>
+  );
 }
 
 export function HomePage() {
   const { t } = useTranslation();
-  const { posts, loading } = useHomePosts();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [activeTab, setActiveTab] = useState<HomeTab>('recommended');
+  const [isPending, startTransition] = useTransition();
+
+  const handleTabChange = useCallback((value: string) => {
+    startTransition(() => {
+      setActiveTab(value as HomeTab);
+    });
+  }, []);
+
+  const { posts, loading } = useHomePosts(activeTab);
 
   if (loading) {
     return <PageLoadingSkeleton />;
   }
 
+  const showFollowingPrompt = activeTab === 'following' && (!isAuthenticated || posts.length === 0);
+
   return (
     <div className="flex flex-col gap-4">
       <PagePlaceholder label={t('nav.home')} icon="mdi:view-grid-outline" />
-      {posts.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {posts.map((post, index) => (
-            <PostCard key={post.id} post={post} index={index} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Icon icon="mdi:file-document-outline" width={48} className="text-muted-foreground/40 mb-3" />
-          <p className="text-sm text-muted-foreground">{t('forum.noResults')}</p>
-        </div>
-      )}
+
+      {/* Tab bar */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList className="h-9 p-0.5 bg-muted/50">
+          {TABS.map((tab) => {
+            const isDisabled = tab.value === 'following' && !isAuthenticated;
+            return (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                disabled={isDisabled}
+                className="h-7 px-3 text-[12px] gap-1.5 data-[state=active]:shadow-sm"
+              >
+                <Icon icon={tab.icon} width={14} />
+                <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+      </Tabs>
+
+      {/* Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
+        >
+          {isPending ? (
+            <PageLoadingSkeleton />
+          ) : showFollowingPrompt ? (
+            <FollowingPrompt />
+          ) : posts.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {posts.map((post, index) => (
+                <PostCard key={post.id} post={post} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Icon icon="mdi:file-document-outline" width={48} className="text-muted-foreground/40 mb-3" />
+              <p className="text-sm text-muted-foreground">{t('forum.noResults')}</p>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
