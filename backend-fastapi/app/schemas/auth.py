@@ -69,3 +69,25 @@ class ResetPasswordRequest(BaseModel):
 class CaptchaData(BaseModel):
     captchaId: str
     captchaImageBase64: str
+
+
+class OAuthLoginRequest(BaseModel):
+    provider: str = Field(pattern=r"^(github|google|qq|discord)$")
+    code: str
+    state: str
+
+
+class OAuthProviderInfo(BaseModel):
+    provider: str
+    name: str
+    icon: str
+    color: str
+    enabled: bool
+
+
+class OAuthBindItem(BaseModel):
+    provider: str
+    name: str
+    icon: str
+    bound: bool
+    bindAt: str | None = None

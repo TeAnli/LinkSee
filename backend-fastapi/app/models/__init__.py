@@ -2,6 +2,7 @@ from app.models.base import Base
 from app.models.user import SysUser
 from app.models.user_profile import SysUserProfile
 from app.models.role import SysRole, sys_user_role
+from app.models.oauth_account import OAuthAccount
 from app.models.category import ForumCategory
 from app.models.post import ForumPost
 from app.models.post_ai_data import ForumPostAiData
@@ -18,6 +19,7 @@ __all__ = [
     "SysUserProfile",
     "SysRole",
     "sys_user_role",
+    "OAuthAccount",
     "ForumCategory",
     "ForumPost",
     "ForumPostAiData",

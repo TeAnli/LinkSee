@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:5173"
     encryption_enabled: bool = True
     rsa_key_dir: str = "./keys"
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = ""
 
     @property
     def allowed_origins_list(self) -> list[str]:

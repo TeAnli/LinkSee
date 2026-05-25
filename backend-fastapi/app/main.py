@@ -88,6 +88,7 @@ uploads_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 from app.routers.auth import router as auth_router
+from app.routers.oauth import router as oauth_router
 from app.routers.user import router as user_router
 from app.routers.forum import router as forum_router
 from app.routers.search import router as search_router
@@ -96,6 +97,7 @@ from app.routers.message import router as message_router
 from app.routers.admin import router as admin_router
 
 app.include_router(auth_router)
+app.include_router(oauth_router)
 app.include_router(user_router)
 app.include_router(forum_router)
 app.include_router(search_router)

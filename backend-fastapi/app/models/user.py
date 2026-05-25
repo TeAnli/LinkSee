@@ -27,3 +27,4 @@ class SysUser(Base):
 
     profile: Mapped[Optional["SysUserProfile"]] = relationship(back_populates="user", uselist=False)
     roles: Mapped[list["SysRole"]] = relationship(secondary="sys_user_role", back_populates="users")
+    oauth_accounts: Mapped[list["OAuthAccount"]] = relationship(back_populates="user")
