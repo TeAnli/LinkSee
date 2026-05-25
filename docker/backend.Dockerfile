@@ -21,13 +21,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files first for layer caching
-COPY backend-fastapi/pyproject.toml backend-fastapi/uv.lock ./
+COPY apps/server/pyproject.toml apps/server/uv.lock ./
 
 # Install Python dependencies
 RUN uv sync --frozen --no-dev
 
 # Copy application source
-COPY backend-fastapi/ ./
+COPY apps/server/ ./
 
 # Copy entrypoint
 COPY docker/entrypoint.backend.sh /entrypoint.sh

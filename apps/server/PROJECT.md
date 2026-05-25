@@ -26,7 +26,7 @@ LinkSee FastAPI 后端是一个面向技术社区的 RESTful API 服务，提供
 
 ### 与 Spring Boot 版本的关系
 
-项目同时存在 `backend/`（Spring Boot + Kotlin）和 `backend-fastapi/`（FastAPI + Python）两个后端实现。Spring
+项目同时存在 `backend/`（Spring Boot + Kotlin）和 `apps/server/`（FastAPI + Python）两个后端实现。Spring
 版本仅完成实体定义和项目脚手架，FastAPI 版本是功能完整的可运行实现，包含 65 个 API 端点、完整的业务逻辑层和测试。
 
 ---
@@ -34,7 +34,7 @@ LinkSee FastAPI 后端是一个面向技术社区的 RESTful API 服务，提供
 ## 2. 目录结构
 
 ```
-backend-fastapi/
+apps/server/
 ├── .env.example              # 环境变量模板
 ├── .python-version           # Python 3.12
 ├── pyproject.toml            # 项目元数据与依赖声明

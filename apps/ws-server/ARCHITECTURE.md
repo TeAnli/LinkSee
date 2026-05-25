@@ -22,7 +22,7 @@
 ## 二、模块结构p
 
 ```
-ws-server/
+apps/ws-server/
 ├── build.gradle.kts                              # 构建配置
 ├── settings.gradle.kts                           # Gradle 设置
 └── src/main/

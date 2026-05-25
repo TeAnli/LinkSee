@@ -6,15 +6,15 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /build
 
 # Copy Gradle wrapper and build scripts (layer caching)
-COPY ws-server/gradlew ws-server/gradlew.bat ./
-COPY ws-server/gradle/ gradle/
-COPY ws-server/build.gradle.kts ws-server/settings.gradle.kts ./
+COPY apps/ws-server/gradlew apps/ws-server/gradlew.bat ./
+COPY apps/ws-server/gradle/ gradle/
+COPY apps/ws-server/build.gradle.kts apps/ws-server/settings.gradle.kts ./
 
 # Download dependencies (cache this layer)
 RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
 
 # Copy source and build
-COPY ws-server/ ./
+COPY apps/ws-server/ ./
 RUN ./gradlew bootJar --no-daemon -x test
 
 # --- Runtime stage ---
