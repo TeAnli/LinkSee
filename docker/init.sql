@@ -385,3 +385,70 @@ SELECT u.id, 'LinkSee 系统管理员', '全栈开发', TRUE
 FROM sys_user u
 WHERE
     u.username = 'admin' ON CONFLICT DO NOTHING;
+
+-- ============================================================
+-- 16. check_in_record (签到记录表)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS check_in_record (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES sys_user (id),
+    check_in_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    consecutive_days INT NOT NULL DEFAULT 0,
+    points_earned INT NOT NULL DEFAULT 5,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, check_in_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_check_in_user_date ON check_in_record (user_id, check_in_date DESC);
+
+-- ============================================================
+-- 17. chat_room (聊天室表 — ws-server 用)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS chat_room (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    icon VARCHAR(50) DEFAULT 'messages-square',
+    description TEXT DEFAULT '',
+    member_count INT NOT NULL DEFAULT 0,
+    sort_order INT NOT NULL DEFAULT 0,
+    status SMALLINT NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- 18. chat_message (聊天消息表 — ws-server 用)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS chat_message (
+    id BIGSERIAL PRIMARY KEY,
+    room_id BIGINT DEFAULT NULL,
+    sender_id BIGINT NOT NULL,
+    receiver_id BIGINT DEFAULT NULL,
+    content TEXT NOT NULL,
+    msg_type SMALLINT NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_msg_room ON chat_message (room_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_chat_msg_dm ON chat_message (sender_id, receiver_id, created_at);
+
+-- ============================================================
+-- 19. sys_oauth_account (OAuth第三方账号绑定)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_oauth_account (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES sys_user (id),
+    provider VARCHAR(20) NOT NULL,
+    provider_user_id VARCHAR(100) NOT NULL,
+    provider_username VARCHAR(100) DEFAULT '',
+    access_token TEXT DEFAULT '',
+    refresh_token TEXT DEFAULT '',
+    token_expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (provider, provider_user_id),
+    UNIQUE (user_id, provider)
+);
+
+CREATE INDEX IF NOT EXISTS idx_oauth_account_user ON sys_oauth_account (user_id);
