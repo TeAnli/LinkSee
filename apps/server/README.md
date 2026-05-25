@@ -107,7 +107,7 @@ pytest -v
 ## 项目结构
 
 ```
-backend-fastapi/
+apps/server/
 ├── app/
 │   ├── main.py              # FastAPI 应用入口 (CORS、异常处理、静态文件)
 │   ├── config.py            # 配置中心 (pydantic-settings)

@@ -149,7 +149,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛平台**（V1 
            │ HTTP REST (JSON)                     │ WebSocket (JSON)
            ▼                                      ▼
 ┌──────────────────────────┐        ┌──────────────────────────────┐
-│   backend-fastapi        │        │   ws-server (Kotlin/WebFlux) │
+│   server (FastAPI)       │        │   ws-server (Kotlin/WebFlux) │
 │   Python FastAPI 主后端   │        │   实时聊天独立服务             │
 │                          │        │                              │
 │   · 认证/用户管理        │        │   · 聊天室群聊广播            │
@@ -229,7 +229,7 @@ LinkSee（灵犀）是一个 **AI赋能的垂直行业智能论坛平台**（V1 
 
 | 服务名称 | 技术栈 | 核心负责业务边界 | 端口 | 依赖中间件 |
 |----------|--------|------------------|:----:|-----------|
-| **backend-fastapi** | Python 3.12 + FastAPI + SQLAlchemy async | 认证注册、用户管理、论坛帖子CRUD、评论互动、点赞收藏关注、板块管理、AI创作助手(8功能)、AI智能问答(RAG)、全站搜索、消息通知、后台管理、定时任务调度 | 8000 | PostgreSQL、Redis |
+| **server** | Python 3.12 + FastAPI + SQLAlchemy async | 认证注册、用户管理、论坛帖子CRUD、评论互动、点赞收藏关注、板块管理、AI创作助手(8功能)、AI智能问答(RAG)、全站搜索、消息通知、后台管理、定时任务调度 | 8000 | PostgreSQL、Redis |
 | **ws-server** | Kotlin + Spring Boot + WebFlux Reactive | WebSocket 实时通信、聊天室群聊广播、用户私聊转发、在线状态追踪、心跳保活、断线重连 | 9000 | PostgreSQL、Redis |
 
 #### V2 目标微服务（规划演进）
@@ -1742,7 +1742,7 @@ LinkSee/
 │   ├── ui/                               # 核心共享 UI 组件库 (基于 shadcn/ui)
 │   └── eslint-config/                    # 共享 ESLint 配置
 │
-├── backend-fastapi/                      # Python FastAPI 主后端
+├── apps/server/                           # Python FastAPI 主后端
 │   ├── app/
 │   │   ├── main.py                       #   FastAPI 应用入口 + 中间件注册
 │   │   ├── config.py                     #   Pydantic Settings 配置
@@ -1765,7 +1765,7 @@ LinkSee/
 │   │   └── versions/                     # 迁移版本文件
 │   └── tests/                            # 测试用例
 │
-├── ws-server/                            # WebSocket 实时聊天服务 (Kotlin + Spring WebFlux)
+├── apps/ws-server/                        # WebSocket 实时聊天服务 (Kotlin + Spring WebFlux)
 │   └── src/main/kotlin/com/linksee/ws/
 │       ├── WsServerApplication.kt        #   Spring Boot 入口
 │       ├── config/
@@ -1800,7 +1800,7 @@ LinkSee/
 ### 12.2 V1 当前分层架构 (FastAPI)
 
 ```
-backend-fastapi/app/
+apps/server/app/
 │
 ├── routers/          # 路由层 — 接收 HTTP 请求、参数校验、调用 service
 │   └── router ──→ service ──→ models (SQLAlchemy)

@@ -86,7 +86,7 @@ services:
       - full
 
   # ============================================================
-  # backend-fastapi — Python FastAPI 主后端
+  # server — Python FastAPI 主后端
   # ============================================================
   backend:
     build:
