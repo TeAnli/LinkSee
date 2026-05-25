@@ -30,7 +30,8 @@ apiClient.interceptors.request.use(async (config) => {
     typeof config.data === "object" &&
     !(config.data instanceof FormData) &&
     (method === "post" || method === "put" || method === "patch") &&
-    config.url !== "/auth/public-key"
+    config.url !== "/auth/public-key" &&
+      !config.url?.startsWith("/auth/oauth")
   ) {
     try {
       const encrypted = await encryptPayload(config.data);

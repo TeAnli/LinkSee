@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authApi } from '@linksee/api-client';
-import type { LoginRequest } from '@linksee/shared';
+import type { LoginRequest, OAuthProvider } from '@linksee/shared';
 import { fadeUpSlow as fadeUp } from '@/lib/animation';
 
 export function LoginPage() {
@@ -43,6 +43,20 @@ export function LoginPage() {
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOAuthLogin = async (provider: OAuthProvider) => {
+    setError('');
+    try {
+      const res = await authApi.getOAuthAuthorizeUrl(provider);
+      const { authorizeUrl } = res.data.data;
+      window.location.href = authorizeUrl;
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? '获取授权链接失败';
+      setError(msg);
     }
   };
 
@@ -235,21 +249,36 @@ export function LoginPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
           <div className="mt-4 flex justify-center gap-3">
-            {[
-              { icon: 'mdi:github', label: 'GitHub' },
-              { icon: 'mdi:google', label: 'Google' },
-              { icon: 'mdi:wechat', label: 'WeChat' },
-            ].map((s) => (
-              <Button
-                key={s.icon}
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 rounded-xl"
-                aria-label={s.label}
-              >
-                <Icon icon={s.icon} width={20} />
-              </Button>
-            ))}
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 rounded-xl"
+              aria-label="GitHub"
+              title="GitHub登录"
+              onClick={() => handleOAuthLogin('github')}
+            >
+              <Icon icon="mdi:github" width={20} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 rounded-xl"
+              aria-label="Google"
+              title="Google登录（即将推出）"
+              disabled
+            >
+              <Icon icon="mdi:google" width={20} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 rounded-xl"
+              aria-label="WeChat"
+              title="微信登录（即将推出）"
+              disabled
+            >
+              <Icon icon="mdi:wechat" width={20} />
+            </Button>
           </div>
         </motion.div>
       </div>

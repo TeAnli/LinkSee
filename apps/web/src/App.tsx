@@ -19,6 +19,7 @@ const LazyUserProfilePage = lazy(() => import('./pages/UserProfilePage').then(m 
 const LazyFriendsPage = lazy(() => import('./pages/FriendsPage').then(m => ({ default: m.FriendsPage })));
 const LazyDmChatPage = lazy(() => import('./pages/DmChatPage').then(m => ({ default: m.DmChatPage })));
 const LazyLoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const LazyOAuthCallbackPage = lazy(() => import('./pages/OAuthCallbackPage').then(m => ({ default: m.OAuthCallbackPage })));
 const LazyRegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const LazyForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const LazyResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
@@ -49,6 +50,7 @@ export default function App() {
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             <Route path="/login" element={<LazyLoginPage />} />
+            <Route path="/oauth/callback" element={<LazyOAuthCallbackPage />} />
             <Route path="/register" element={<LazyRegisterPage />} />
             <Route path="/forgot-password" element={<LazyForgotPasswordPage />} />
             <Route path="/reset-password" element={<LazyResetPasswordPage />} />
