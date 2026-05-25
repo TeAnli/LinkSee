@@ -51,8 +51,12 @@ export const authApi = {
             redirectUri ? { params: { redirectUri } } : undefined
         ),
 
-    oauthLogin: (data: OAuthLoginRequest) =>
-        apiClient.post<ApiResponse<LoginResponse>>("/auth/oauth/login", data),
+    oauthLogin: (data: OAuthLoginRequest, redirectUri?: string) =>
+        apiClient.post<ApiResponse<LoginResponse>>(
+            "/auth/oauth/login",
+            data,
+            redirectUri ? { params: { redirectUri } } : undefined,
+        ),
 
     // === OAuth Bind API ===
     getOAuthBindStatus: () =>
