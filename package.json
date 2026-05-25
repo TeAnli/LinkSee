@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:backend-fastapi\"",
     "dev:web": "pnpm --filter @linksee/web dev",
-    "dev:backend-fastapi": "cd backend-fastapi && pnpm dev",
+    "dev:backend-fastapi": "cd backend-fastapi && bash scripts/start.sh",
     "dev:ws": "cd ws-server && gradlew.bat bootRun",
     "build": "pnpm --filter ./packages/** build && pnpm --filter ./apps/** build",
     "build:web": "pnpm --filter ./apps/** build",

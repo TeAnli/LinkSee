@@ -12,6 +12,9 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    watch: {
+      ignored: ["**/dist/**", "**/node_modules/**", "**/.git/**"],
+    },
     proxy: {
       "/api": {
         target: "http://localhost:8080",
@@ -19,6 +22,11 @@ export default defineConfig({
       },
       "/uploads": {
         target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: "ws://localhost:9000",
+        ws: true,
         changeOrigin: true,
       },
     },

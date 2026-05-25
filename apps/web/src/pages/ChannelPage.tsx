@@ -105,10 +105,18 @@ export function ChannelPage() {
     const trimmed = messageInput.trim();
     if (!trimmed || !activeChannelId || connectionState !== 'connected') return;
 
+    const now = new Date().toISOString();
+    addChannelMessage({
+      id: `${activeChannelId}-${now}-${user?.id}`,
+      channelId: activeChannelId,
+      senderSessionId: String(user?.id),
+      content: trimmed,
+      timestamp: now,
+    });
     sendChatMessage({ channelId: activeChannelId, content: trimmed });
     setMessageInput('');
     inputRef.current?.focus();
-  }, [messageInput, activeChannelId, connectionState, sendChatMessage]);
+  }, [messageInput, activeChannelId, connectionState, user?.id, addChannelMessage, sendChatMessage]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
