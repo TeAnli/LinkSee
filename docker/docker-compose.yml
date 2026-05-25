@@ -1,5 +1,7 @@
 services:
-  # PostgreSQL 16
+  # ============================================================
+  # PostgreSQL 16 — 核心数据库
+  # ============================================================
   postgres:
     image: postgres:16-alpine
     container_name: linksee-postgres
@@ -19,7 +21,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis 7
+  # ============================================================
+  # Redis 7 — 缓存 / 会话 / 计数器
+  # ============================================================
   redis:
     image: redis:7-alpine
     container_name: linksee-redis
@@ -35,7 +39,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # Elasticsearch 8.x
+  # ============================================================
+  # Elasticsearch 8.x — 全文检索（V2 阶段启用）
+  # ============================================================
   elasticsearch:
     image: elasticsearch:8.16.0
     container_name: linksee-es
@@ -53,8 +59,12 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
+    profiles:
+      - full
 
-  # RabbitMQ
+  # ============================================================
+  # RabbitMQ — 异步消息队列（V2 阶段启用）
+  # ============================================================
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: linksee-rabbitmq
@@ -72,9 +82,96 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    profiles:
+      - full
+
+  # ============================================================
+  # backend-fastapi — Python FastAPI 主后端
+  # ============================================================
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    container_name: linksee-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      APP_NAME: LinkSee API
+      DEBUG: "false"
+      DATABASE_URL: postgresql+asyncpg://linksee:linksee123@postgres:5432/linksee
+      REDIS_URL: redis://:linksee_redis_123@redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-256-bits-length}
+      JWT_EXPIRATION_SECONDS: "7200"
+      JWT_REFRESH_EXPIRATION_SECONDS: "604800"
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_SIZE: "5242880"
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:80
+      AI_MOCK_ENABLED: "true"
+      ENCRYPTION_ENABLED: "true"
+      RSA_KEY_DIR: /app/keys
+      # SMTP (optional — set via .env)
+      SMTP_HOST: ${SMTP_HOST:-smtp.qq.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      EMAIL_CODE_EXPIRE_SECONDS: "300"
+      EMAIL_CODE_RATE_LIMIT_SECONDS: "60"
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      # GitHub OAuth
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI:-http://localhost/oauth/callback}
+    volumes:
+      - uploads-data:/app/uploads
+      - keys-data:/app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # ws-server — Kotlin WebSocket 实时通信服务
+  # ============================================================
+  ws-server:
+    build:
+      context: ..
+      dockerfile: docker/ws-server.Dockerfile
+    container_name: linksee-ws
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      WS_PORT: "9000"
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================
+  # web — React 前端 (Nginx 静态托管)
+  # ============================================================
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+    container_name: linksee-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - ws-server
 
 volumes:
   postgres-data:
   redis-data:
   es-data:
   rabbitmq-data:
+  uploads-data:
+  keys-data:
