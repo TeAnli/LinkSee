@@ -11,6 +11,7 @@ from app.models.like_record import ForumLikeRecord
 from app.models.follow import ForumFollow
 from app.models.ai_task import AiTaskRecord
 from app.models.ai_moderation import AiModerationLog
+from app.models.ai_chat import AiChatSession, AiChatMessage
 from app.models.message import MessageNotice
 
 __all__ = [
@@ -28,5 +29,7 @@ __all__ = [
     "ForumFollow",
     "AiTaskRecord",
     "AiModerationLog",
+    "AiChatSession",
+    "AiChatMessage",
     "MessageNotice",
 ]
