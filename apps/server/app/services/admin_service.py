@@ -410,6 +410,54 @@ def delete_sensitive_word(category: str, word: str) -> bool:
     return remove_word(category, word)
 
 
+# ---- 评论管理 ----
+
+
+async def list_comments_admin(db: AsyncSession, keyword: str | None = None, page: int = 1, size: int = 20) -> dict:
+    conditions = [ForumComment.deleted == 0]
+    if keyword:
+        conditions.append(ForumComment.content.ilike(f"%{keyword}%"))
+
+    count_stmt = select(func.count(ForumComment.id)).where(and_(*conditions))
+    total = (await db.execute(count_stmt)).scalar()
+
+    stmt = (
+        select(ForumComment)
+        .where(and_(*conditions))
+        .order_by(ForumComment.id.desc())
+        .offset((page - 1) * size)
+        .limit(size)
+    )
+    result = await db.execute(stmt)
+    comments = result.scalars().all()
+
+    items = []
+    for c in comments:
+        author = await db.get(SysUser, c.user_id)
+        post = await db.get(ForumPost, c.post_id)
+        items.append({
+            "id": c.id,
+            "content": c.content,
+            "postId": c.post_id,
+            "postTitle": post.title if post else "",
+            "userId": c.user_id,
+            "authorNickname": author.nickname or author.username if author else "",
+            "createdAt": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    return {"total": total, "list": items}
+
+
+async def delete_comment_admin(db: AsyncSession, comment_id: int) -> None:
+    comment = await db.get(ForumComment, comment_id)
+    if not comment or comment.deleted:
+        from app.exceptions import AppException
+        from app.constants import ERR_POST_NOT_FOUND
+        raise AppException(ERR_POST_NOT_FOUND, "评论不存在", 404)
+    comment.deleted = 1
+    await db.flush()
+
+
 def get_sensitive_words_raw() -> str:
     """获取敏感词 JSON 原始文本"""
     from app.services.sensitive_word import get_raw_json

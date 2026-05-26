@@ -106,4 +106,13 @@ export const adminApi = {
 
   saveSensitiveWordsRaw: (req: SensitiveWordRawRequest) =>
     apiClient.put<ApiResponse<null>>("/admin/sensitive-words/raw", req),
+
+  listComments: (params?: { keyword?: string; page?: number; size?: number }) =>
+    apiClient.get<ApiResponse<PaginatedResponse<{
+      id: number; content: string; postId: number; postTitle: string;
+      userId: number; authorNickname: string; createdAt: string;
+    }>>>("/admin/comments", { params }),
+
+  deleteComment: (commentId: number) =>
+    apiClient.delete<ApiResponse<null>>(`/admin/comments/${commentId}`),
 };

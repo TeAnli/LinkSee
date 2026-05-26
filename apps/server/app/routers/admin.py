@@ -209,6 +209,31 @@ async def ai_task_logs(
     return ok(data)
 
 
+# ---- 评论管理 ----
+
+
+@router.get("/comments")
+async def list_comments_admin(
+    keyword: str | None = None,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    data = await admin_service.list_comments_admin(db, keyword, page, size)
+    return ok(data)
+
+
+@router.delete("/comments/{comment_id}")
+async def delete_comment_admin(
+    comment_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    await admin_service.delete_comment_admin(db, comment_id)
+    return ok(None, "评论已删除")
+
+
 # ---- 敏感词管理 ----
 
 

@@ -513,6 +513,7 @@ const en: DeepString<typeof zhCN> = {
       categories: 'Category Management',
       ai: 'AI Usage',
       sensitiveWords: 'Sensitive Words',
+      comments: 'Comment Management',
     },
     common: {
       panel: 'Admin Panel',
