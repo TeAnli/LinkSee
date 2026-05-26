@@ -324,6 +324,7 @@ export function PostDetailPage() {
                   hasMore={hasMore}
                   onLoadMore={loadMore}
                   onReply={(commentId, userId, nickname) => setReplyTo({ commentId, userId, nickname })}
+                  onUpdated={loadComments}
                   postAuthorId={post.author.id}
                 />
               </div>

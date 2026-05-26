@@ -177,6 +177,9 @@ const en: DeepString<typeof zhCN> = {
     newest: 'Newest',
     hottest: 'Hottest',
     oldest: 'Oldest',
+    deleteConfirm: 'Are you sure you want to delete this comment?',
+    editFailed: 'Failed to edit comment',
+    deleteFailed: 'Failed to delete comment',
   },
 
   // ===== Create Post =====

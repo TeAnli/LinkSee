@@ -4,13 +4,19 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { formatRelativeTime, formatCount } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { forumApi } from '@linksee/api-client/forum';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { toast } from 'sonner';
 import type { CommentItem as CommentItemType } from '@linksee/shared';
 
 interface CommentItemProps {
   comment: CommentItemType;
   onReply: (commentId: number, userId: number, nickname: string) => void;
+  onUpdated?: () => void;
   depth?: number;
   postAuthorId?: number;
 }
@@ -21,13 +27,47 @@ const DEPTH_BORDER = [
   'border-l-[3px] border-border',              // depth 2+: muted
 ];
 
-export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: CommentItemProps) {
+export function CommentItem({ comment, onReply, onUpdated, depth = 0, postAuthorId }: CommentItemProps) {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
   const [showChildren, setShowChildren] = useState(depth < 2);
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [saving, setSaving] = useState(false);
   const authorName = comment.author?.nickname || t('post.anonymous');
   const authorInitial = authorName.slice(0, 1);
   const isPostAuthor = postAuthorId != null && comment.author?.id === postAuthorId;
+  const isOwn = user != null && comment.author?.id === user.id;
   const borderClass = DEPTH_BORDER[Math.min(depth, 2)];
+
+  const handleEdit = async () => {
+    if (!editContent.trim()) return;
+    setSaving(true);
+    try {
+      await forumApi.updateComment(comment.id, { content: editContent.trim() });
+      setEditing(false);
+      onUpdated?.();
+    } catch {
+      toast.error(t('comment.editFailed'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(t('comment.deleteConfirm'))) return;
+    try {
+      await forumApi.deleteComment(comment.id);
+      onUpdated?.();
+    } catch {
+      toast.error(t('comment.deleteFailed'));
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(comment.content);
+    setEditing(false);
+  };
 
   return (
     <div className={cn('flex flex-col', depth === 0 && 'group')}>
@@ -72,9 +112,28 @@ export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: Comme
           )}
 
           {/* Content */}
-          <p className="text-sm text-foreground/85 leading-relaxed whitespace-pre-wrap break-words">
-            {comment.content}
-          </p>
+          {editing ? (
+            <div className="flex flex-col gap-2 mt-1">
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="min-h-[80px] text-sm"
+                disabled={saving}
+              />
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={handleEdit} disabled={saving}>
+                  {saving ? t('settings.saving') : t('save')}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleCancelEdit} disabled={saving}>
+                  {t('cancel')}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-foreground/85 leading-relaxed whitespace-pre-wrap break-words">
+              {comment.content}
+            </p>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-4 mt-2">
@@ -90,6 +149,22 @@ export function CommentItem({ comment, onReply, depth = 0, postAuthorId }: Comme
                 <Icon icon="mdi:thumb-up-outline" width={12} />
                 {formatCount(comment.likeCount)}
               </span>
+            )}
+            {isOwn && !editing && (
+              <div className="flex items-center gap-1 ml-auto">
+                <button
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-primary transition-colors cursor-pointer font-medium"
+                >
+                  <Icon icon="mdi:pencil-outline" width={14} />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-red-500 transition-colors cursor-pointer font-medium"
+                >
+                  <Icon icon="mdi:delete-outline" width={14} />
+                </button>
+              </div>
             )}
           </div>
         </div>

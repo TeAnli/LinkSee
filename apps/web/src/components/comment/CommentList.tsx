@@ -10,10 +10,11 @@ interface CommentListProps {
   hasMore: boolean;
   onLoadMore: () => void;
   onReply: (commentId: number, userId: number, nickname: string) => void;
+  onUpdated?: () => void;
   postAuthorId?: number;
 }
 
-export function CommentList({ comments, loading, hasMore, onLoadMore, onReply, postAuthorId }: CommentListProps) {
+export function CommentList({ comments, loading, hasMore, onLoadMore, onReply, onUpdated, postAuthorId }: CommentListProps) {
   const { t } = useTranslation();
 
   if (loading && comments.length === 0) {
@@ -38,7 +39,7 @@ export function CommentList({ comments, loading, hasMore, onLoadMore, onReply, p
       {comments.map((comment, index) => (
         <div key={comment.id}>
           {index > 0 && <Separator className="my-1" />}
-          <CommentItem comment={comment} onReply={onReply} postAuthorId={postAuthorId} />
+          <CommentItem comment={comment} onReply={onReply} onUpdated={onUpdated} postAuthorId={postAuthorId} />
         </div>
       ))}
       {hasMore && (

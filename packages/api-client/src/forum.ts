@@ -46,6 +46,15 @@ export const forumApi = {
       data,
     ),
 
+  updateComment: (commentId: number, data: { content: string }) =>
+    apiClient.put<ApiResponse<{ id: number; content: string; updatedAt: string }>>(
+      `/forum/comment/${commentId}`,
+      data,
+    ),
+
+  deleteComment: (commentId: number) =>
+    apiClient.delete<ApiResponse<null>>(`/forum/comment/${commentId}`),
+
   toggleLike: (postId: number) =>
     apiClient.post<ApiResponse<ToggleResponse>>(`/forum/post/${postId}/like`),
 

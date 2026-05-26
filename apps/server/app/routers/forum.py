@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_current_user, get_current_user_optional
 from app.models.user import SysUser
-from app.schemas.forum import CommentCreateRequest, PostCreateRequest, PostUpdateRequest
+from app.schemas.forum import CommentCreateRequest, CommentUpdateRequest, PostCreateRequest, PostUpdateRequest
 from app.services import forum_service
 from app.utils import ok
 
@@ -105,6 +105,17 @@ async def list_comments(
 async def delete_comment(comment_id: int, user: SysUser = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     await forum_service.delete_comment(db, comment_id, user.id)
     return ok(None, "评论已删除")
+
+
+@router.put("/comment/{comment_id}")
+async def update_comment(
+    comment_id: int,
+    req: CommentUpdateRequest,
+    user: SysUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await forum_service.update_comment(db, comment_id, user.id, req.content)
+    return ok(data, "评论已更新")
 
 
 # === Interactions ===

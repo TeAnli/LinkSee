@@ -171,6 +171,9 @@ export default {
     newest: '最新',
     hottest: '最热',
     oldest: '最早',
+    deleteConfirm: '确定要删除该评论吗？',
+    editFailed: '编辑评论失败',
+    deleteFailed: '删除评论失败',
   },
 
   // ===== Create Post =====

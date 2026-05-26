@@ -145,6 +145,10 @@ class CommentCreateRequest(BaseModel):
     replyUserId: int | None = None
 
 
+class CommentUpdateRequest(BaseModel):
+    content: str = Field(min_length=1, max_length=2000)
+
+
 class ReplyTo(BaseModel):
     userId: int
     nickname: str

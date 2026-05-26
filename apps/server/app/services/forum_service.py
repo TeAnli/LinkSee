@@ -386,6 +386,17 @@ async def delete_comment(db: AsyncSession, comment_id: int, user_id: int):
     await db.flush()
 
 
+async def update_comment(db: AsyncSession, comment_id: int, user_id: int, content: str) -> dict:
+    comment = await db.get(ForumComment, comment_id)
+    if not comment or comment.deleted:
+        raise AppException(ERR_POST_NOT_FOUND, "评论不存在", 404)
+    if comment.user_id != user_id:
+        raise AppException(ERR_NO_EDIT_PERMISSION, "无权编辑", 403)
+    comment.content = content
+    await db.flush()
+    return {"id": comment.id, "content": comment.content, "updatedAt": comment.updated_at.isoformat() if comment.updated_at else None}
+
+
 async def toggle_like(db: AsyncSession, user_id: int, post_id: int) -> dict:
     post = await db.get(ForumPost, post_id)
     if not post or post.deleted:
