@@ -29,6 +29,16 @@ class Settings(BaseSettings):
     github_client_id: str = ""
     github_client_secret: str = ""
     github_redirect_uri: str = ""
+    llm_provider: str = "openai"
+    llm_api_key: str = ""
+    llm_base_url: str = ""
+    llm_model: str = "gpt-4o"
+    llm_embedding_model: str = "text-embedding-3-small"
+    llm_temperature: float = 0.7
+    llm_max_tokens: int = 4096
+    llm_timeout: int = 30
+    agent_max_iterations: int = 5
+    agent_conversation_ttl: int = 3600
 
     @property
     def allowed_origins_list(self) -> list[str]:
