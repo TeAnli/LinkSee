@@ -33,8 +33,8 @@ export function LoginPage() {
     setLoading(true);
     try {
       const res = await authApi.login(form);
-      const { userInfo, token } = res.data.data;
-      login(userInfo, token);
+      const { userInfo, token, refreshToken } = res.data.data;
+      login(userInfo, token, refreshToken);
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const msg =

@@ -39,8 +39,8 @@ export function OAuthCallbackPage() {
           code,
           state,
         });
-        const { userInfo, token } = res.data.data;
-        login(userInfo, token);
+        const { userInfo, token, refreshToken } = res.data.data;
+        login(userInfo, token, refreshToken);
         navigate('/', { replace: true });
       } catch (err: unknown) {
         const msg =

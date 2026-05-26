@@ -122,14 +122,13 @@ export function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await authApi.register(form);
-      const { token } = res.data.data;
+      await authApi.register(form);
       const loginRes = await authApi.login({
         username: form.username,
         password: form.password,
       });
-      const { userInfo } = loginRes.data.data;
-      login(userInfo, token);
+      const { userInfo, token, refreshToken } = loginRes.data.data;
+      login(userInfo, token, refreshToken);
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const msg =
