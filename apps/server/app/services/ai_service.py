@@ -22,12 +22,16 @@ async def consume_quota(db: AsyncSession, user: SysUser):
     await db.flush()
 
 
-async def record_task(db: AsyncSession, user_id: int, task_type: str, input_summary: str, output_content: str, model: str = "mock", status: int = 1):
+async def record_task(
+    db: AsyncSession, user_id: int, task_type: str, input_summary: str,
+    output_content: str, model: str = "mock", status: int = 1,
+    tokens_input: int = 0, tokens_output: int = 0, response_ms: int = 0,
+):
     from app.models.ai_task import AiTaskRecord
     task = AiTaskRecord(
         user_id=user_id, task_type=task_type, input_summary=input_summary,
         output_content=output_content, model_used=model, status=status,
-        tokens_input=0, tokens_output=0, response_ms=0,
+        tokens_input=tokens_input, tokens_output=tokens_output, response_ms=response_ms,
     )
     db.add(task)
     await db.flush()

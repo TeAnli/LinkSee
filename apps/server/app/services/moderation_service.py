@@ -39,26 +39,33 @@ def _dfa_check(title: str, content: str) -> tuple[bool, list[str]]:
     return len(found) > 0, found
 
 
-def _ai_moderate(title: str, content: str) -> tuple[float, str, str]:
+async def _ai_moderate(title: str, content: str, db: AsyncSession | None = None) -> tuple[float, str, str]:
     """
-    AI 深度审核（mock 实现）。
+    AI 深度审核。
 
     返回 (置信度, 违规类型, 理由)
     置信度越高表示内容越安全（0=违规, 1=完全通过）
     """
-    # 模拟：有极小概率检测到违规
-    roll = random.random()
-    if roll < 0.05:
-        # 5% 概率判违规
-        violation_types = ["广告/垃圾信息", "人身攻击", "色情低俗", "政治敏感"]
-        vt = random.choice(violation_types)
-        return (round(random.uniform(0.1, 0.45), 2), vt, f"检测到{violation_types}内容")
-    elif roll < 0.15:
-        # 10% 概率判疑似
-        return (round(random.uniform(0.5, 0.75), 2), "", "内容包含疑似违规表述，建议人工复审")
-    else:
-        # 85% 概率通过
-        return (round(random.uniform(0.85, 0.99), 2), "", "")
+    from app.config import settings
+
+    if settings.ai_mock_enabled:
+        roll = random.random()
+        if roll < 0.05:
+            violation_types = ["广告/垃圾信息", "人身攻击", "色情低俗", "政治敏感"]
+            vt = random.choice(violation_types)
+            return (round(random.uniform(0.1, 0.45), 2), vt, f"检测到{violation_types}内容")
+        elif roll < 0.15:
+            return (round(random.uniform(0.5, 0.75), 2), "", "内容包含疑似违规表述，建议人工复审")
+        else:
+            return (round(random.uniform(0.85, 0.99), 2), "", "")
+
+    # 使用真实 LLM
+    from app.services.ai.agent.forum_agent import ForumAgent
+    from app.services.ai.providers.factory import ProviderFactory
+
+    provider = ProviderFactory.create(settings)
+    agent = ForumAgent(provider, db)
+    return await agent.moderate(title, content)
 
 
 async def moderate_post(db: AsyncSession, post_id: int) -> dict:
@@ -90,7 +97,7 @@ async def moderate_post(db: AsyncSession, post_id: int) -> dict:
         return {"action": "reject", "reason": f"内容包含敏感词: {', '.join(hit_words[:5])}", "violationType": ",".join(hit_words[:5])}
 
     # Step 2: AI 深度审核
-    confidence, violation_type, reason = _ai_moderate(post.title, post.content)
+    confidence, violation_type, reason = await _ai_moderate(post.title, post.content, db)
 
     if confidence >= 0.8:
         # 通过
