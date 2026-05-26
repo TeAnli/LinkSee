@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:server\"",
     "dev:web": "pnpm --filter @linksee/web dev",
-    "dev:server": "cd apps/server && bash scripts/start.sh",
+    "dev:server": "cd apps/server && node -e \"var e=require('child_process').execSync;var c=process.platform==='win32'?'cmd /c scripts\\\\start.bat':'bash scripts/start.sh';e(c,{stdio:'inherit'})\"",
     "dev:ws": "cd apps/ws-server && gradlew.bat bootRun",
     "build": "pnpm --filter ./packages/** build && pnpm --filter ./apps/** build",
     "build:web": "pnpm --filter ./apps/** build",

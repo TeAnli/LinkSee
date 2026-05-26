@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+export PYTHONIOENCODING=utf-8
+export LC_CTYPE=en_US.UTF-8
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR/.."
 

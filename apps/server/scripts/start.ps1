@@ -1,4 +1,7 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+$env:PYTHONIOENCODING = "utf-8"
 Set-Location "$PSScriptRoot\.."
 
 if (-not (Test-Path ".env")) {
@@ -17,6 +20,7 @@ uv sync
 
 Write-Host ":: 运行数据库迁移..."
 uv run alembic upgrade head
+
 if ($LASTEXITCODE -ne 0) {
     Write-Host ":: 迁移失败，请检查数据库连接"
 }
