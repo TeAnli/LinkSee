@@ -8,6 +8,9 @@ from app.constants import (
     ERR_CONTENT_SENSITIVE,
     ERR_NO_EDIT_PERMISSION,
     ERR_POST_NOT_FOUND,
+    PENALTY_AI,
+    PENALTY_DFA,
+    PENALTY_MANUAL,
     POST_STATUS_PUBLISHED,
     POST_STATUS_REVIEWING,
     POST_STATUS_SCHEDULED,
@@ -253,6 +256,17 @@ async def update_post(db: AsyncSession, post_id: int, user_id: int, req: PostUpd
                 action="reject",
             )
             db.add(log)
+
+            from app.services.violation_service import record_violation
+            from app.constants import PENALTY_DFA
+            await record_violation(
+                db, user_id, "post", post_id,
+                violation_type="dfa",
+                violation_category=",".join(hit_words[:3]),
+                penalty_points=PENALTY_DFA,
+                reason=f"编辑后 DFA 敏感词命中: {','.join(hit_words[:5])}",
+            )
+
             await db.flush()
 
     return {"postId": post_id}
@@ -333,7 +347,32 @@ async def create_comment(db: AsyncSession, post_id: int, user_id: int, content: 
     dfa = get_filter()
     hit_words = [w for _, _, w in dfa.find_all(content)]
     if hit_words:
-        raise AppException(ERR_CONTENT_SENSITIVE, f"评论内容包含敏感词，无法发布")
+        # 创建评论但标记为违规，记录违规并通知
+        comment = ForumComment(post_id=post_id, user_id=user_id, content=content, parent_id=parent_id, status=0)
+        db.add(comment)
+        post.comment_count = (post.comment_count or 0) + 1
+
+        log = AiModerationLog(
+            content_id=comment.id,
+            content_type="comment",
+            result=POST_STATUS_VIOLATION,
+            violation_type=",".join(hit_words[:5]),
+            confidence=1.0,
+            action="reject",
+        )
+        db.add(log)
+
+        from app.services.violation_service import record_violation
+        await record_violation(
+            db, user_id, "comment", comment.id,
+            violation_type="dfa",
+            violation_category=",".join(hit_words[:3]),
+            penalty_points=PENALTY_DFA,
+            reason=f"DFA 敏感词命中: {','.join(hit_words[:5])}",
+        )
+
+        await db.flush()
+        raise AppException(ERR_CONTENT_SENSITIVE, "评论内容包含敏感词，无法发布")
 
     comment = ForumComment(post_id=post_id, user_id=user_id, content=content, parent_id=parent_id)
     db.add(comment)
@@ -437,6 +476,17 @@ async def update_comment(db: AsyncSession, comment_id: int, user_id: int, conten
             action="reject",
         )
         db.add(log)
+
+        from app.services.violation_service import record_violation
+        from app.constants import PENALTY_DFA
+        await record_violation(
+            db, user_id, "comment", comment_id,
+            violation_type="dfa",
+            violation_category=",".join(hit_words[:3]),
+            penalty_points=PENALTY_DFA,
+            reason=f"编辑后 DFA 敏感词命中: {','.join(hit_words[:5])}",
+        )
+
         await db.flush()
 
     return {"id": comment.id, "content": comment.content, "updatedAt": comment.updated_at.isoformat() if comment.updated_at else None}
@@ -600,6 +650,8 @@ async def publish_scheduled_posts(db: AsyncSession) -> int:
     posts = result.scalars().all()
 
     from app.services.sensitive_word import get_filter
+    from app.services.violation_service import record_violation
+    from app.constants import PENALTY_DFA
     dfa = get_filter()
 
     count = 0
@@ -616,6 +668,13 @@ async def publish_scheduled_posts(db: AsyncSession) -> int:
                 action="reject",
             )
             db.add(log)
+            await record_violation(
+                db, post.author_id, "post", post.id,
+                violation_type="dfa",
+                violation_category=",".join(hit_words[:3]),
+                penalty_points=PENALTY_DFA,
+                reason=f"定时发布 DFA 敏感词命中: {','.join(hit_words[:5])}",
+            )
         else:
             post.status = POST_STATUS_PUBLISHED
             post.published_at = now

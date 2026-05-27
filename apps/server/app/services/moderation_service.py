@@ -23,9 +23,13 @@ from app.constants import (
     POST_STATUS_PUBLISHED,
     POST_STATUS_REVIEWING,
     POST_STATUS_VIOLATION,
+    PENALTY_AI,
+    PENALTY_DFA,
+    PENALTY_MANUAL,
 )
 from app.exceptions import AppException
 from app.models.ai_moderation import AiModerationLog
+from app.models.message import MessageNotice
 from app.models.post import ForumPost
 from app.services.sensitive_word import get_filter
 
@@ -82,17 +86,32 @@ async def moderate_post(db: AsyncSession, post_id: int) -> dict:
     # Step 1: DFA 敏感词检查
     dfa_hit, hit_words = _dfa_check(post.title, post.content)
     if dfa_hit:
-        # 直接违规
         post.status = POST_STATUS_VIOLATION
         log = AiModerationLog(
             content_id=post_id,
             content_type="post",
-            result=3,         # 违规
+            result=3,
             violation_type=",".join(hit_words[:5]),
-            confidence=1.0,   # DFA 命中置信度 100%
+            confidence=1.0,
             action="reject",
         )
         db.add(log)
+
+        # 记录违规
+        from app.services.violation_service import record_violation
+        await record_violation(
+            db, post.author_id, "post", post_id,
+            violation_type="dfa",
+            violation_category=",".join(hit_words[:3]),
+            penalty_points=PENALTY_DFA,
+            reason=f"DFA 敏感词命中: {','.join(hit_words[:5])}",
+        )
+
+        # 通知作者
+        _send_moderation_notice(db, post.author_id, "帖子审核结果",
+                                f"您的帖子「{post.title[:30]}」因包含敏感词未通过审核",
+                                post_id)
+
         await db.flush()
         return {"action": "reject", "reason": f"内容包含敏感词: {', '.join(hit_words[:5])}", "violationType": ",".join(hit_words[:5])}
 
@@ -100,15 +119,12 @@ async def moderate_post(db: AsyncSession, post_id: int) -> dict:
     confidence, violation_type, reason = await _ai_moderate(post.title, post.content, db)
 
     if confidence >= 0.8:
-        # 通过
         post.status = POST_STATUS_PUBLISHED
         action = "pass"
     elif confidence >= 0.5:
-        # 疑似，需人工复审
         post.status = POST_STATUS_REVIEWING
         action = "review"
     else:
-        # 违规
         post.status = POST_STATUS_VIOLATION
         action = "reject"
 
@@ -121,6 +137,25 @@ async def moderate_post(db: AsyncSession, post_id: int) -> dict:
         action=action,
     )
     db.add(log)
+
+    if action == "reject":
+        # 记录违规
+        from app.services.violation_service import record_violation
+        await record_violation(
+            db, post.author_id, "post", post_id,
+            violation_type="ai",
+            violation_category=violation_type,
+            penalty_points=PENALTY_AI,
+            reason=reason,
+        )
+        _send_moderation_notice(db, post.author_id, "帖子审核结果",
+                                f"您的帖子「{post.title[:30]}」未通过 AI 审核：{reason}",
+                                post_id)
+    elif action == "pass":
+        _send_moderation_notice(db, post.author_id, "帖子审核结果",
+                                f"您的帖子「{post.title[:30]}」已通过审核并发布",
+                                post_id)
+
     await db.flush()
 
     return {
@@ -139,6 +174,9 @@ async def manual_approve(db: AsyncSession, post_id: int, admin_id: int) -> dict:
         raise AppException(40401, "帖子不存在", 404)
 
     post.status = POST_STATUS_PUBLISHED
+    _send_moderation_notice(db, post.author_id, "帖子审核结果",
+                            f"您的帖子「{post.title[:30]}」经人工审核已通过并发布",
+                            post_id)
     await db.flush()
     return {"action": "approved", "postId": post_id}
 
@@ -159,5 +197,33 @@ async def manual_reject(db: AsyncSession, post_id: int, admin_id: int, reason: s
         action="reject",
     )
     db.add(log)
+
+    # 记录违规
+    from app.services.violation_service import record_violation
+    await record_violation(
+        db, post.author_id, "post", post_id,
+        violation_type="manual",
+        violation_category="manual_reject",
+        penalty_points=PENALTY_MANUAL,
+        moderator_id=admin_id,
+        reason=reason,
+    )
+
+    _send_moderation_notice(db, post.author_id, "帖子审核结果",
+                            f"您的帖子「{post.title[:30]}」经人工审核被拒绝" + (f"：{reason}" if reason else ""),
+                            post_id)
+
     await db.flush()
     return {"action": "rejected", "postId": post_id, "reason": reason}
+
+
+def _send_moderation_notice(db: AsyncSession, receiver_id: int, title: str, content: str, related_id: int):
+    """发送审核通知"""
+    notice = MessageNotice(
+        receiver_id=receiver_id,
+        type="system",
+        title=title,
+        content=content,
+        related_id=related_id,
+    )
+    db.add(notice)
