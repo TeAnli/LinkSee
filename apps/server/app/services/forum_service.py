@@ -599,10 +599,26 @@ async def publish_scheduled_posts(db: AsyncSession) -> int:
     result = await db.execute(stmt)
     posts = result.scalars().all()
 
+    from app.services.sensitive_word import get_filter
+    dfa = get_filter()
+
     count = 0
     for post in posts:
-        post.status = POST_STATUS_PUBLISHED
-        post.published_at = now
+        hit_words = [w for _, _, w in dfa.find_all(post.title)] + [w for _, _, w in dfa.find_all(post.content)]
+        if hit_words:
+            post.status = POST_STATUS_VIOLATION
+            log = AiModerationLog(
+                content_id=post.id,
+                content_type="post",
+                result=POST_STATUS_VIOLATION,
+                violation_type=",".join(hit_words[:5]),
+                confidence=1.0,
+                action="reject",
+            )
+            db.add(log)
+        else:
+            post.status = POST_STATUS_PUBLISHED
+            post.published_at = now
         count += 1
 
     if count > 0:
