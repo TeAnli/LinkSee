@@ -7,6 +7,8 @@ import type {
   AiUsageStats,
   AiTaskLogItem,
   SensitiveWordItem,
+  ViolationRecordItem,
+  ViolationSummary,
   UserStatusRequest,
   RoleUpdateRequest,
   PostModerateRequest,
@@ -15,11 +17,13 @@ import type {
   SensitiveWordAddRequest,
   SensitiveWordDeleteRequest,
   SensitiveWordRawRequest,
+  LiftPenaltyRequest,
   AdminUserListParams,
   AdminPostListParams,
   AdminCategoryListParams,
   AiTaskLogParams,
   SensitiveWordListParams,
+  ViolationListParams,
 } from "@linksee/shared";
 import type { ApiResponse, PaginatedResponse } from "@linksee/shared";
 
@@ -38,6 +42,15 @@ export const adminApi = {
 
   updateUserRoles: (userId: number, req: RoleUpdateRequest) =>
     apiClient.put<ApiResponse<null>>(`/admin/users/${userId}/roles`, req),
+
+  getUserViolations: (userId: number, params?: ViolationListParams) =>
+    apiClient.get<ApiResponse<{ summary: ViolationSummary } & PaginatedResponse<ViolationRecordItem>>>(
+      `/admin/users/${userId}/violations`,
+      { params },
+    ),
+
+  liftPenalty: (userId: number, req?: LiftPenaltyRequest) =>
+    apiClient.post<ApiResponse<null>>(`/admin/users/${userId}/lift-penalty`, req || {}),
 
   listPosts: (params?: AdminPostListParams) =>
     apiClient.get<ApiResponse<PaginatedResponse<AdminPostItem>>>(

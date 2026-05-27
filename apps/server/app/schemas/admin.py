@@ -70,3 +70,7 @@ class SensitiveWordDeleteRequest(BaseModel):
 
 class SensitiveWordRawRequest(BaseModel):
     raw: str
+
+
+class LiftPenaltyRequest(BaseModel):
+    reason: str = ""

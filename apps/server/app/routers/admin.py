@@ -6,6 +6,7 @@ from app.dependencies import require_admin
 from app.models.user import SysUser
 from app.schemas.admin import (
     CategoryManageRequest,
+    LiftPenaltyRequest,
     PostFeatureRequest,
     PostModerateRequest,
     RoleUpdateRequest,
@@ -63,6 +64,32 @@ async def update_user_roles(
 ):
     await admin_service.update_user_roles(db, user_id, req.roles)
     return ok(None, "角色已更新")
+
+
+@router.get("/users/{user_id}/violations")
+async def get_user_violations(
+    user_id: int,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    from app.services.violation_service import get_user_violation_summary, get_user_violations
+    summary = await get_user_violation_summary(db, user_id)
+    records = await get_user_violations(db, user_id, page, size)
+    return ok({"summary": summary, **records})
+
+
+@router.post("/users/{user_id}/lift-penalty")
+async def lift_user_penalty(
+    user_id: int,
+    req: LiftPenaltyRequest = None,
+    db: AsyncSession = Depends(get_db),
+    user: SysUser = _admin_dep,
+):
+    from app.services.violation_service import lift_penalty
+    result = await lift_penalty(db, user_id)
+    return ok(result, "处罚已解除")
 
 
 @router.get("/posts")

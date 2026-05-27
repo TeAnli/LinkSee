@@ -185,3 +185,32 @@ export interface SensitiveWordDeleteRequest {
 export interface SensitiveWordRawRequest {
   raw: string;
 }
+
+export interface ViolationRecordItem {
+  id: number;
+  contentType: string;
+  contentId: number;
+  violationType: string;
+  violationCategory: string;
+  penaltyPoints: number;
+  actionTaken: string;
+  moderatorId: number | null;
+  reason: string;
+  createdAt: string | null;
+}
+
+export interface ViolationSummary {
+  totalViolations: number;
+  recentViolations: number;
+  currentStatus: number;
+  muteUntil: string | null;
+}
+
+export interface ViolationListParams {
+  page?: number;
+  size?: number;
+}
+
+export interface LiftPenaltyRequest {
+  reason?: string;
+}
