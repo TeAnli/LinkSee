@@ -236,6 +236,25 @@ async def update_post(db: AsyncSession, post_id: int, user_id: int, req: PostUpd
         await db.execute(stmt)
         await db.flush()
 
+        # DFA 敏感词重审
+        from app.services.sensitive_word import get_filter
+        dfa = get_filter()
+        new_title = req.title if req.title is not None else post.title
+        new_content = req.content if req.content is not None else post.content
+        hit_words = [w for _, _, w in dfa.find_all(new_title)] + [w for _, _, w in dfa.find_all(new_content)]
+        if hit_words:
+            post.status = POST_STATUS_VIOLATION
+            log = AiModerationLog(
+                content_id=post_id,
+                content_type="post",
+                result=POST_STATUS_VIOLATION,
+                violation_type=",".join(hit_words[:5]),
+                confidence=1.0,
+                action="reject",
+            )
+            db.add(log)
+            await db.flush()
+
     return {"postId": post_id}
 
 
@@ -402,6 +421,24 @@ async def update_comment(db: AsyncSession, comment_id: int, user_id: int, conten
         raise AppException(ERR_NO_EDIT_PERMISSION, "无权编辑", 403)
     comment.content = content
     await db.flush()
+
+    # DFA 敏感词重审
+    from app.services.sensitive_word import get_filter
+    dfa = get_filter()
+    hit_words = [w for _, _, w in dfa.find_all(content)]
+    if hit_words:
+        comment.status = 0
+        log = AiModerationLog(
+            content_id=comment_id,
+            content_type="comment",
+            result=POST_STATUS_VIOLATION,
+            violation_type=",".join(hit_words[:5]),
+            confidence=1.0,
+            action="reject",
+        )
+        db.add(log)
+        await db.flush()
+
     return {"id": comment.id, "content": comment.content, "updatedAt": comment.updated_at.isoformat() if comment.updated_at else None}
 
 
