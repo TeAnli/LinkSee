@@ -11,6 +11,7 @@ from app.constants import (
     POST_STATUS_PUBLISHED,
     POST_STATUS_REVIEWING,
     POST_STATUS_SCHEDULED,
+    POST_STATUS_VIOLATION,
 )
 from app.exceptions import AppException
 from app.models.ai_moderation import AiModerationLog
@@ -307,6 +308,13 @@ async def create_comment(db: AsyncSession, post_id: int, user_id: int, content: 
     post = await db.get(ForumPost, post_id)
     if not post or post.deleted:
         raise AppException(ERR_POST_NOT_FOUND, "帖子不存在", 404)
+
+    # DFA 敏感词检查
+    from app.services.sensitive_word import get_filter
+    dfa = get_filter()
+    hit_words = [w for _, _, w in dfa.find_all(content)]
+    if hit_words:
+        raise AppException(ERR_CONTENT_SENSITIVE, f"评论内容包含敏感词，无法发布")
 
     comment = ForumComment(post_id=post_id, user_id=user_id, content=content, parent_id=parent_id)
     db.add(comment)
