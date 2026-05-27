@@ -13,6 +13,7 @@ from app.models.ai_task import AiTaskRecord
 from app.models.ai_moderation import AiModerationLog
 from app.models.ai_chat import AiChatSession, AiChatMessage
 from app.models.message import MessageNotice
+from app.models.user_violation import UserViolationRecord
 
 __all__ = [
     "Base",
@@ -32,4 +33,5 @@ __all__ = [
     "AiChatSession",
     "AiChatMessage",
     "MessageNotice",
+    "UserViolationRecord",
 ]

@@ -21,6 +21,7 @@ class SysUser(Base):
     daily_ai_calls: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     status: Mapped[int] = mapped_column(SmallInteger, default=1, nullable=False)
     last_login_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(timezone=True))
+    mute_until: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     deleted: Mapped[int] = mapped_column(SmallInteger, default=0, nullable=False)
