@@ -1,0 +1,35 @@
+{% extends "email/base.html" %}
+{% block content %}
+
+<h2 style="color:#2D2A3D;font-size:18px;font-weight:800;margin:0 0 8px 0;">欢迎加入 LinkSee！</h2>
+<p style="color:#2D2A3D;font-size:14px;font-weight:600;line-height:1.7;margin:0 0 20px 0;">
+Hi <span style="color:#7C3AED;">{{ username }}</span>，
+</p>
+<p style="color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.7;margin:0 0 24px 0;">
+感谢注册 LinkSee 灵犀社区！我们是一个以 AI 赋能创作的知识分享平台，期待你的精彩内容。
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="padding:8px 0;color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.6;">
+<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#7C3AED;margin-right:10px;vertical-align:middle;"></span>发布帖子分享你的知识见解
+</td></tr>
+<tr><td style="padding:8px 0;color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.6;">
+<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#7C3AED;margin-right:10px;vertical-align:middle;"></span>使用 AI 创作助手提升内容质量
+</td></tr>
+<tr><td style="padding:8px 0;color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.6;">
+<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#7C3AED;margin-right:10px;vertical-align:middle;"></span>与社区成员互动交流碰撞思想
+</td></tr>
+<tr><td style="padding:8px 0;color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.6;">
+<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#7C3AED;margin-right:10px;vertical-align:middle;"></span>积累经验值解锁更多平台权益
+</td></tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+<tr>
+<td align="center">
+<a href="{{ frontend_url }}" style="display:inline-block;height:44px;line-height:44px;padding:0 40px;background-color:#7C3AED;color:#FFFFFF;text-decoration:none;border-radius:18px;font-size:14px;font-weight:700;border:1.5px solid #7C3AED;box-shadow:3px 3px 0px #5b21b6;">开始探索</a>
+</td>
+</tr>
+</table>
+
+{% endblock %}

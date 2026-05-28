@@ -1,0 +1,36 @@
+{% extends "email/base.html" %}
+{% block content %}
+
+{% if code_type == "reset-password" %}
+<h2 style="color:#2D2A3D;font-size:18px;font-weight:800;margin:0 0 8px 0;">密码重置验证</h2>
+<p style="color:#7A7590;font-size:14px;font-weight:500;line-height:1.6;margin:0 0 24px 0;">
+你正在申请重置 LinkSee 账号的登录密码，请使用以下验证码完成操作：
+</p>
+{% else %}
+<h2 style="color:#2D2A3D;font-size:18px;font-weight:800;margin:0 0 8px 0;">邮箱验证</h2>
+<p style="color:#7A7590;font-size:14px;font-weight:500;line-height:1.6;margin:0 0 24px 0;">
+感谢注册 LinkSee！请使用以下验证码完成邮箱验证：
+</p>
+{% endif %}
+
+<!-- OTP-style code display -->
+<table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+{% for ch in code %}
+<td align="center" style="width:48px;height:48px;font-size:18px;font-weight:800;color:#2D2A3D;border:2px solid #E2DEDA;background-color:#FFFFFF;{% if loop.first %}border-radius:18px 0 0 18px;{% elif loop.last %}border-radius:0 18px 18px 0;{% endif %}{% if not loop.first %}border-left:none;{% endif %}box-shadow:3px 3px 0px #E2DEDA;">
+{{ ch }}
+</td>
+{% endfor %}
+</tr>
+</table>
+
+<p style="color:#7A7590;font-size:13px;font-weight:500;line-height:1.5;margin:0 0 6px 0;">
+验证码有效期 <strong style="color:#2D2A3D;">{{ expire_minutes }}</strong> 分钟，请勿泄露给他人。
+</p>
+{% if code_type == "reset-password" %}
+<p style="color:#7A7590;font-size:13px;font-weight:500;line-height:1.5;margin:0;">
+如非本人操作，请忽略此邮件并检查账号安全。
+</p>
+{% endif %}
+
+{% endblock %}

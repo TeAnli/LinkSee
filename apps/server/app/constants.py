@@ -1,44 +1,76 @@
-# Error codes — matching API.md Appendix A
-ERR_SUCCESS = 0
-ERR_BAD_REQUEST = 40000
-ERR_USERNAME_EXISTS = 40001
-ERR_EMAIL_EXISTS = 40002
+# ============================================================
+# Error codes
+# ============================================================
 
-ERR_CAPTCHA_INVALID = 40004
+ERR_SUCCESS = 0
+
+# --- 通用 ---
+ERR_BAD_REQUEST = 40000
+ERR_NOT_FOUND = 40401
+ERR_INTERNAL = 50000
+ERR_THIRD_PARTY_TIMEOUT = 50001
+ERR_THIRD_PARTY_UNAVAILABLE = 50002
+
+# --- 认证 & 账号 ---
 ERR_USER_NOT_FOUND = 40010
 ERR_PASSWORD_WRONG = 40011
 ERR_ACCOUNT_DISABLED = 40012
-ERR_CAPTCHA_WRONG = 40013
 ERR_ACCOUNT_LOCKED = 40014
+ERR_ACCOUNT_ABNORMAL = 40103
+ERR_NOT_LOGGED_IN = 40100
+ERR_PERMISSION_DENIED = 40102
+ERR_REFRESH_INVALID = 40020
+ERR_REFRESH_EXPIRED = 40021
+
+# --- 注册 ---
+ERR_USERNAME_EXISTS = 40001
+ERR_EMAIL_EXISTS = 40002
+ERR_CAPTCHA_INVALID = 40004
+ERR_CAPTCHA_WRONG = 40013
+
+# --- 邮箱 ---
 ERR_EMAIL_CODE_SEND_FAILED = 40030
 ERR_EMAIL_CODE_RATE_LIMIT = 40031
 ERR_EMAIL_CODE_INVALID = 40032
-ERR_REFRESH_INVALID = 40020
-ERR_REFRESH_EXPIRED = 40021
-ERR_NOT_LOGGED_IN = 40100
-ERR_ALREADY_CHECKED_IN = 40101
-ERR_PERMISSION_DENIED = 40102
-ERR_ACCOUNT_ABNORMAL = 40103
-ERR_CATEGORY_NOT_FOUND = 40201
-ERR_CONTENT_SENSITIVE = 40202
-ERR_POST_RATE_LIMIT = 40203
-ERR_NO_EDIT_PERMISSION = 40210
-ERR_POST_NOT_FOUND = 40211
-ERR_AI_QUOTA_EXHAUSTED = 40301
-ERR_AI_UNAVAILABLE = 40302
-ERR_LEVEL_INSUFFICIENT = 40303
-ERR_NOT_FOUND = 40401
-ERR_INTERNAL = 50000
+
+# --- OAuth ---
 ERR_OAUTH_PROVIDER_INVALID = 40040
 ERR_OAUTH_STATE_INVALID = 40041
 ERR_OAUTH_ALREADY_BOUND = 40042
 ERR_OAUTH_NOT_BOUND = 40043
 ERR_OAUTH_MISSING_EMAIL = 40044
 ERR_OAUTH_TOKEN_FAILED = 40045
-ERR_THIRD_PARTY_TIMEOUT = 50001
-ERR_THIRD_PARTY_UNAVAILABLE = 50002
 
-# Level config
+# --- 论坛 ---
+ERR_CATEGORY_NOT_FOUND = 40201
+ERR_CONTENT_SENSITIVE = 40202
+ERR_POST_RATE_LIMIT = 40203
+ERR_NO_EDIT_PERMISSION = 40210
+ERR_POST_NOT_FOUND = 40211
+
+# --- AI ---
+ERR_AI_QUOTA_EXHAUSTED = 40301
+ERR_AI_UNAVAILABLE = 40302
+ERR_LEVEL_INSUFFICIENT = 40303
+
+# --- 签到 ---
+ERR_ALREADY_CHECKED_IN = 40101
+
+
+# ============================================================
+# User
+# ============================================================
+
+USER_STATUS_DISABLED = 0
+USER_STATUS_NORMAL = 1
+USER_STATUS_MUTED = 2
+
+ROLE_USER = "user"
+ROLE_VERIFIED = "verified"
+ROLE_MODERATOR = "moderator"
+ROLE_ADMIN = "admin"
+ROLE_SUPER_ADMIN = "super_admin"
+
 LEVEL_CONFIG = {
     1: {"name": "萌新小白", "exp": 0, "daily_ai": 3, "icon": "🌱"},
     2: {"name": "活跃新人", "exp": 100, "daily_ai": 5, "icon": "🌿"},
@@ -48,25 +80,27 @@ LEVEL_CONFIG = {
     6: {"name": "社区领袖", "exp": 10000, "daily_ai": 0, "icon": "👑"},
 }
 
-# Post status
+
+# ============================================================
+# Forum
+# ============================================================
+
 POST_STATUS_DRAFT = 0
 POST_STATUS_PUBLISHED = 1
 POST_STATUS_REVIEWING = 2
 POST_STATUS_VIOLATION = 3
 POST_STATUS_SCHEDULED = 4
 
-# User status
-USER_STATUS_DISABLED = 0
-USER_STATUS_NORMAL = 1
-USER_STATUS_MUTED = 2
 
-# AI task status
+# ============================================================
+# AI
+# ============================================================
+
 AI_TASK_PROCESSING = 0
 AI_TASK_SUCCESS = 1
 AI_TASK_FAIL = 2
 AI_TASK_TIMEOUT = 3
 
-# AI task types
 AI_TASK_TYPES = [
     "TITLE_GENERATE", "OUTLINE_ASSIST", "POLISH_OPTIMIZE",
     "CONTINUE_WRITE", "TRANSLATE", "SUMMARY_EXTRACT",
@@ -74,7 +108,11 @@ AI_TASK_TYPES = [
     "CONTENT_MODERATION", "AUTO_SUMMARY",
 ]
 
+
+# ============================================================
 # Points
+# ============================================================
+
 POINTS_POST = 10
 POINTS_COMMENT = 2
 POINTS_LIKE_OTHERS = 1
@@ -91,21 +129,17 @@ POINTS_100_FOLLOWERS = 100
 POINTS_POST_DELETED = -20
 POINTS_COMMENT_REPORTED = -5
 
-# Violation escalation thresholds
+
+# ============================================================
+# Violation / Moderation
+# ============================================================
+
 VIOLATION_WARN_THRESHOLD = 1
 VIOLATION_MUTE_24H_THRESHOLD = 3
 VIOLATION_MUTE_7D_THRESHOLD = 5
 VIOLATION_BAN_THRESHOLD = 7
 VIOLATION_WINDOW_DAYS = 30
 
-# Penalty points per violation type
 PENALTY_DFA = 2
 PENALTY_AI = 1
 PENALTY_MANUAL = 3
-
-# Role codes
-ROLE_USER = "user"
-ROLE_VERIFIED = "verified"
-ROLE_MODERATOR = "moderator"
-ROLE_ADMIN = "admin"
-ROLE_SUPER_ADMIN = "super_admin"

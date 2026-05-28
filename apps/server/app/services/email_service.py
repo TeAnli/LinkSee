@@ -1,12 +1,10 @@
 import asyncio
 import random
 import string
-from email.mime.text import MIMEText
-
-import aiosmtplib
 
 from app.config import settings
 from app.redis import redis_client
+from app.services.email_template_service import render_template, send_email_direct
 
 
 async def send_email_code(to_email: str, code_type: str = "register") -> str:
@@ -21,39 +19,15 @@ async def send_email_code(to_email: str, code_type: str = "register") -> str:
     rate_key = f"email_code_rate:{to_email}"
     await redis_client.setex(rate_key, settings.email_code_rate_limit_seconds, "1")
 
-    if settings.smtp_username and settings.smtp_password:
-        if code_type == "reset-password":
-            subject = "LinkSee 密码重置验证码"
-            body = (
-                f"<html><body>"
-                f"<h2>LinkSee 密码重置</h2>"
-                f"<p>您正在重置密码，验证码为：<strong>{code}</strong></p>"
-                f"<p>有效期 {settings.email_code_expire_seconds // 60} 分钟，请勿泄露给他人。</p>"
-                f"<p>如非本人操作，请忽略此邮件。</p>"
-                f"</body></html>"
-            )
-        else:
-            subject = "LinkSee 邮箱验证码"
-            body = (
-                f"<html><body>"
-                f"<h2>LinkSee 邮箱验证码</h2>"
-                f"<p>您的验证码是：<strong>{code}</strong></p>"
-                f"<p>有效期 {settings.email_code_expire_seconds // 60} 分钟，请勿泄露给他人。</p>"
-                f"</body></html>"
-            )
-        msg = MIMEText(body, "html", "utf-8")
-        msg["Subject"] = subject
-        msg["From"] = settings.smtp_from_email or settings.smtp_username
-        msg["To"] = to_email
+    subject = "LinkSee 密码重置验证码" if code_type == "reset-password" else "LinkSee 邮箱验证码"
+    body = render_template("verification_code",
+        code=code,
+        code_type=code_type,
+        expire_minutes=settings.email_code_expire_seconds // 60,
+    )
 
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.smtp_host,
-            port=settings.smtp_port,
-            username=settings.smtp_username,
-            password=settings.smtp_password,
-            use_tls=settings.smtp_use_tls,
-        )
+    if settings.smtp_username and settings.smtp_password:
+        await send_email_direct(to_email, subject, body)
     else:
         print(f"[DEV] Email code ({code_type}) for {to_email}: {code}")
 

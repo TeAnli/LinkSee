@@ -1,0 +1,35 @@
+{% extends "email/base.html" %}
+{% block content %}
+
+<h2 style="color:#2D2A3D;font-size:18px;font-weight:800;margin:0 0 6px 0;">你有新的动态</h2>
+<p style="color:#7A7590;font-size:13px;font-weight:500;margin:0 0 24px 0;">来自 LinkSee 灵犀社区</p>
+
+<p style="color:#2D2A3D;font-size:14px;font-weight:500;line-height:1.7;margin:0 0 16px 0;">
+Hi <span style="color:#7C3AED;font-weight:700;">{{ username }}</span>，你有 <strong>{{ unread_count }}</strong> 条未读消息：
+</p>
+
+{% if notifications %}
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border:1.5px solid #E2DEDA;border-radius:14px;overflow:hidden;">
+{% for item in notifications %}
+<tr>
+<td style="padding:14px 16px;{% if not loop.last %}border-bottom:1px solid #F0EDE8;{% endif %}">
+<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:#FF6B6B;margin-right:8px;vertical-align:middle;"></span>
+<span style="color:#2D2A3D;font-size:14px;font-weight:700;">{{ item.title }}</span>
+<span style="color:#7A7590;font-size:12px;font-weight:500;float:right;">{{ item.time }}</span>
+<br>
+<span style="color:#7A7590;font-size:13px;font-weight:500;">{{ item.content }}</span>
+</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
+<a href="{{ frontend_url }}/messages" style="display:inline-block;height:44px;line-height:44px;padding:0 40px;background-color:#7C3AED;color:#FFFFFF;text-decoration:none;border-radius:18px;font-size:14px;font-weight:700;border:1.5px solid #7C3AED;box-shadow:3px 3px 0px #5b21b6;">查看全部消息</a>
+</td>
+</tr>
+</table>
+
+{% endblock %}

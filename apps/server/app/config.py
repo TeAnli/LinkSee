@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from_email: str = ""
     smtp_use_tls: bool = True
+    smtp_from_name: str = "LinkSee"
     email_code_expire_seconds: int = 60
     email_code_rate_limit_seconds: int = 300
     password_reset_token_expire_seconds: int = 60

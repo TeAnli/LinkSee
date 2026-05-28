@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#FFFEFA;font-family:'Nunito','PingFang SC','Microsoft YaHei',system-ui,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFFEFA;padding:48px 0;">
+<tr>
+<td align="center">
+
+<!-- Logo -->
+<table width="400" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+<td align="center">
+<table cellpadding="0" cellspacing="0" style="background-color:#7C3AED;border-radius:14px;width:44px;height:44px;border:1.5px solid #7C3AED;box-shadow:3px 3px 0px #5b21b6;">
+<tr><td align="center" style="color:#FFFFFF;font-size:22px;font-weight:700;line-height:44px;">✦</td></tr>
+</table>
+<p style="color:#2D2A3D;font-size:20px;font-weight:800;margin:12px 0 0 0;letter-spacing:-0.5px;">LinkSee 灵犀</p>
+</td>
+</tr>
+</table>
+
+<!-- Card -->
+<table width="400" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF;border-radius:18px;overflow:hidden;border:1.5px solid #E2DEDA;box-shadow:3px 3px 0px #E2DEDA;">
+<tr>
+<td style="padding:32px 32px 28px 32px;">
+{% block content %}{% endblock %}
+</td>
+</tr>
+<!-- Footer -->
+<tr>
+<td style="padding:18px 32px;background-color:#FAF8F4;border-top:1.5px solid #E2DEDA;text-align:center;">
+<p style="color:#7A7590;font-size:12px;font-weight:500;margin:0 0 6px 0;">
+此邮件由 LinkSee 系统自动发送，请勿回复
+</p>
+<p style="color:#7A7590;font-size:12px;font-weight:500;margin:0;">
+访问 <a href="{{ frontend_url }}" style="color:#7C3AED;text-decoration:none;font-weight:700;">LinkSee 灵犀</a>
+</p>
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+</body>
+</html>
